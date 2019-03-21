@@ -1,16 +1,17 @@
 package e.planet.musicman;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.renderscript.Sampler;
 import android.renderscript.ScriptGroup;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +32,22 @@ public class mainActivity extends Activity implements AdapterView.OnItemClickLis
     int MY_PERMISSIONS_REQUEST_READ_CONTACTS;
     private ListView lv;
     private TextView songDisplay;
+
+    private BroadcastReceiver brcv;
+
+    private void registerReceiver() {
+        brcv = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int dur = intent.getIntExtra("dur",0);
+                int pos = intent.getIntExtra("pos",0);
+                Log.v(LOG_TAG,"CUSTOM BROADCAST RECEIVER CALLED Received: " + dur + " " + pos);
+                updateUi(dur,pos);
+            }
+        };
+        registerReceiver(brcv, new IntentFilter("com.musicman.NEWSONG"));
+    }
+
     protected void onCreate(Bundle savedInstanceState)
     {
         Log.v(LOG_TAG,"onCreate Called");
@@ -46,28 +63,38 @@ public class mainActivity extends Activity implements AdapterView.OnItemClickLis
             @Override
             public void onClick(View v) {
                 Button btn = findViewById(R.id.buttonPlay);
-                player.pauseResume(btn);
+                if (player != null) {
+                    player.pauseResume(btn);
+                    updateUi(player.player.getDuration(), player.player.getCurrentPosition());
+                }
             }
         };
         prevbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                player.previous();
-                player.setSongDisplay(songDisplay);
+                if (player != null) {
+                    player.previous();
+                    player.setSongDisplay(songDisplay);
+                    updateUi(player.player.getDuration(), player.player.getCurrentPosition());
+                }
             }
         };
         nexbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                player.next();
-                player.setSongDisplay(songDisplay);
+                if (player != null) {
+                    player.next();
+                    player.setSongDisplay(songDisplay);
+                    updateUi(player.player.getDuration(), player.player.getCurrentPosition());
+                }
             }
         };
         shufbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Button btn = findViewById(R.id.buttonShuff);
-                player.enableShuffle(btn);
+                if (player != null)
+                    player.enableShuffle(btn);
             }
         };
         Button playbtn = findViewById(R.id.buttonPlay);
@@ -84,6 +111,8 @@ public class mainActivity extends Activity implements AdapterView.OnItemClickLis
         ListView listview = (ListView) findViewById(R.id.listView1);
         listview.setOnItemClickListener(this);
         songDisplay = findViewById(R.id.songDisplay);
+
+        registerReceiver();
     }
     protected void onStart()
     {
@@ -103,6 +132,7 @@ public class mainActivity extends Activity implements AdapterView.OnItemClickLis
     protected void onStop()
     {
         super.onStop();
+        Log.v(LOG_TAG,"ONSTOP CALLED");
     }
     protected void onRestart()
     {
@@ -111,14 +141,22 @@ public class mainActivity extends Activity implements AdapterView.OnItemClickLis
     protected void onDestroy()
     {
         super.onDestroy();
+        Log.v(LOG_TAG,"ONDESTROY CALLED");
+        animator.cancel();
         stopplayer();
+        if(brcv != null) {
+            unregisterReceiver(brcv);
+        }
     }
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
         Log.v(LOG_TAG, "You clicked Item: " + id + " at position:" + position);
         // Then you start a new Activity via Intent
         Button btn = findViewById(R.id.buttonPlay);
-        player.play(safeLongToInt(id),btn);
-        player.setSongDisplay(songDisplay);
+        if (player != null) {
+            player.play(safeLongToInt(id), btn);
+            player.setSongDisplay(songDisplay);
+            updateUi(player.player.getDuration(), player.player.getCurrentPosition());
+        }
     }
     //My Code
     //Globals
@@ -132,6 +170,9 @@ public class mainActivity extends Activity implements AdapterView.OnItemClickLis
     View.OnClickListener prevbutton_click;
     View.OnClickListener nexbutton_click;
     View.OnClickListener shufbutton_click;
+
+    ValueAnimator animator;
+    long timepassed;
 
     List<String> validExtensions = new ArrayList<String>();
 
@@ -156,8 +197,9 @@ public class mainActivity extends Activity implements AdapterView.OnItemClickLis
             ArrayList<String> sngNames = getNames(daSongs);
             ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, sngNames );
             lv.setAdapter(arrayAdapter);
-            player.init(daSongs.toArray(new File[daSongs.size()]),daSongs.size() - 1);
+            player.init(daSongs.toArray(new File[daSongs.size()]),daSongs.size());
             player.setSongDisplay(songDisplay);
+
         }
         else
         {
@@ -165,7 +207,39 @@ public class mainActivity extends Activity implements AdapterView.OnItemClickLis
             //System.exit(1);
         }
     }
+    public void updateUi(int dur, int pos)
+    {
+        Log.v(LOG_TAG,"UPDATE UI, DUR: " + dur + " POS: " + pos + " ISPLAYING: " + player.player.isPlaying());
+        final ProgressBar pb = findViewById(R.id.songDurBar);
+        animator = ValueAnimator.ofInt(0,dur);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                    Log.v(LOG_TAG,"Animated Value: " + animation.getAnimatedValue());
+                    double proc = 0;
+                    double dur = animation.getDuration();
+                    double pos = (Integer)animation.getAnimatedValue();
+                    if (pos > 0)
+                        proc = (pos / dur) * 100;
+                    Log.v(LOG_TAG,"Setting Value: " + proc + " Dur: " + dur + " Pos: " + pos);
+                    if (player != null && player.player != null) {
+                        if (player.player.isPlaying())
+                            pb.setProgress(safeDoubleToInt(proc));
+                    }
+            }
+        });
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+            }
+        });
 
+        animator.setDuration(dur);
+        animator.setCurrentPlayTime(pos);
+        animator.start();
+        player.setSongDisplay(songDisplay);
+    }
     private void setExtensions()
     {
         validExtensions.add(".mp3");
@@ -187,7 +261,7 @@ public class mainActivity extends Activity implements AdapterView.OnItemClickLis
                     }
                 } else if (validExtensions.contains(getFileExtension(file))) {
                     fileList.add(file);
-                    Log.v(LOG_TAG,"Found File: " + file.getName());
+                    Log.v(LOG_TAG,"Found File: " + file.getAbsolutePath());
                 }
             }
             return fileList;
@@ -247,6 +321,13 @@ public class mainActivity extends Activity implements AdapterView.OnItemClickLis
         stopService(intent);
     }
     public static int safeLongToInt(long l) {
+        if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException
+                    (l + " cannot be cast to int without changing its value.");
+        }
+        return (int) l;
+    }
+    public static int safeDoubleToInt(double l) {
         if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
             throw new IllegalArgumentException
                     (l + " cannot be cast to int without changing its value.");
