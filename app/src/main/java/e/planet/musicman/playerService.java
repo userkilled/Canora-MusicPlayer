@@ -1,17 +1,21 @@
 package e.planet.musicman;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.TextView;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class playerService extends Service {
     //Callbacks
@@ -25,13 +29,15 @@ public class playerService extends Service {
     }
     public void onCreate()
     {
-        player = MediaPlayer.create(this,R.raw.music);
         Arrays.fill(songHistory,-1);
     }
     public void onDestroy()
     {
-        player.stop();
-        player.release();
+        if (player != null)
+        {
+            player.stop();
+            player.release();
+        }
     }
     //Custom Code
 
@@ -39,7 +45,7 @@ public class playerService extends Service {
     MediaPlayer player;
     int position; //Position of Playing Song in Miliseconds
 
-    File[] songs = new File[1000]; //Song Files SortedBeforehand by a Map
+    File[] songs; //Song Files SortedBeforehand by a Map
 
     int songPos; //Index of currently Playing Song
     int songCount; //Number of Songs Added
@@ -59,30 +65,46 @@ public class playerService extends Service {
     public void init(File[] files, int c)
     {
         Log.v(LOG_TAG,"Init called");
-        songs = files;
-        songCount = c;
+        if (files != null) {
+            songs = files;
+            songCount = c;
+        }
+        else
+        {
+            Log.v(LOG_TAG,"Files are Null");
+        }
     }
-    public void play(int id)
+    public void play(int id, Button btn)
     {
-        Log.v(LOG_TAG,"Setting up Song: " + songs[id].getName());
+        boolean pisp = false;
+        position = 0;
         if (player != null)
-        {
-            player.stop();
-            player.release();
+            pisp = player.isPlaying();
+        if (songs[id] != null && songs[id].exists()) {
+            Log.v(LOG_TAG, "Setting up Song: " + songs[id].getName());
+            if (player != null) {
+                player.stop();
+                player.release();
+            }
+            player = MediaPlayer.create(this, Uri.parse(songs[id].getAbsolutePath()));
+            songPos = id;
+            handleHistory(true);
+            setListener();
+            if (!pisp)
+                btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+            player.start();
         }
-        player = MediaPlayer.create(this, Uri.parse(songs[id].getAbsolutePath()));
-        handleHistory(true);
-        setListener();
-        songPos = id;
     }
-    public void pauseResume()
+    public void pauseResume(Button btn)
     {
-        if (player.isPlaying())
-        {
-            pause();
-        }
-        else {
-            resume();
+        if (player != null) {
+            if (player.isPlaying()) {
+                btn.getBackground().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+                pause();
+            } else {
+                btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                resume();
+            }
         }
     }
     public void pause()
@@ -107,17 +129,28 @@ public class playerService extends Service {
     public void next()
     {
         Log.v(LOG_TAG,"Next");
+        position = 0;
+        boolean pisp = false;
+        if (player != null)
+            pisp = player.isPlaying();
         if (shuffle)
         {
             player.stop();
             player.release();
+            List<Integer> tmp = new ArrayList<Integer>();
+            for (int i : songHistory)
+            {
+                tmp.add(i);
+            }
             songPos = rand.nextInt(songCount);
-
-
+            while(tmp.contains(songPos))
+                songPos = rand.nextInt(songCount);
             player = MediaPlayer.create(getBaseContext(), Uri.parse(songs[songPos].getAbsolutePath()));
             handleHistory(true);
             Log.v(LOG_TAG,"Playing: " + songs[songPos].getName());
-            player.start();
+            if (pisp)
+                player.start();
+            setListener();
         }
         else
         {
@@ -133,24 +166,55 @@ public class playerService extends Service {
             player = MediaPlayer.create(getBaseContext(), Uri.parse(songs[songPos].getAbsolutePath()));
             handleHistory(true);
             Log.v(LOG_TAG,"Playing: " + songs[songPos].getName());
-            player.start();
+            if (pisp)
+                player.start();
+            setListener();
         }
     }
     public void previous()
     {
-        if (songHistory[0] != -1)
+        boolean pisp = false;
+        position = 0;
+        if (player != null)
+            pisp = player.isPlaying();
+        if (songHistory[1] != -1)
         {
             player.stop();
             player.release();
             handleHistory(false);
             player = MediaPlayer.create(getBaseContext(),Uri.parse(songs[songHistory[0]].getAbsolutePath()));
-            Log.v(LOG_TAG,"Playing: " + songs[songHistory[0]].getName());
-            player.start();
             songPos = songHistory[0];
+            Log.v(LOG_TAG,"Playing: " + songs[songHistory[0]].getName());
+            if (pisp)
+                player.start();
+            setListener();
         }
+    }
+    public void enableShuffle(Button btn)
+    {
+        if (shuffle) {
+            btn.getBackground().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+            shuffle = false;
+        }
+        else
+        {
+            btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+            shuffle = true;
+        }
+    }
+    public void setSongDisplay(TextView txt)
+    {
+        String txts = songs[songPos].getName();
+        if (txts.length() > 39)
+        {
+            txts = txts.substring(0,36);
+            txts += "...";
+        }
+        txt.setText(txts);
     }
     public void handleHistory(boolean add)
     {
+        Log.v(LOG_TAG,"SongPos: " + songPos);
         if (add) {
             songHistory[5] = songHistory[4];
             songHistory[4] = songHistory[3];
@@ -163,6 +227,7 @@ public class playerService extends Service {
         {
             songHistory[0] = songHistory[1];
             songHistory[1] = songHistory[2];
+            songHistory[2] = songHistory[3];
             songHistory[3] = songHistory[4];
             songHistory[4] = songHistory[5];
             songHistory[5] = -1;
@@ -203,8 +268,13 @@ public class playerService extends Service {
                     player = MediaPlayer.create(getBaseContext(), Uri.parse(songs[songPos].getAbsolutePath()));
                     player.start();
                 }
+                setVolume(0.5f);
             }
         });
+    }
+    public void setVolume(float vol)
+    {
+        player.setVolume(vol,vol);
     }
 
     //Binder
