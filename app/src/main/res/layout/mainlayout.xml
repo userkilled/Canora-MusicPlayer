@@ -1,54 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-    <ListView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/listView1"
-              android:layout_alignParentStart="true" android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
-              android:layout_marginTop="50dp"></ListView>
+                android:layout_height="wrap_content" xmlns:app="http://schemas.android.com/apk/res-auto" app:layout_behavior="@string/appbar_scrolling_view_behavior" android:background="@color/colorPrimary">
+
+    <android.support.v7.widget.Toolbar
+            android:id="@+id/my_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/colorPrimary"/>
+    <ListView android:layout_width="match_parent" android:id="@+id/listView1"
+              android:layout_alignParentStart="true"
+              android:layout_alignParentLeft="false"
+              android:layout_alignBottom="@id/buttonShuff" android:layout_height="wrap_content" android:layout_marginTop="50dp"></ListView>
+
     <TextView android:layout_width="match_parent" android:layout_height="50dp" android:id="@+id/songDisplay"
-              android:textColor="@color/black" android:textSize="20sp"
+              android:textColor="@color/white" android:textSize="20sp"
               android:padding="10dp"
-              android:layout_alignParentTop="true" android:background="@drawable/textview_border"
-              android:layout_alignParentStart="true" android:layout_alignParentLeft="true"/>
+              android:backgroundTint="@color/colorPrimary"
+              android:background="@drawable/textview_border"
+              android:layout_alignParentEnd="true" android:layout_above="@+id/buttonPrev"
+              android:layout_alignParentRight="false"/>
     <Button
             android:id="@+id/buttonPrev"
             android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:text="Prev"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:textColor="@color/white"
-            android:backgroundTint="@color/colorPrimary"/>
+            android:backgroundTint="@color/colorBtns"/>
     <Button
             android:id="@+id/buttonNex"
             android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:text="Next"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:textColor="@color/white"
-            android:backgroundTint="@color/colorPrimary"/>
+            android:backgroundTint="@color/colorBtns"/>
     <Button
             android:id="@+id/buttonPlay"
             android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:text="Play"
             android:textColor="@color/white"/>
+    <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/songDurBar" android:max="100"
+            android:layout_above="@+id/songDisplay" android:layout_toEndOf="@+id/buttonPrev"/>
     <Button
             android:text="Shuffle"
             android:textColor="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:id="@+id/buttonShuff" android:layout_above="@+id/buttonPrev"
-            android:layout_alignLeft="@+id/buttonNex" android:layout_alignParentEnd="true" android:layout_alignParentRight="true"/>
-    <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:id="@+id/songDurBar" android:layout_alignTop="@+id/listView1" android:max="100"/>
+            android:id="@+id/buttonShuff" android:layout_above="@+id/songDurBar"
+            android:layout_alignParentEnd="true"/>
+    <TextView
+            android:id="@+id/digitDisp"
+            android:layout_width="100dp"
+            android:layout_height="15dp" android:layout_alignParentStart="true"
+            android:textColor="@color/white"
+            android:textSize="15dp"
+            android:paddingLeft="5dp"
+            android:includeFontPadding="false"
+            android:layout_above="@+id/songDisplay"/>
 </RelativeLayout>

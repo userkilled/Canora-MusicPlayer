@@ -28,18 +28,17 @@ public class playerService extends Service {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
-    public void onStartCommand()
-    {
+
+    public void onStartCommand() {
 
     }
-    public void onCreate()
-    {
-        Arrays.fill(songHistory,-1);
+
+    public void onCreate() {
+        Arrays.fill(songHistory, -1);
     }
-    public void onDestroy()
-    {
-        if (player != null)
-        {
+
+    public void onDestroy() {
+        if (player != null) {
             player.stop();
             player.release();
         }
@@ -68,21 +67,18 @@ public class playerService extends Service {
     Random rand = new Random();
 
     //Functions
-    public void init(File[] files, int c)
-    {
-        Log.v(LOG_TAG,"Init called, " + c + " Files Found.");
+    public void init(File[] files, int c) {
+        Log.v(LOG_TAG, "Init called, " + c + " Files Found.");
         if (files != null) {
             songs = files;
             songCount = c;
-        }
-        else
-        {
-            Log.v(LOG_TAG,"Files are Null");
+        } else {
+            Log.v(LOG_TAG, "Files are Null");
         }
         songPos = -1;
     }
-    public void play(int id, Button btn)
-    {
+
+    public void play(int id, Button btn) {
         boolean pisp = false;
         position = 0;
         if (player != null)
@@ -94,21 +90,18 @@ public class playerService extends Service {
                 player.reset();
                 player.release();
             }
-            player = MediaPlayer.create(this, Uri.parse(songs[id].getAbsolutePath()));
+            createPlayer(songs[id].getAbsolutePath());
             songPos = id;
             handleHistory(true);
             if (!pisp)
                 btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
-            player.start();
-            setListener();
-            setVolume(volume);
         }
     }
-    public void pauseResume(Button btn)
-    {
+
+    public void pauseResume(Button btn) {
         if (player != null) {
             if (player.isPlaying()) {
-                btn.getBackground().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+                btn.getBackground().setColorFilter(getResources().getColor(R.color.colorBtns), PorterDuff.Mode.MULTIPLY);
                 pause();
             } else {
                 btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
@@ -116,17 +109,17 @@ public class playerService extends Service {
             }
         }
     }
-    public void pause()
-    {
-        Log.v(LOG_TAG,"Pause");
+
+    public void pause() {
+        Log.v(LOG_TAG, "Pause");
         if (player != null) {
             player.pause();
             position = player.getCurrentPosition();
         }
     }
-    public void resume()
-    {
-        Log.v(LOG_TAG,"Resume");
+
+    public void resume() {
+        Log.v(LOG_TAG, "Resume");
         if (player != null) {
             if (position > 0) {
                 player.seekTo(position);
@@ -140,9 +133,9 @@ public class playerService extends Service {
             }
         }
     }
-    public void next()
-    {
-        Log.v(LOG_TAG,"Next");
+
+    public void next() {
+        Log.v(LOG_TAG, "Next");
         if (player != null) {
             position = 0;
             if (shuffle) {
@@ -156,62 +149,62 @@ public class playerService extends Service {
                 songPos = rand.nextInt(songCount - 1);
                 while (tmp.contains(songPos) && songCount > 5)
                     songPos = rand.nextInt(songCount - 1);
-                player = MediaPlayer.create(getBaseContext(), Uri.parse(songs[songPos].getAbsolutePath()));
+                createPlayer(songs[songPos].getAbsolutePath());
                 handleHistory(true);
                 Log.v(LOG_TAG, "Playing: " + songs[songPos].getName());
-                player.start();
-                setListener();
             } else {
+                player.stop();
+                player.reset();
+                player.release();
                 if (songPos < songCount - 1) {
                     songPos++;
                 } else {
                     songPos = 0;
                 }
-                player.stop();
-                player.reset();
-                player.release();
-                player = MediaPlayer.create(getBaseContext(), Uri.parse(songs[songPos].getAbsolutePath()));
+                createPlayer(songs[songPos].getAbsolutePath());
                 handleHistory(true);
                 Log.v(LOG_TAG, "Playing: " + songs[songPos].getName());
-                player.start();
-                setListener();
-                setVolume(volume);
             }
         }
     }
-    public void previous()
-    {
-        if (player != null)
-        {
-        position = 0;
-        if (songHistory[1] != -1) {
-            player.stop();
-            player.reset();
-            player.release();
-            handleHistory(false);
-            player = MediaPlayer.create(getBaseContext(), Uri.parse(songs[songHistory[0]].getAbsolutePath()));
-            songPos = songHistory[0];
-            Log.v(LOG_TAG, "Playing: " + songs[songHistory[0]].getName());
-            player.start();
-            setListener();
-            setVolume(volume);
-        }
+
+    public void previous() {
+        if (player != null) {
+            position = 0;
+            if (songHistory[1] != -1) {
+                player.stop();
+                player.reset();
+                player.release();
+                handleHistory(false);
+                createPlayer(songs[songHistory[0]].getAbsolutePath());
+                songPos = songHistory[0];
+                Log.v(LOG_TAG, "Playing: " + songs[songPos].getName());
+            } else  {
+                player.stop();
+                player.reset();
+                player.release();
+                if (songPos > 0) {
+                    songPos--;
+                } else {
+                    songPos = songCount - 1;
+                }
+                createPlayer(songs[songPos].getAbsolutePath());
+                Log.v(LOG_TAG, "Playing: " + songs[songPos].getName());
+            }
         }
     }
-    public void enableShuffle(Button btn)
-    {
+
+    public void enableShuffle(Button btn) {
         if (shuffle) {
-            btn.getBackground().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+            btn.getBackground().setColorFilter(getResources().getColor(R.color.colorBtns), PorterDuff.Mode.MULTIPLY);
             shuffle = false;
-        }
-        else
-        {
+        } else {
             btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
             shuffle = true;
         }
     }
-    public void broadcastNewSong()
-    {
+
+    public void broadcastNewSong() {
         if (player != null) {
             Intent in = new Intent("com.musicman.NEWSONG");
             Bundle extras = new Bundle();
@@ -221,21 +214,20 @@ public class playerService extends Service {
             sendBroadcast(in);
         }
     }
-    public void setSongDisplay(TextView txt)
-    {
+
+    public void setSongDisplay(TextView txt) {
         String txts = "";
         if (songPos != -1)
             txts = songs[songPos].getName();
-        if (txts.length() > 39)
-        {
-            txts = txts.substring(0,36);
+        if (txts.length() > 39) {
+            txts = txts.substring(0, 36);
             txts += "...";
         }
         txt.setText(txts);
     }
-    public void handleHistory(boolean add)
-    {
-        Log.v(LOG_TAG,"Handle History Called. SongPos: " + songPos);
+
+    public void handleHistory(boolean add) {
+        Log.v(LOG_TAG, "Handle History Called. SongPos: " + songPos);
         if (add) {
             songHistory[5] = songHistory[4];
             songHistory[4] = songHistory[3];
@@ -243,9 +235,7 @@ public class playerService extends Service {
             songHistory[2] = songHistory[1];
             songHistory[1] = songHistory[0];
             songHistory[0] = songPos;
-        }
-        else
-        {
+        } else {
             songHistory[0] = songHistory[1];
             songHistory[1] = songHistory[2];
             songHistory[2] = songHistory[3];
@@ -253,46 +243,47 @@ public class playerService extends Service {
             songHistory[4] = songHistory[5];
             songHistory[5] = -1;
         }
-        Log.v(LOG_TAG,"Song History: " + songHistory[0] + " " + songHistory[1] + " " + songHistory[2] + " " + songHistory[3] + " " + songHistory[4] + " " + songHistory[5]);
+        Log.v(LOG_TAG, "Song History: " + songHistory[0] + " " + songHistory[1] + " " + songHistory[2] + " " + songHistory[3] + " " + songHistory[4] + " " + songHistory[5]);
+    }
+
+    public void createPlayer(String songP) {
+        player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
+        player.start();
+        setVolume(volume);
+        setListener();
     }
 
     //CompletionListener
-    public void setListener()
-    {
-        Log.v(LOG_TAG,"setListener Called.");
+    public void setListener() {
+        Log.v(LOG_TAG, "setListener Called.");
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                Log.v(LOG_TAG,"Completion Listener Called.");
-                if (repeatSong)
-                {
+                Log.v(LOG_TAG, "Completion Listener Called.");
+                if (repeatSong) {
                     player.stop();
                     player.seekTo(0);
                     player.start();
                     setListener();
                     broadcastNewSong();
-                }
-                else
-                {
+                } else {
                     next();
                     broadcastNewSong();
                 }
-                setVolume(volume);
             }
         });
     }
-    public void setVolume(float vol)
-    {
+
+    public void setVolume(float vol) {
         volume = vol;
-        player.setVolume(vol,vol);
+        player.setVolume(vol, vol);
     }
 
     //Binder
     private final IBinder mBinder = new LocalBinder();
-    public class LocalBinder extends Binder
-    {
-        playerService getService()
-        {
+
+    public class LocalBinder extends Binder {
+        playerService getService() {
             return playerService.this;
         }
     }
