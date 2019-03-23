@@ -18,6 +18,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
@@ -40,32 +42,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextView songDisplay;
 
     private BroadcastReceiver brcv;
-
-    private void registerReceiver() {
-        brcv = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals("com.musicman.NEWSONG")) {
-                    int dur = intent.getIntExtra("dur", 0);
-                    int pos = intent.getIntExtra("pos", 0);
-                    Log.v(LOG_TAG, "com.musicman.NEWSONG Received: " + dur + " " + pos);
-                    updateUi(dur, pos);
-                } else if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
-                    Log.v(LOG_TAG, "ACTION_AUDIO_BECOMING_NOISY Received.");
-                    Button btn = findViewById(R.id.buttonPlay);
-                    if (player != null) {
-                        player.pauseResume(btn);
-                        updateUi(player.player.getDuration(), player.player.getCurrentPosition());
-                    }
-                }
-            }
-        };
-        IntentFilter flt = new IntentFilter();
-        flt.addAction("com.musicman.NEWSONG");
-        flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
-        registerReceiver(brcv, flt);
-    }
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(LOG_TAG, "onCreate Called");
         super.onCreate(savedInstanceState);
@@ -137,15 +114,15 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         registerReceiver();
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
+        /*Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        //setSupportActionBar(myToolbar);
         myToolbar.setTitleTextColor(getResources().getColor(R.color.white));
-        myToolbar.showOverflowMenu();
+        myToolbar.showOverflowMenu();*/
 
-        ProgressBar pb = findViewById(R.id.songDurBar);
-        pb.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.green), android.graphics.PorterDuff.Mode.MULTIPLY);
+        /*ProgressBar pb = findViewById(R.id.songDurBar);
+        pb.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.green), android.graphics.PorterDuff.Mode.MULTIPLY);*/
     }
-
+    @Override
     protected void onStart() {
         //NOTE: Gets called Multiple Times
         super.onStart();
@@ -154,16 +131,16 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             updateUi(player.player.getDuration(), player.player.getCurrentPosition());
         }
     }
-
+    @Override
     protected void onResume() {
         super.onResume();
         //TODO: Add New Files on Resume
     }
-
+    @Override
     protected void onPause() {
         super.onPause();
     }
-
+    @Override
     protected void onStop() {
         super.onStop();
         Log.v(LOG_TAG, "ONSTOP CALLED");
@@ -171,11 +148,11 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             animator.cancel();
         }
     }
-
+    @Override
     protected void onRestart() {
         super.onRestart();
     }
-
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.v(LOG_TAG, "ONDESTROY CALLED");
@@ -184,7 +161,30 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             unregisterReceiver(brcv);
         }
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                // User chose the "Settings" item, show the app settings UI...
+                Log.v(LOG_TAG,"Settings Pressed.");
+                Intent myIntent = new Intent(mainActivity.this, settingsActivity.class);
+                mainActivity.this.startActivity(myIntent);
+                return true;
 
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
         Log.v(LOG_TAG, "You clicked Item: " + id + " at position:" + position);
         // Then you start a new Activity via Intent
@@ -359,6 +359,30 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         Intent intent = new Intent(this, playerService.class);
         unbindService(mConnection);
         stopService(intent);
+    }
+    private void registerReceiver() {
+        brcv = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals("com.musicman.NEWSONG")) {
+                    int dur = intent.getIntExtra("dur", 0);
+                    int pos = intent.getIntExtra("pos", 0);
+                    Log.v(LOG_TAG, "com.musicman.NEWSONG Received: " + dur + " " + pos);
+                    updateUi(dur, pos);
+                } else if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
+                    Log.v(LOG_TAG, "ACTION_AUDIO_BECOMING_NOISY Received.");
+                    Button btn = findViewById(R.id.buttonPlay);
+                    if (player != null) {
+                        player.pauseResume(btn);
+                        updateUi(player.player.getDuration(), player.player.getCurrentPosition());
+                    }
+                }
+            }
+        };
+        IntentFilter flt = new IntentFilter();
+        flt.addAction("com.musicman.NEWSONG");
+        flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        registerReceiver(brcv, flt);
     }
 
     public static int safeLongToInt(long l) {

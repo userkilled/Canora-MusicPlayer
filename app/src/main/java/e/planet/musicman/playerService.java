@@ -279,6 +279,11 @@ public class playerService extends Service {
         player.setVolume(vol, vol);
     }
 
+    public String getSongName()
+    {
+        return songs[songPos].getName();
+    }
+
     //Binder
     private final IBinder mBinder = new LocalBinder();
 
