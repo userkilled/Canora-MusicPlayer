@@ -1,7 +1,11 @@
 package e.planet.musicman;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.app.ActivityCompat;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -27,6 +31,7 @@ public class playerService extends Service {
 
     public void onCreate() {
         Arrays.fill(songHistory, -1);
+        registerReceiver();
     }
 
     public void onDestroy() {
@@ -35,10 +40,12 @@ public class playerService extends Service {
             player.release();
         }
     }
+
     //Globals
     MediaPlayer player;
     Random rand = new Random();
     private final IBinder mBinder = new LocalBinder();
+    private BroadcastReceiver brcv;
 
     /*The Player iterates over this Array of File handles depending on the Settings(Shuffle ,repeat)*/
     File[] songs; //Song Files in Sorted Form
@@ -193,6 +200,7 @@ public class playerService extends Service {
                 Log.v(LOG_TAG, "Playing: " + songs[songPos].getName());
             }
         }
+
     }
 
     public boolean enableShuffle() {
@@ -226,6 +234,13 @@ public class playerService extends Service {
             extras.putInt("dur", player.getDuration());
             extras.putInt("pos", player.getCurrentPosition());
             in.putExtras(extras);
+            sendBroadcast(in);
+        }
+    }
+
+    private void broadcast(String msg) {
+        if (player != null) {
+            Intent in = new Intent(msg);
             sendBroadcast(in);
         }
     }
@@ -275,5 +290,36 @@ public class playerService extends Service {
                 }
             }
         });
+    }
+
+    private void registerReceiver() {
+        brcv = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals("com.musicman.PLAYPAUSE")) {
+                    pauseResume();
+                    broadcastNewSong();
+                    if (player.isPlaying())
+                        broadcast("com.musicman.PLAYING");
+                    else
+                        broadcast("com.musicman.PAUSED");
+                } else if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
+                    pause();
+                    broadcast("com.musicman.PAUSED");
+                } else if (intent.getAction().equals("com.musicman.NEXT")) {
+                    next();
+                    broadcastNewSong();
+                } else if (intent.getAction().equals("com.musicman.PREV")) {
+                    previous();
+                    broadcastNewSong();
+                }
+            }
+        };
+        IntentFilter flt = new IntentFilter();
+        flt.addAction("com.musicman.PLAYPAUSE");
+        flt.addAction("com.musicman.NEXT");
+        flt.addAction("com.musicman.PREV");
+        flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        registerReceiver(brcv, flt);
     }
 }

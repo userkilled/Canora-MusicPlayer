@@ -2,14 +2,21 @@ package e.planet.musicman;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -247,6 +254,52 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         txt.setText(txts);
     }
 
+    public void createNotification()
+    {
+        Log.v(LOG_TAG,"Creating Notification");
+        Intent intent = new Intent(this, mainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        Intent play = new Intent("com.musicman.PLAYPAUSE");
+        PendingIntent pi = PendingIntent.getBroadcast(this,0,play,0);
+
+        Intent nex = new Intent("com.musicman.NEXT");
+        PendingIntent nexpi = PendingIntent.getBroadcast(this,0,nex,0);
+
+        Intent prev = new Intent("com.musicman.PREV");
+        PendingIntent prevpi = PendingIntent.getBroadcast(this,0,prev,0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "42")
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle("MusicMan Controls")
+                .setContentText("Control MusicMan")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .addAction(R.drawable.ic_launcher,"Prev",prevpi)
+                .addAction(R.drawable.ic_launcher,"Play/Pause",pi)
+                .addAction(R.drawable.ic_launcher,"Next",nexpi);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Log.v(LOG_TAG,"CREATING MANAGER");
+            CharSequence name = "MusicMan Control Channel";
+            String description = "Description";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("42", name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+        else {
+            Log.v(LOG_TAG, "BELOW 25");
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.notify(42, builder.build());
+        }
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(42, builder.build());
+
+    }
+
     public void setListeners() {
         playbutton_click = new View.OnClickListener() {
             @Override
@@ -381,6 +434,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         public void onServiceConnected(ComponentName className, IBinder service) {
             player = ((playerService.LocalBinder) service).getService();
             initPlayer();
+            createNotification();
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -420,10 +474,22 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                         updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
                     }
                 }
+                else if (intent.getAction().equals("com.musicman.PLAYING"))
+                {
+                    Button btn = findViewById(R.id.buttonPlay);
+                    btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                }
+                else if (intent.getAction().equals("com.musicman.PAUSED"))
+                {
+                    Button btn = findViewById(R.id.buttonPlay);
+                    btn.getBackground().setColorFilter(getResources().getColor(R.color.colorBtns), PorterDuff.Mode.MULTIPLY);
+                }
             }
         };
         IntentFilter flt = new IntentFilter();
         flt.addAction("com.musicman.NEWSONG");
+        flt.addAction("com.musicman.PLAYING");
+        flt.addAction("com.musicman.PAUSED");
         flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         registerReceiver(brcv, flt);
     }
