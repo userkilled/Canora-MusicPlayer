@@ -270,7 +270,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             txt = player.getSongName();
         Log.v(LOG_TAG,"Creating Notification");
         Intent intent = new Intent(this, mainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         Intent play = new Intent("com.musicman.PLAYPAUSE");

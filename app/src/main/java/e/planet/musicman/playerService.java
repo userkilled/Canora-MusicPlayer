@@ -234,6 +234,10 @@ public class playerService extends Service {
             extras.putInt("pos", player.getCurrentPosition());
             in.putExtras(extras);
             sendBroadcast(in);
+            if (player.isPlaying())
+                broadcast("com.musicman.PLAYING");
+            else
+                broadcast("com.musicman.PAUSED");
         }
     }
 
