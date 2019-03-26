@@ -231,6 +231,15 @@ public class playerService extends Service {
         else
             return "";
     }
+    public boolean getPlayerStatus()
+    {
+        if (player != null)
+        {
+            if (player.isPlaying())
+                return true;
+        }
+        return false;
+    }
 
     //Private Functions
     private void broadcastNewSong() {

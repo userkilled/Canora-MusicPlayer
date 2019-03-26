@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
+import android.media.session.MediaSession;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -18,6 +19,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -287,13 +289,16 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "42")
                 .setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("MusicMan Controls")
+                .setContentTitle("Currently Playing:")
                 .setContentText(txt)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
-                .addAction(R.drawable.ic_launcher,"Prev",prevpi)
-                .addAction(R.drawable.ic_launcher,"Play/Pause",pi)
-                .addAction(R.drawable.ic_launcher,"Next",nexpi);
+                .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
+                        .setShowActionsInCompactView(0,1,2)
+                        .setMediaSession(null))
+                .addAction(R.drawable.prevnav,"Prev",prevpi);
+                builder.addAction(R.drawable.playnav,"Play/Pause",pi);
+                builder.addAction(R.drawable.nextnav,"Next",nexpi);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Log.v(LOG_TAG,"CREATING MANAGER");
