@@ -15,7 +15,7 @@
             </intent-filter>
         </activity>
         <activity android:label="@string/app_name" android:name=".settingsActivity" android:configChanges="orientation"
-                  android:screenOrientation="portrait"/>
+                  android:screenOrientation="portrait" android:theme="@style/AppTheme"/>
         <service android:name="playerService"/>
     </application>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>

@@ -30,14 +30,21 @@ public class playerService extends Service {
     }
 
     public void onCreate() {
+        Log.v(LOG_TAG,"ONCREATE");
         Arrays.fill(songHistory, -1);
         registerReceiver();
     }
 
     public void onDestroy() {
+        Log.v(LOG_TAG,"ONDESTROY");
         if (player != null) {
             player.stop();
             player.release();
+        }
+        if (brcv != null)
+        {
+            unregisterReceiver(brcv);
+            brcv = null;
         }
     }
 
