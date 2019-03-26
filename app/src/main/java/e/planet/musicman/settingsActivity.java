@@ -43,7 +43,6 @@ public class settingsActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.v(LOG_TAG, "ONSTOP CALLED");
-        doUnbindService();
     }
 
     @Override
@@ -55,6 +54,8 @@ public class settingsActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.v(LOG_TAG, "ONDESTROY CALLED");
+        if (player != null)
+            doUnbindService();
     }
 
     //Custom Functions
@@ -81,7 +82,8 @@ public class settingsActivity extends AppCompatActivity {
     void init()
     {
         setContentView(R.layout.settingslayout);
-        doBindService();
+        if (player == null)
+            doBindService();
         final SeekBar sk=(SeekBar) findViewById(R.id.seekBar1);
         sk.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
