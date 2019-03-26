@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -46,6 +47,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             setExtensions();
             registerReceiver();
             setListeners();
+            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
+            getSupportActionBar().setIcon(R.drawable.ic_launcher);
         }
     }
 
@@ -296,7 +299,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             Log.v(LOG_TAG,"CREATING MANAGER");
             CharSequence name = "MusicMan Control Channel";
             String description = "Description";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            int importance = NotificationManager.IMPORTANCE_LOW;
             NotificationChannel channel = new NotificationChannel("42", name, importance);
             channel.setDescription(description);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
