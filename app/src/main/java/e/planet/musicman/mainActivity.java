@@ -57,6 +57,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (brcv != null) {
             unregisterReceiver(brcv);
         }
+        if (notificationManager != null)
+            notificationManager.cancelAll();
     }
 
     @Override
@@ -130,6 +132,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 btn.getBackground().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
             updateSongDisplay();
             updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
+            createNotification();
         }
     }
 
@@ -158,6 +161,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextView songDisplay;
 
     private BroadcastReceiver brcv;
+
+    NotificationManagerCompat notificationManager;
 
     ArrayList<File> daSongs = new ArrayList<>();
 
@@ -256,6 +261,13 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void createNotification()
     {
+        if (notificationManager == null)
+            notificationManager = NotificationManagerCompat.from(this);
+        else
+            notificationManager.cancelAll();
+        String txt = "";
+        if (player != null)
+            txt = player.getSongName();
         Log.v(LOG_TAG,"Creating Notification");
         Intent intent = new Intent(this, mainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -273,7 +285,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "42")
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle("MusicMan Controls")
-                .setContentText("Control MusicMan")
+                .setContentText(txt)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .addAction(R.drawable.ic_launcher,"Prev",prevpi)
@@ -295,9 +307,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
             notificationManager.notify(42, builder.build());
         }
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager = NotificationManagerCompat.from(this);
         notificationManager.notify(42, builder.build());
-
     }
 
     public void setListeners() {
@@ -324,6 +335,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     player.previous();
                     updateSongDisplay();
                     updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
+                    createNotification();
                     Button btn = findViewById(R.id.buttonPlay);
                     btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
                 }
@@ -336,6 +348,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     player.next();
                     updateSongDisplay();
                     updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
+                    createNotification();
                     Button btn = findViewById(R.id.buttonPlay);
                     btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
                 }
@@ -463,6 +476,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     int pos = intent.getIntExtra("pos", 0);
                     Log.v(LOG_TAG, "com.musicman.NEWSONG Received: " + dur + " " + pos);
                     updateDigits(dur, pos);
+                    createNotification();
                 } else if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
                     Log.v(LOG_TAG, "ACTION_AUDIO_BECOMING_NOISY Received.");
                     Button btn = findViewById(R.id.buttonPlay);
@@ -472,6 +486,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                         else
                             btn.getBackground().setColorFilter(getResources().getColor(R.color.colorBtns), PorterDuff.Mode.MULTIPLY);
                         updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
+                        createNotification();
                     }
                 }
                 else if (intent.getAction().equals("com.musicman.PLAYING"))

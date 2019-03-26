@@ -200,7 +200,6 @@ public class playerService extends Service {
                 Log.v(LOG_TAG, "Playing: " + songs[songPos].getName());
             }
         }
-
     }
 
     public boolean enableShuffle() {
@@ -298,8 +297,7 @@ public class playerService extends Service {
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals("com.musicman.PLAYPAUSE")) {
                     pauseResume();
-                    broadcastNewSong();
-                    if (player.isPlaying())
+                    if (player != null && player.isPlaying())
                         broadcast("com.musicman.PLAYING");
                     else
                         broadcast("com.musicman.PAUSED");
