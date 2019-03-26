@@ -13,9 +13,6 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 
 public class settingsActivity extends AppCompatActivity {
-    //Globals
-        String LOG_TAG = "SETTTINGS";
-        playerService player = null;
     //Callbacks
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +54,9 @@ public class settingsActivity extends AppCompatActivity {
         if (player != null)
             doUnbindService();
     }
+    //Globals
+    String LOG_TAG = "SETTTINGS";
+    playerService player = null;
 
     //Custom Functions
     private ServiceConnection mConnection = new ServiceConnection() {

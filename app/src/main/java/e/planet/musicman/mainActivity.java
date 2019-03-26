@@ -319,7 +319,12 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setExtensions() {
         validExtensions.add(".mp3");
+        validExtensions.add(".mp4");
+        validExtensions.add(".m4a");
         validExtensions.add(".avi");
+        validExtensions.add(".aac");
+        validExtensions.add(".mkv");
+        validExtensions.add(".wav");
         searchPaths.add("/storage/emulated/0/Music");
         searchPaths.add("/storage/emulated/0/Download");
     }
