@@ -226,25 +226,25 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 //Log.v(LOG_TAG,"Animated Value: " + animation.getAnimatedValue());
+                if (player == null || player.player == null)
+                    return;
                 double proc = 0;
-                double dur = animation.getDuration();
-                double pos = animation.getCurrentPlayTime();
+                double dur = player.player.getDuration();
+                double pos = player.player.getCurrentPosition();
                 int minutesT = ((int) dur / 1000) / 60;
                 int secondsT = ((int) dur / 1000) % 60;
                 int minutesP = ((int) pos / 1000) / 60;
                 int secondsP = ((int) pos / 1000) % 60;
-                String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + " - " + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
+                String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + "-" + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
                 Log.v(LOG_TAG,"CALCULATING: " + pos + " / " + dur + " * " + "100");
                 if (pos > 0)
                     proc = (pos / dur) * 100;
                 //Log.v(LOG_TAG,"Setting Value: " + proc + " Dur: " + dur + " Pos: " + pos);
-                if (player != null && player.player != null) {
                     if (player.player.isPlaying()) {
                         Log.v(LOG_TAG,"Setting Progress: " + proc + " %");
                         pb.setProgress(safeDoubleToInt(proc));
                         tv.setText(dspt);
                     }
-                }
             }
         });
         if (player.getPlayerStatus())

@@ -226,10 +226,12 @@ public class playerService extends Service {
     }
 
     public String getSongName() {
-        if (songPos != -1)
+        if (songPos != -1) {
             return songs[songPos].getName();
-        else
+        }
+        else {
             return "";
+        }
     }
     public boolean getPlayerStatus()
     {
