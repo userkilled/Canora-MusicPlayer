@@ -124,12 +124,12 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
         Log.v(LOG_TAG, "You clicked Item: " + id + " at position:" + position);
         // Then you start a new Activity via Intent
-        Button btn = findViewById(R.id.buttonPlay);
+        ImageButton btn = findViewById(R.id.buttonPlay);
         if (player != null) {
             if (player.play(safeLongToInt(id)))
-                btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                setPlayButton(btn,true);
             else
-                btn.getBackground().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+                setPlayButton(btn,false);
             updateSongDisplay();
             updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
             createNotification();
@@ -174,6 +174,9 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     View.OnClickListener shufbutton_click;
 
     ValueAnimator animator;
+    int idur = 0;
+    int ipos = 0;
+
     int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 42;
 
     List<String> validExtensions = new ArrayList<String>();
@@ -216,34 +219,36 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (animator != null)
             animator.cancel();
         animator = ValueAnimator.ofInt(0, dur);
+        animator.setDuration(dur);
+        animator.setCurrentPlayTime(pos);
+        animator.setInterpolator(new LinearInterpolator());
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 //Log.v(LOG_TAG,"Animated Value: " + animation.getAnimatedValue());
                 double proc = 0;
                 double dur = animation.getDuration();
-                double pos = (Integer) animation.getAnimatedValue();
+                double pos = animation.getCurrentPlayTime();
                 int minutesT = ((int) dur / 1000) / 60;
                 int secondsT = ((int) dur / 1000) % 60;
                 int minutesP = ((int) pos / 1000) / 60;
                 int secondsP = ((int) pos / 1000) % 60;
                 String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + " - " + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
+                Log.v(LOG_TAG,"CALCULATING: " + pos + " / " + dur + " * " + "100");
                 if (pos > 0)
                     proc = (pos / dur) * 100;
                 //Log.v(LOG_TAG,"Setting Value: " + proc + " Dur: " + dur + " Pos: " + pos);
                 if (player != null && player.player != null) {
                     if (player.player.isPlaying()) {
+                        Log.v(LOG_TAG,"Setting Progress: " + proc + " %");
                         pb.setProgress(safeDoubleToInt(proc));
                         tv.setText(dspt);
                     }
                 }
             }
         });
-
-        animator.setDuration(dur);
-        animator.setCurrentPlayTime(pos);
-        animator.start();
-        animator.setInterpolator(new LinearInterpolator());
+        if (player.getPlayerStatus())
+            animator.start();
         updateSongDisplay();
     }
 
@@ -315,19 +320,19 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void setListeners() {
+        final ImageButton playbtn = findViewById(R.id.buttonPlay);
+        ImageButton prevbtn = findViewById(R.id.buttonPrev);
+        ImageButton nexbtn = findViewById(R.id.buttonNex);
+        Button shufbtn = findViewById(R.id.buttonShuff);
         playbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Button btn = findViewById(R.id.buttonPlay);
                 if (player != null && player.player != null) {
                     if (player.pauseResume())
-                        btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                        setPlayButton(playbtn,true);
                     else
-                        btn.getBackground().setColorFilter(getResources().getColor(R.color.colorBtns), PorterDuff.Mode.MULTIPLY);
+                        setPlayButton(playbtn,false);
                     updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
-                    if (!player.player.isPlaying())
-                        animator.cancel();
-                    Log.v(LOG_TAG, "AnimVal: " + animator.getAnimatedValue());
                 }
             }
         };
@@ -339,8 +344,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     updateSongDisplay();
                     updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
                     createNotification();
-                    Button btn = findViewById(R.id.buttonPlay);
-                    btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                    setPlayButton(playbtn,true);
                 }
             }
         };
@@ -352,8 +356,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     updateSongDisplay();
                     updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
                     createNotification();
-                    Button btn = findViewById(R.id.buttonPlay);
-                    btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                    setPlayButton(playbtn,true);
                 }
             }
         };
@@ -370,12 +373,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
         };
-        Button playbtn = findViewById(R.id.buttonPlay);
-        Button prevbtn = findViewById(R.id.buttonPrev);
-        Button nexbtn = findViewById(R.id.buttonNex);
-        Button shufbtn = findViewById(R.id.buttonShuff);
         playbtn.setOnClickListener(playbutton_click);
-        playbtn.getBackground().setColorFilter(getResources().getColor(R.color.colorBtns), PorterDuff.Mode.MULTIPLY);
         prevbtn.setOnClickListener(prevbutton_click);
         nexbtn.setOnClickListener(nexbutton_click);
         shufbtn.setOnClickListener(shufbutton_click);
@@ -482,25 +480,27 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     createNotification();
                 } else if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
                     Log.v(LOG_TAG, "ACTION_AUDIO_BECOMING_NOISY Received.");
-                    Button btn = findViewById(R.id.buttonPlay);
+                    ImageButton btn = findViewById(R.id.buttonPlay);
                     if (player != null) {
                         if (player.pauseResume())
-                            btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                            setPlayButton(btn,true);
                         else
-                            btn.getBackground().setColorFilter(getResources().getColor(R.color.colorBtns), PorterDuff.Mode.MULTIPLY);
+                            setPlayButton(btn,false);
                         updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
                         createNotification();
                     }
                 }
                 else if (intent.getAction().equals("com.musicman.PLAYING"))
                 {
-                    Button btn = findViewById(R.id.buttonPlay);
-                    btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                    ImageButton btn = findViewById(R.id.buttonPlay);
+                    setPlayButton(btn,true);
+                    updateDigits(player.player.getDuration(),player.player.getCurrentPosition());
                 }
                 else if (intent.getAction().equals("com.musicman.PAUSED"))
                 {
-                    Button btn = findViewById(R.id.buttonPlay);
-                    btn.getBackground().setColorFilter(getResources().getColor(R.color.colorBtns), PorterDuff.Mode.MULTIPLY);
+                    ImageButton btn = findViewById(R.id.buttonPlay);
+                    setPlayButton(btn,false);
+                    updateDigits(player.player.getDuration(),player.player.getCurrentPosition());
                 }
             }
         };
@@ -510,6 +510,18 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         flt.addAction("com.musicman.PAUSED");
         flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         registerReceiver(brcv, flt);
+    }
+
+    public void setPlayButton(ImageButton btn ,boolean play)
+    {
+        if (play)
+        {
+            btn.setImageResource(R.drawable.main_btnpause);
+        }
+        else
+        {
+            btn.setImageResource(R.drawable.main_btnplay);
+        }
     }
 
     public static int safeLongToInt(long l) {
