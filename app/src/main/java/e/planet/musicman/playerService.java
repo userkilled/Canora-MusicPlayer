@@ -5,16 +5,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.v4.app.ActivityCompat;
-import android.graphics.PorterDuff;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
 
 import java.io.File;
 import java.util.*;
@@ -225,13 +222,41 @@ public class playerService extends Service {
             player.setVolume(vol, vol);
     }
 
-    public String getSongName() {
-        if (songPos != -1) {
-            return songs[songPos].getName();
+    public String getSongDisplay() {
+        if (songPos > -1)
+        {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            mmr.setDataSource(songs[songPos].getAbsolutePath());
+            if (mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null && mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null) {
+                Log.v(LOG_TAG, "SONG NAME: " + mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
+                return mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) + " by " + mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            }
+            else
+                return songs[songPos].getName();
         }
-        else {
-            return "";
+        return "";
+    }
+
+    public String getInterpreter()
+    {
+        if (songPos > -1)
+        {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            mmr.setDataSource(songs[songPos].getAbsolutePath());
+            return mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
         }
+        return "";
+    }
+
+    public String getAlbum()
+    {
+        if (songPos > -1)
+        {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            mmr.setDataSource(songs[songPos].getAbsolutePath());
+            return mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+        }
+        return "";
     }
     public boolean getPlayerStatus()
     {

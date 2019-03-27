@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
+import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -197,10 +198,12 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 daSongs.addAll(getPlayList(str));
         }
         Log.v(LOG_TAG, "Found " + daSongs.size() + "Songs.");
+        daSongs = sortFilesByName(daSongs);
+        Log.v(LOG_TAG,"Files Sorted.");
         if (daSongs != null && daSongs.size() > 0) {
             Log.v(LOG_TAG, "Player Init.");
             lv = (ListView) findViewById(R.id.listView1);
-            ArrayList<String> sngNames = getNames(daSongs);
+            ArrayList<String> sngNames = getListDisplay(daSongs);
             ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.song_listitem, sngNames);
             lv.setAdapter(arrayAdapter);
             player.init(daSongs.toArray(new File[daSongs.size()]), daSongs.size());
@@ -256,7 +259,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         TextView txt = findViewById(R.id.songDisplay);
         String txts = "";
         if (player != null)
-            txts = player.getSongName();
+            txts = player.getSongDisplay();
         if (txts.length() > 39) {
             txts = txts.substring(0, 36);
             txts += "...";
@@ -272,7 +275,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             notificationManager.cancelAll();
         String txt = "";
         if (player != null)
-            txt = player.getSongName();
+            txt = player.getSongDisplay();
         Log.v(LOG_TAG,"Creating Notification");
         Intent intent = new Intent(this, mainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -436,12 +439,30 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    private ArrayList<String> getNames(ArrayList<File> files) {
+    private ArrayList<String> getListDisplay(ArrayList<File> files) {
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         ArrayList<String> rtrn = new ArrayList<String>(files.size());
+
         for (int i = 0; i < files.size(); i++) {
-            rtrn.add(files.get(i).getName());
+            mmr.setDataSource(files.get(i).getAbsolutePath());
+            if (mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null && mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null)
+            {
+                rtrn.add(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) + " by " + mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST));
+            }
+            else
+            {
+                rtrn.add(files.get(i).getName());
+            }
         }
+
         return rtrn;
+    }
+
+    private ArrayList<File> sortFilesByName(ArrayList<File> in)
+    {
+        Log.v(LOG_TAG,"SORTING FILES");
+        ListSorter ls = new ListSorter();
+        return ls.sort(in,Constants.SORTBYTITLE);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
