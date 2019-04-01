@@ -41,11 +41,18 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
         } else {
             Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
+            pt.start();
             startplayer();
+            pt.printStep(LOG_TAG,"STARTPLAYER");
             setExtensions();
+            pt.printStep(LOG_TAG,"SETEXTENSIONS");
             loadFiles();
+            pt.printStep(LOG_TAG,"LOADFILES");
             registerReceiver();
+            pt.printStep(LOG_TAG,"REGISTERRECEIVER");
             setListeners();
+            pt.printStep(LOG_TAG,"SETLISTENERS");
+            pt.stop();
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
             getSupportActionBar().setIcon(R.drawable.ic_launcher);
         }
@@ -166,6 +173,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     private BroadcastReceiver brcv;
 
     NotificationManagerCompat notificationManager;
+    PerformanceTimer pt = new PerformanceTimer();
 
     ArrayList<File> daSongs = new ArrayList<>();
 
@@ -439,7 +447,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     ArrayList<File> getPlayList(String rootPath) {
-        Log.v(LOG_TAG, "GET PLAYLIST DIRECTORY: " + rootPath);
+        //Log.v(LOG_TAG, "GET PLAYLIST DIRECTORY: " + rootPath);
         ArrayList<File> fileList = new ArrayList<>();
         try {
             File rootFolder = new File(rootPath);
@@ -453,7 +461,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 } else if (validExtensions.contains(getFileExtension(file))) {
                     fileList.add(file);
-                    Log.v(LOG_TAG, "Found File: " + file.getAbsolutePath());
+                    //Log.v(LOG_TAG, "Found File: " + file.getAbsolutePath());
                 }
             }
             return fileList;
