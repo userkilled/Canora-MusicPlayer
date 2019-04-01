@@ -12,6 +12,7 @@ import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -33,6 +34,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     //Callbacks
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PerformanceTimer pt = new PerformanceTimer();
         Log.v(LOG_TAG, "onCreate Called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mainlayout);
@@ -56,6 +58,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
             getSupportActionBar().setIcon(R.drawable.ic_launcher);
         }
+        long l = pt.printTotal(LOG_TAG,"ONCREATE");
+        Snackbar.make(findViewById(android.R.id.content),"Player Initialization Time:\t" + l + " Miliseconds. \n Found Songs:\t" + daSongs.size(),Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -173,7 +177,6 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     private BroadcastReceiver brcv;
 
     NotificationManagerCompat notificationManager;
-    PerformanceTimer pt = new PerformanceTimer();
 
     ArrayList<File> daSongs = new ArrayList<>();
 
@@ -234,14 +237,20 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
     public void loadFiles()
     {
+        PerformanceTimer pt = new PerformanceTimer();
+        pt.startAverage();
         for (String str : searchPaths) {
             Log.v(LOG_TAG, "Searching in Directory: " + str);
             if (getPlayList(str) != null)
                 daSongs.addAll(getPlayList(str));
+            pt.stepAverage();
         }
+        pt.printAverage(LOG_TAG,"File Loop to Fetch Files from Directory");
         Log.v(LOG_TAG, "Found " + daSongs.size() + "Songs.");
         Log.v(LOG_TAG,"Sorting Files.");
+        pt.start();
         daSongs = sortFilesByName(daSongs);
+        pt.printStep(LOG_TAG,"sortFilesByName");
         Log.v(LOG_TAG,"Files Sorted.");
     }
 

@@ -1,6 +1,7 @@
 package e.planet.musicman;
 
 import android.media.MediaMetadataRetriever;
+import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -9,9 +10,10 @@ import java.util.Comparator;
 public class ListSorter {
 
     //Globals
+    String LOG_TAG = "LISTSRT";
 
     //Constructor
-    public void ListSorter()
+    public ListSorter()
     {
 
     }
@@ -38,12 +40,16 @@ public class ListSorter {
     //Functions
     private ArrayList<File> sortFilesByName(ArrayList<File> in)
     {
+        PerformanceTimer pt = new PerformanceTimer(); //Function Performance Timer
+        pt.start();
         //TODO:This Function Eats up Startup Time, Optimize
 
         ArrayList<File> rtrn = new ArrayList(in.size());
 
         ArrayList<fileAndName> fn = new ArrayList<>(in.size());
 
+        PerformanceTimer at = new PerformanceTimer(); //Average Performance Timer
+        at.startAverage();
         //Load Filehandles into ArrayList
         for (int i = 0; i < in.size(); i++)
         {
@@ -51,15 +57,22 @@ public class ListSorter {
             x.file = in.get(i);
             x.title = getSongName(in.get(i).getAbsolutePath());
             fn.add(x);
+            at.stepAverage();
         }
+        at.printAverage(LOG_TAG,"Loop to Read Files into Custom Object");
         //Sort ArrayList by Name
         fn.sort(new NameSorter());
 
         //Load Sorted Filehandles back into Return List
+        at.startAverage();
         for (int i = 0; i < fn.size(); i++)
         {
             rtrn.add(fn.get(i).file);
+            at.stepAverage();
         }
+        at.printAverage(LOG_TAG,"Loop to get the Files back from the Custom Object");
+        pt.printStep("LISTSORTER","SORTFILESBYNAME");
+        pt.stop();
         //Return List
         return rtrn;
     }
