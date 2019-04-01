@@ -215,6 +215,16 @@ public class playerService extends Service {
             return true;
         }
     }
+    public boolean enableRepeat()   {
+        if (repeatSong){
+            repeatSong = false;
+            return false;
+        }
+        else{
+            repeatSong = true;
+            return true;
+        }
+    }
 
     public void setVolume(float vol) {
         volume = vol;
@@ -223,7 +233,7 @@ public class playerService extends Service {
     }
 
     public String getSongDisplay() {
-        if (songPos > -1)
+        if (songPos > -1 && songs != null)
         {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             mmr.setDataSource(songs[songPos].getAbsolutePath());

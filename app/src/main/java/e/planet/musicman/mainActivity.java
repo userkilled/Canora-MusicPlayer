@@ -43,6 +43,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
             startplayer();
             setExtensions();
+            loadFiles();
             registerReceiver();
             setListeners();
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
@@ -142,8 +143,9 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (requestCode == MY_PERMISSIONS_REQUEST_READ_CONTACTS) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERM GRANTED");
-                startplayer();
                 setExtensions();
+                loadFiles();
+                startplayer();
                 registerReceiver();
                 setListeners();
             } else {
@@ -173,6 +175,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     View.OnClickListener prevbutton_click;
     View.OnClickListener nexbutton_click;
     View.OnClickListener shufbutton_click;
+    View.OnClickListener repbutton_click;
 
     ValueAnimator animator;
     int idur = 0;
@@ -191,28 +194,47 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (player != null) doUnbindService();
     }
 
+    //Callback when Player Service is Ready
     public void initPlayer() {
+        int i = 0;
+        while (i < 10) {
+            i++;
+            if (daSongs == null)
+            {
+                try{
+                    wait(100);
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            else if (daSongs.size() > 0) {
+                Log.v(LOG_TAG, "Player Init.");
+                lv = (ListView) findViewById(R.id.listView1);
+                ArrayList<String> sngNames = getListDisplay(daSongs);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.song_listitem, sngNames);
+                lv.setAdapter(arrayAdapter);
+                if (daSongs != null) ;
+                    player.init(daSongs.toArray(new File[daSongs.size()]), daSongs.size());
+                updateSongDisplay();
+                break;
+            }
+        }
+        if (i == 10)
+            Log.v(LOG_TAG,"initPlayer Failed to Load Files");
+    }
+    public void loadFiles()
+    {
         for (String str : searchPaths) {
             Log.v(LOG_TAG, "Searching in Directory: " + str);
             if (getPlayList(str) != null)
                 daSongs.addAll(getPlayList(str));
         }
         Log.v(LOG_TAG, "Found " + daSongs.size() + "Songs.");
+        Log.v(LOG_TAG,"Sorting Files.");
         daSongs = sortFilesByName(daSongs);
         Log.v(LOG_TAG,"Files Sorted.");
-        if (daSongs != null && daSongs.size() > 0) {
-            Log.v(LOG_TAG, "Player Init.");
-            lv = (ListView) findViewById(R.id.listView1);
-            ArrayList<String> sngNames = getListDisplay(daSongs);
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.song_listitem, sngNames);
-            lv.setAdapter(arrayAdapter);
-            player.init(daSongs.toArray(new File[daSongs.size()]), daSongs.size());
-            updateSongDisplay();
-
-        } else {
-            Log.v(LOG_TAG, "No Songs Found.");
-            //System.exit(1);
-        }
     }
 
     public void updateDigits(int dur, int pos) {
@@ -239,12 +261,12 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 int minutesP = ((int) pos / 1000) / 60;
                 int secondsP = ((int) pos / 1000) % 60;
                 String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + "-" + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
-                Log.v(LOG_TAG,"CALCULATING: " + pos + " / " + dur + " * " + "100");
+                //Log.v(LOG_TAG,"CALCULATING: " + pos + " / " + dur + " * " + "100");
                 if (pos > 0)
                     proc = (pos / dur) * 100;
                 //Log.v(LOG_TAG,"Setting Value: " + proc + " Dur: " + dur + " Pos: " + pos);
                     if (player.player.isPlaying()) {
-                        Log.v(LOG_TAG,"Setting Progress: " + proc + " %");
+                        //Log.v(LOG_TAG,"Setting Progress: " + proc + " %");
                         pb.setProgress(safeDoubleToInt(proc));
                         tv.setText(dspt);
                     }
@@ -326,7 +348,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         final ImageButton playbtn = findViewById(R.id.buttonPlay);
         ImageButton prevbtn = findViewById(R.id.buttonPrev);
         ImageButton nexbtn = findViewById(R.id.buttonNex);
-        Button shufbtn = findViewById(R.id.buttonShuff);
+        ImageButton shufbtn = findViewById(R.id.buttonShuff);
+        ImageButton repbtn = findViewById(R.id.buttonRep);
         playbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -366,12 +389,27 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         shufbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Button btn = findViewById(R.id.buttonShuff);
+                ImageButton btn = findViewById(R.id.buttonShuff);
                 if (player != null && player.player != null) {
                     if (player.enableShuffle()) {
-                        btn.getBackground().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+
+                        btn.setBackgroundColor(getResources().getColor(R.color.green));
                     } else {
-                        btn.getBackground().setColorFilter(getResources().getColor(R.color.colorBtns), PorterDuff.Mode.MULTIPLY);
+                        btn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    }
+                }
+            }
+        };
+        repbutton_click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImageButton btn = findViewById(R.id.buttonRep);
+                if (player != null && player.player != null) {
+                    if (player.enableRepeat()) {
+
+                        btn.setBackgroundColor(getResources().getColor(R.color.green));
+                    } else {
+                        btn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                     }
                 }
             }
@@ -380,10 +418,11 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         prevbtn.setOnClickListener(prevbutton_click);
         nexbtn.setOnClickListener(nexbutton_click);
         shufbtn.setOnClickListener(shufbutton_click);
-        shufbtn.getBackground().setColorFilter(getResources().getColor(R.color.colorBtns), PorterDuff.Mode.MULTIPLY);
+        repbtn.setOnClickListener(repbutton_click);
 
         ListView listview = (ListView) findViewById(R.id.listView1);
         listview.setOnItemClickListener(this);
+
         songDisplay = findViewById(R.id.songDisplay);
     }
 

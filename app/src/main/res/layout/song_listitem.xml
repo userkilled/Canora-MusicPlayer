@@ -10,4 +10,4 @@
         android:paddingRight="0dp"
         android:minHeight="?android:attr/listPreferredItemHeightSmall"
         android:background="@color/colorPrimary"
-        android:textColor="@color/white" xmlns:android="http://schemas.android.com/apk/res/android"/>
+        android:textColor="@color/TextColor" xmlns:android="http://schemas.android.com/apk/res/android"/>
