@@ -38,6 +38,8 @@ public class ListSorter {
     //Functions
     private ArrayList<File> sortFilesByName(ArrayList<File> in)
     {
+        //TODO:This Function Eats up Startup Time, Optimize
+
         ArrayList<File> rtrn = new ArrayList(in.size());
 
         ArrayList<fileAndName> fn = new ArrayList<>(in.size());
@@ -66,11 +68,12 @@ public class ListSorter {
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         mmr.setDataSource(path);
         if (mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null) {
-            return mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            return mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE).substring(0,1).toLowerCase();
         }
         else
         {
-            return "";
+            File rt = new File(path);
+            return rt.getName().substring(0,1).toLowerCase();
         }
     }
 
