@@ -34,6 +34,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     //Callbacks
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        globT.start();
         PerformanceTimer pt = new PerformanceTimer();
         Log.v(LOG_TAG, "onCreate Called");
         super.onCreate(savedInstanceState);
@@ -57,9 +58,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             pt.stop();
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
             getSupportActionBar().setIcon(R.drawable.ic_launcher);
+            pt.printStep(LOG_TAG,"onCreate");
         }
-        long l = pt.printTotal(LOG_TAG,"ONCREATE");
-        Snackbar.make(findViewById(android.R.id.content),"Player Initialization Time:\t" + l + " Miliseconds. \n Found Songs:\t" + daSongs.size(),Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -178,7 +178,10 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     NotificationManagerCompat notificationManager;
 
+    PerformanceTimer globT = new PerformanceTimer();
+
     ArrayList<File> daSongs = new ArrayList<>();
+    ArrayList<String> titles;
 
     String LOG_TAG = "main";
 
@@ -207,6 +210,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //Callback when Player Service is Ready
     public void initPlayer() {
+        PerformanceTimer p = new PerformanceTimer();
+        p.start();
         int i = 0;
         while (i < 10) {
             i++;
@@ -223,12 +228,15 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             else if (daSongs.size() > 0) {
                 Log.v(LOG_TAG, "Player Init.");
                 lv = (ListView) findViewById(R.id.listView1);
-                ArrayList<String> sngNames = getListDisplay(daSongs);
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.song_listitem, sngNames);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.song_listitem, titles);
                 lv.setAdapter(arrayAdapter);
-                if (daSongs != null) ;
+                p.printStep(LOG_TAG,"Setting Listview adapter");
+                if (daSongs != null) {
                     player.init(daSongs.toArray(new File[daSongs.size()]), daSongs.size());
+                }
+                p.printStep(LOG_TAG,"Player Initialization");
                 updateSongDisplay();
+                p.printStep(LOG_TAG,"updateSongDisplay");
                 break;
             }
         }
@@ -339,8 +347,11 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                         .setShowActionsInCompactView(0,1,2)
                         .setMediaSession(null))
                 .addAction(R.drawable.notification_btnprev,"Prev",prevpi);
+        if (player != null && player.player != null && player.player.isPlaying())
+            builder.addAction(R.drawable.notification_btnpause,"Pause",pi);
+        else
                 builder.addAction(R.drawable.notification_btnplay,"Play/Pause",pi);
-                builder.addAction(R.drawable.notification_btnnext,"Next",nexpi);
+        builder.addAction(R.drawable.notification_btnnext,"Next",nexpi);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Log.v(LOG_TAG,"CREATING MANAGER");
@@ -377,6 +388,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                         setPlayButton(playbtn,false);
                     updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
                 }
+                createNotification();
             }
         };
         prevbutton_click = new View.OnClickListener() {
@@ -518,7 +530,9 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     {
         Log.v(LOG_TAG,"SORTING FILES");
         ListSorter ls = new ListSorter();
-        return ls.sort(in,Constants.SORTBYTITLE);
+        ArrayList<File> f = ls.sort(in,Constants.SORTBYTITLE,getApplicationContext());
+        titles = ls.titles;
+        return f;
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -526,6 +540,9 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             player = ((playerService.LocalBinder) service).getService();
             initPlayer();
             createNotification();
+            globT.printStep(LOG_TAG,"Service Initialization");
+            long l = globT.tdur;
+            Snackbar.make(findViewById(android.R.id.content),"Initialization Time: " + l + " ms.\nFound Songs: " + daSongs.size(),Snackbar.LENGTH_LONG).show();
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -569,12 +586,14 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
                 else if (intent.getAction().equals("com.musicman.PLAYING"))
                 {
+                    createNotification();
                     ImageButton btn = findViewById(R.id.buttonPlay);
                     setPlayButton(btn,true);
                     updateDigits(player.player.getDuration(),player.player.getCurrentPosition());
                 }
                 else if (intent.getAction().equals("com.musicman.PAUSED"))
                 {
+                    createNotification();
                     ImageButton btn = findViewById(R.id.buttonPlay);
                     setPlayButton(btn,false);
                     updateDigits(player.player.getDuration(),player.player.getCurrentPosition());

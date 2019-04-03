@@ -238,7 +238,7 @@ public class playerService extends Service {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             mmr.setDataSource(songs[songPos].getAbsolutePath());
             if (mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null && mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null) {
-                Log.v(LOG_TAG, "SONG NAME: " + mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
+               // Log.v(LOG_TAG, "SONG NAME: " + mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
                 return mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) + " by " + mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
             }
             else
