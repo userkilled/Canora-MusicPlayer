@@ -7,7 +7,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.*;
 import android.content.pm.PackageManager;
-import android.graphics.PorterDuff;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
@@ -80,7 +79,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onStart();
         Log.v(LOG_TAG, "onStart Called.");
         if (player != null && player.player != null) {
-            updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
+            handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
         }
     }
 
@@ -144,7 +143,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             else
                 setPlayButton(btn,false);
             updateSongDisplay();
-            updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
+            handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
             createNotification();
         }
     }
@@ -262,7 +261,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG,"Files Sorted.");
     }
 
-    public void updateDigits(int dur, int pos) {
+    public void handleProgressAnimation(int dur, int pos) {
         Log.v(LOG_TAG, "UPDATE UI, DUR: " + dur + " POS: " + pos + " ISPLAYING: " + player.player.isPlaying());
         final ProgressBar pb = findViewById(R.id.songDurBar);
         final TextView tv = findViewById(R.id.digitDisp);
@@ -281,7 +280,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 double proc = 0;
                 double dur = animation.getDuration();
                 double pos = animation.getCurrentPlayTime();
-                Log.v(LOG_TAG,"ANIMUPDATE, DUR: " + dur + " POS: " + pos);
+                //Log.v(LOG_TAG,"ANIMUPDATE, DUR: " + dur + " POS: " + pos);
                 int minutesT = ((int) dur / 1000) / 60;
                 int secondsT = ((int) dur / 1000) % 60;
                 int minutesP = ((int) pos / 1000) / 60;
@@ -293,7 +292,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 //Log.v(LOG_TAG,"Setting Value: " + proc + " Dur: " + dur + " Pos: " + pos);
                     if (player.player.isPlaying()) {
                         //Log.v(LOG_TAG,"Setting Progress: " + proc + " %");
-                        Log.v(LOG_TAG,"Percentage: " + safeDoubleToInt(proc));
+                        //Log.v(LOG_TAG,"Percentage: " + safeDoubleToInt(proc));
                         pb.setProgress(safeDoubleToInt(proc));
                         tv.setText(dspt);
                     }
@@ -388,7 +387,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                         setPlayButton(playbtn,true);
                     else
                         setPlayButton(playbtn,false);
-                    updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
+                    handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
                 }
                 createNotification();
             }
@@ -399,7 +398,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (player != null && player.player != null) {
                     player.previous();
                     updateSongDisplay();
-                    updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
+                    handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
                     createNotification();
                     setPlayButton(playbtn,true);
                 }
@@ -411,7 +410,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (player != null && player.player != null) {
                     player.next();
                     updateSongDisplay();
-                    updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
+                    handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
                     createNotification();
                     setPlayButton(playbtn,true);
                 }
@@ -572,7 +571,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     int dur = intent.getIntExtra("dur", 0);
                     int pos = intent.getIntExtra("pos", 0);
                     Log.v(LOG_TAG, "com.musicman.NEWSONG Received: " + dur + " " + pos);
-                    updateDigits(dur, pos);
+                    handleProgressAnimation(dur, pos);
                     createNotification();
                 } else if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
                     Log.v(LOG_TAG, "ACTION_AUDIO_BECOMING_NOISY Received.");
@@ -582,7 +581,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                             setPlayButton(btn,true);
                         else
                             setPlayButton(btn,false);
-                        updateDigits(player.player.getDuration(), player.player.getCurrentPosition());
+                        handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
                         createNotification();
                     }
                 }
@@ -591,14 +590,14 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     createNotification();
                     ImageButton btn = findViewById(R.id.buttonPlay);
                     setPlayButton(btn,true);
-                    updateDigits(player.player.getDuration(),player.player.getCurrentPosition());
+                    handleProgressAnimation(player.player.getDuration(),player.player.getCurrentPosition());
                 }
                 else if (intent.getAction().equals("com.musicman.PAUSED"))
                 {
                     createNotification();
                     ImageButton btn = findViewById(R.id.buttonPlay);
                     setPlayButton(btn,false);
-                    updateDigits(player.player.getDuration(),player.player.getCurrentPosition());
+                    handleProgressAnimation(player.player.getDuration(),player.player.getCurrentPosition());
                 }
             }
         };
