@@ -64,6 +64,8 @@ public class playerService extends Service {
     //Settings
     boolean shuffle;
     boolean repeatSong;
+    boolean playing;
+
     float volume = 0.2f;
 
     //Binder
@@ -123,6 +125,7 @@ public class playerService extends Service {
         Log.v(LOG_TAG, "Pause");
         if (player != null) {
             player.pause();
+            playing = false;
             position = player.getCurrentPosition();
         }
         return false;
@@ -134,10 +137,12 @@ public class playerService extends Service {
             if (position > 0) {
                 player.seekTo(position);
                 player.start();
+                playing = true;
                 setListener();
                 setVolume(volume);
             } else {
                 player.start();
+                playing = true;
                 setListener();
                 setVolume(volume);
             }
@@ -324,6 +329,7 @@ public class playerService extends Service {
     private void createPlayer(String songP) {
         player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
         player.start();
+        playing = true;
         setVolume(volume);
         setListener();
     }
@@ -334,10 +340,11 @@ public class playerService extends Service {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 Log.v(LOG_TAG, "Completion Listener Called.");
+                if (!playing)
+                    return;
                 if (repeatSong) {
-                    player.stop();
-                    player.seekTo(0);
-                    player.start();
+                    mp.seekTo(0);
+                    mp.start();
                     setListener();
                     broadcastNewSong();
                 } else {

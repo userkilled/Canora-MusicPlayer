@@ -279,8 +279,9 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (player == null || player.player == null)
                     return;
                 double proc = 0;
-                double dur = player.player.getDuration();
-                double pos = player.player.getCurrentPosition();
+                double dur = animation.getDuration();
+                double pos = animation.getCurrentPlayTime();
+                Log.v(LOG_TAG,"ANIMUPDATE, DUR: " + dur + " POS: " + pos);
                 int minutesT = ((int) dur / 1000) / 60;
                 int secondsT = ((int) dur / 1000) % 60;
                 int minutesP = ((int) pos / 1000) / 60;
@@ -292,6 +293,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 //Log.v(LOG_TAG,"Setting Value: " + proc + " Dur: " + dur + " Pos: " + pos);
                     if (player.player.isPlaying()) {
                         //Log.v(LOG_TAG,"Setting Progress: " + proc + " %");
+                        Log.v(LOG_TAG,"Percentage: " + safeDoubleToInt(proc));
                         pb.setProgress(safeDoubleToInt(proc));
                         tv.setText(dspt);
                     }

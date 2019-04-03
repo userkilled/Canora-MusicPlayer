@@ -78,6 +78,7 @@ public class ListSorter {
         st.printAverage(LOG_TAG,"GetSongName");
         //Sort ArrayList by Name
         fn.sort(new NameSorter());
+        Log.v(LOG_TAG,"SORTED");
 
         //Load Sorted Filehandles back into Return List
         at.startAverage();
@@ -131,20 +132,35 @@ public class ListSorter {
 
         //Log.v(LOG_TAG, songPath);
         if (cursor != null) {
+            Log.v(LOG_TAG,"CURSOR NOT NULL");
             while (cursor.moveToNext()) {
+                Log.v(LOG_TAG,"MOVENEXT");
                 int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
                 int arIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-                id = cursor.getString(idIndex);
+                String t = cursor.getString(idIndex);
+                if (t == "")
+                    t = "unknown";
                 String ar = cursor.getString(arIndex);
-                id = id + " by " + ar;
+                if (ar == "")
+                    ar = "unknown";
+                //Log.v(LOG_TAG, "TITLE: \"" + t + "\"" + "ART: \"" + ar + "\"");
+                id = t + " by " + ar;
+            }
+            if (id == "")
+            {
+                //Log.v(LOG_TAG,"ELSE");
+                File rt = new File(songPath);
+                id = rt.getName();
             }
         }
         else
         {
+            //Log.v(LOG_TAG,"ELSE");
             File rt = new File(songPath);
             id = rt.getName();
         }
         //p.printStep(LOG_TAG,"getSongNameFromMediaStore");
+        //Log.v(LOG_TAG,"SONG: " + id);
         return id;
     }
 
@@ -154,6 +170,7 @@ public class ListSorter {
         @Override
         public int compare(fileAndName f1, fileAndName f2)
         {
+            //Log.v(LOG_TAG,"Comparing: " + f1.title + " to " + f2.title);
             return f1.title.substring(0,1).toLowerCase().compareTo(f2.title.substring(0,1).toLowerCase());
         }
     }
