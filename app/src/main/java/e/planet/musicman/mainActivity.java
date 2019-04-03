@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.*;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,6 +60,12 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
             getSupportActionBar().setIcon(R.drawable.ic_launcher);
             pt.printStep(LOG_TAG,"onCreate");
+            ActionBar actionbar = getSupportActionBar();
+            //String t = "<font color='#c800ff'>ActionBarTitle </font>";
+            String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(this, R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+            String t = "<font color='" + hexColor + "'>ActionBarTitle </font>";
+            Log.v(LOG_TAG,"COLOR:" + t + ":");
+            actionbar.setTitle(Html.fromHtml(t));
         }
     }
 
@@ -423,7 +431,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (player != null) {
                     if (player.enableShuffle()) {
 
-                        btn.setBackgroundColor(getResources().getColor(R.color.green));
+                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight));
                     } else {
                         btn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                     }
@@ -437,7 +445,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (player != null) {
                     if (player.enableRepeat()) {
 
-                        btn.setBackgroundColor(getResources().getColor(R.color.green));
+                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight));
                     } else {
                         btn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                     }

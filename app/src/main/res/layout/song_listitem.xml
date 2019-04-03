@@ -9,5 +9,5 @@
         android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
         android:paddingRight="0dp"
         android:minHeight="?android:attr/listPreferredItemHeightSmall"
-        android:background="@color/colorPrimary"
-        android:textColor="@color/TextColor" xmlns:android="http://schemas.android.com/apk/res/android"/>
+        android:background="@color/colorPrimaryDark"
+        android:textColor="@color/colorAccent" xmlns:android="http://schemas.android.com/apk/res/android"/>
