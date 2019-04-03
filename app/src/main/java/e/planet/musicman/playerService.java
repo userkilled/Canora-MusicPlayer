@@ -82,6 +82,7 @@ public class playerService extends Service {
         if (files != null) {
             songs = files;
             songCount = c;
+            //player = MediaPlayer.create(getApplicationContext(), Uri.parse(songs[0].getAbsolutePath()));
             return 0;
         } else {
             Log.v(LOG_TAG, "Files are Null");

@@ -355,7 +355,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         builder.addAction(R.drawable.notification_btnnext,"Next",nexpi);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Log.v(LOG_TAG,"CREATING MANAGER");
+            //Log.v(LOG_TAG,"CREATING MANAGER");
             CharSequence name = "MusicMan Control Channel";
             String description = "Description";
             int importance = NotificationManager.IMPORTANCE_LOW;
@@ -365,7 +365,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             notificationManager.createNotificationChannel(channel);
         }
         else {
-            Log.v(LOG_TAG, "BELOW 25");
+            //Log.v(LOG_TAG, "BELOW 25");
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
             notificationManager.notify(42, builder.build());
         }
@@ -388,8 +388,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     else
                         setPlayButton(playbtn,false);
                     handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
+                    createNotification();
                 }
-                createNotification();
             }
         };
         prevbutton_click = new View.OnClickListener() {
@@ -420,7 +420,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onClick(View v) {
                 ImageButton btn = findViewById(R.id.buttonShuff);
-                if (player != null && player.player != null) {
+                if (player != null) {
                     if (player.enableShuffle()) {
 
                         btn.setBackgroundColor(getResources().getColor(R.color.green));
@@ -434,7 +434,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onClick(View v) {
                 ImageButton btn = findViewById(R.id.buttonRep);
-                if (player != null && player.player != null) {
+                if (player != null) {
                     if (player.enableRepeat()) {
 
                         btn.setBackgroundColor(getResources().getColor(R.color.green));
