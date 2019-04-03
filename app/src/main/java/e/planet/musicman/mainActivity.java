@@ -63,7 +63,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             ActionBar actionbar = getSupportActionBar();
             //String t = "<font color='#c800ff'>ActionBarTitle </font>";
             String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(this, R.color.colorAccent) & 0x00ffffff); //Because ANDROID
-            String t = "<font color='" + hexColor + "'>ActionBarTitle </font>";
+            String t = "<font color='" + hexColor + "'>MusicMan </font>";
             Log.v(LOG_TAG,"COLOR:" + t + ":");
             actionbar.setTitle(Html.fromHtml(t));
         }
