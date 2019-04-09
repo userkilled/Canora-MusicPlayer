@@ -8,10 +8,14 @@ import android.app.PendingIntent;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
@@ -21,9 +25,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.view.animation.LinearInterpolator;
 import android.widget.*;
 
@@ -178,9 +180,6 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     //Globals
     private playerService player;
 
-    private ListView lv;
-    private TextView songDisplay;
-
     private BroadcastReceiver brcv;
 
     NotificationManagerCompat notificationManager;
@@ -234,10 +233,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             else if (daSongs.size() > 0) {
                 Log.v(LOG_TAG, "Player Init.");
-                lv = (ListView) findViewById(R.id.listView1);
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.song_listitem, titles);
-                lv.setAdapter(arrayAdapter);
-                p.printStep(LOG_TAG,"Setting Listview adapter");
+                setListAdapter();
                 if (daSongs != null) {
                     player.init(daSongs.toArray(new File[daSongs.size()]), daSongs.size());
                 }
@@ -433,7 +429,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight));
                     } else {
-                        btn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                        btn.setBackgroundColor(Color.TRANSPARENT);
+                        //btn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                     }
                 }
             }
@@ -447,7 +444,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight));
                     } else {
-                        btn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                        btn.setBackgroundColor(Color.TRANSPARENT);
+                        //btn.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                     }
                 }
             }
@@ -460,8 +458,14 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         ListView listview = (ListView) findViewById(R.id.listView1);
         listview.setOnItemClickListener(this);
+    }
 
-        songDisplay = findViewById(R.id.songDisplay);
+    private void setListAdapter()
+    {
+        ListView lv = (ListView) findViewById(R.id.listView1);
+        ArrayList<Song> t = getListDisplay(daSongs);
+        SongAdapter arrayAdapter = new SongAdapter(this,t);
+        lv.setAdapter(arrayAdapter);
     }
 
     private void setExtensions() {
@@ -516,22 +520,24 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    private ArrayList<String> getListDisplay(ArrayList<File> files) {
+    private ArrayList<Song> getListDisplay(ArrayList<File> files) {
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        ArrayList<String> rtrn = new ArrayList<String>(files.size());
-
+        ArrayList<Song> rtrn = new ArrayList<>(files.size());
         for (int i = 0; i < files.size(); i++) {
+            Song s = new Song();
             mmr.setDataSource(files.get(i).getAbsolutePath());
             if (mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null && mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null)
             {
-                rtrn.add(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) + " by " + mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST));
+                s.name = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                s.interpret = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
             }
             else
             {
-                rtrn.add(files.get(i).getName());
+                s.name = files.get(i).getName();
+                s.interpret = "unknown";
             }
+            rtrn.add(s);
         }
-
         return rtrn;
     }
 
@@ -653,5 +659,36 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             String rt = "" + val;
             return rt;
         }
+    }
+
+    public class SongAdapter extends ArrayAdapter<Song> {
+
+        private Context mContext;
+        private List<Song> songList = new ArrayList<>();
+
+        public SongAdapter(@NonNull Context context, ArrayList<Song> list) {
+            super(context, 0 , list);
+            mContext = context;
+            songList = list;
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            View listItem = convertView;
+            if(listItem == null)
+                listItem = LayoutInflater.from(mContext).inflate(R.layout.song_listitem,parent,false);
+            TextView sn = listItem.findViewById(R.id.listsongname);
+            TextView in = listItem.findViewById(R.id.listinterpret);
+            sn.setText(songList.get(position).name);
+            in.setText(songList.get(position).interpret);
+            return listItem;
+        }
+    }
+
+    private class Song
+    {
+        String name;
+        String interpret;
     }
 }
