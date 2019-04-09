@@ -1,12 +1,16 @@
 package e.planet.musicman;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
+import android.media.MediaMetadata;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.session.MediaController;
+import android.media.session.MediaSession;
+import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -15,6 +19,10 @@ import android.util.Log;
 
 import java.io.File;
 import java.util.*;
+
+import e.planet.musicman.Constants;
+
+import static e.planet.musicman.Constants.*;
 
 public class playerService extends Service {
     //Callbacks
@@ -30,6 +38,7 @@ public class playerService extends Service {
         Log.v(LOG_TAG,"ONCREATE");
         Arrays.fill(songHistory, -1);
         registerReceiver();
+        handleMediaController();
     }
 
     public void onDestroy() {
@@ -50,6 +59,7 @@ public class playerService extends Service {
     Random rand = new Random();
     private final IBinder mBinder = new LocalBinder();
     private BroadcastReceiver brcv;
+    MediaSession msess;
 
     /*The Player iterates over this Array of File handles depending on the Settings(Shuffle ,repeat)*/
     File[] songs; //Song Files in Sorted Form
@@ -66,7 +76,7 @@ public class playerService extends Service {
     boolean repeatSong;
     boolean playing;
 
-    float volume = 0.2f;
+    float volume = 0.8f;
 
     //Binder
     public class LocalBinder extends Binder {
@@ -285,6 +295,72 @@ public class playerService extends Service {
     }
 
     //Private Functions
+    private void handleMediaController()
+    {
+        msess = new MediaSession(this,"mysession");
+        msess.setMetadata(new MediaMetadata.Builder()
+                .putString(MediaMetadata.METADATA_KEY_TITLE,"SONGTITLE")
+                .putString(MediaMetadata.METADATA_KEY_ARTIST,"SONGARTIST")
+                .build());
+        msess.setActive(true);
+        msess.setFlags(MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        final Notification noti = new Notification.Builder(this)
+                .setShowWhen(false)
+                .setStyle(new Notification.MediaStyle()
+                    .setMediaSession(msess.getSessionToken())
+                    .setShowActionsInCompactView(0,1,2))
+                .setColor(0xFFDB4437)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentText("INTERPRET")
+                .setContentTitle("SONGNAME")
+                .addAction(R.drawable.notification_btnprev, "prev", retreivePlaybackAction(3))
+                .addAction(R.drawable.notification_btnpause, "pause", retreivePlaybackAction(1))
+                .addAction(R.drawable.notification_btnnext, "next", retreivePlaybackAction(2))
+                .build();
+        //((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(1, noti);
+    }
+    private PendingIntent retreivePlaybackAction(int which) {
+        Intent action;
+        PendingIntent pendingIntent;
+        final ComponentName serviceName = new ComponentName(this, playerService.class);
+        switch (which) {
+            case 1:
+                // Play and pause
+                //Log.v(LOG_TAG,"PLAYPAUSE");
+                action = new Intent(ACTION_TOGGLE_PLAYBACK);
+                action.setComponent(serviceName);
+                pendingIntent = PendingIntent.getService(this, 1, action, 0);
+                return pendingIntent;
+            case 2:
+                // Skip tracks
+                //Log.v(LOG_TAG,"NEXT");
+                action = new Intent(ACTION_NEXT);
+                action.setComponent(serviceName);
+                pendingIntent = PendingIntent.getService(this, 2, action, 0);
+                return pendingIntent;
+            case 3:
+                // Previous tracks
+                //Log.v(LOG_TAG,"PREV");
+                action = new Intent(ACTION_PREV);
+                action.setComponent(serviceName);
+                pendingIntent = PendingIntent.getService(this, 3, action, 0);
+                return pendingIntent;
+            default:
+                break;
+        }
+        return null;
+    }
+
+    private void updateMediaSession()
+    {
+        if (player != null)
+        {
+            msess.setMetadata(new MediaMetadata.Builder()
+                    .putString(MediaMetadata.METADATA_KEY_TITLE,songs[songPos].getName())
+                    .putString(MediaMetadata.METADATA_KEY_ARTIST,"STRING UPDATED")
+                    .build());
+        }
+    }
     private void broadcastNewSong() {
         if (player != null) {
             Intent in = new Intent("com.musicman.NEWSONG");

@@ -154,7 +154,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setPlayButton(btn,false);
             updateSongDisplay();
             handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
-            createNotification();
+            //createNotification();
         }
     }
 
@@ -321,6 +321,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void createNotification()
     {
+        //OLD
         if (notificationManager == null)
             notificationManager = NotificationManagerCompat.from(this);
         else
@@ -392,7 +393,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     else
                         setPlayButton(playbtn,false);
                     handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
-                    createNotification();
+                   // createNotification();
                 }
             }
         };
@@ -403,7 +404,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     player.previous();
                     updateSongDisplay();
                     handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
-                    createNotification();
+                    //createNotification();
                     setPlayButton(playbtn,true);
                 }
             }
@@ -415,7 +416,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     player.next();
                     updateSongDisplay();
                     handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
-                    createNotification();
+                    //createNotification();
                     setPlayButton(playbtn,true);
                 }
             }
@@ -554,7 +555,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         public void onServiceConnected(ComponentName className, IBinder service) {
             player = ((playerService.LocalBinder) service).getService();
             initPlayer();
-            createNotification();
+            //createNotification();
             globT.printStep(LOG_TAG,"Service Initialization");
             long l = globT.tdur;
             Snackbar.make(findViewById(android.R.id.content),"Initialization Time: " + l + " ms.\nFound Songs: " + daSongs.size(),Snackbar.LENGTH_LONG).show();
@@ -586,7 +587,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     int pos = intent.getIntExtra("pos", 0);
                     Log.v(LOG_TAG, "com.musicman.NEWSONG Received: " + dur + " " + pos);
                     handleProgressAnimation(dur, pos);
-                    createNotification();
+                    //createNotification();
                 } else if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
                     Log.v(LOG_TAG, "ACTION_AUDIO_BECOMING_NOISY Received.");
                     ImageButton btn = findViewById(R.id.buttonPlay);
@@ -596,19 +597,19 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                         else
                             setPlayButton(btn,false);
                         handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
-                        createNotification();
+                        //createNotification();
                     }
                 }
                 else if (intent.getAction().equals("com.musicman.PLAYING"))
                 {
-                    createNotification();
+                    //createNotification();
                     ImageButton btn = findViewById(R.id.buttonPlay);
                     setPlayButton(btn,true);
                     handleProgressAnimation(player.player.getDuration(),player.player.getCurrentPosition());
                 }
                 else if (intent.getAction().equals("com.musicman.PAUSED"))
                 {
-                    createNotification();
+                    //createNotification();
                     ImageButton btn = findViewById(R.id.buttonPlay);
                     setPlayButton(btn,false);
                     handleProgressAnimation(player.player.getDuration(),player.player.getCurrentPosition());
