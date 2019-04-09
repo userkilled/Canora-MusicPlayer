@@ -8,6 +8,8 @@ import android.app.PendingIntent;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
@@ -531,6 +533,13 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             {
                 s.name = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
                 s.interpret = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                byte[] art = mmr.getEmbeddedPicture();
+                if( art != null ){
+                    s.image = BitmapFactory.decodeByteArray(art, 0, art.length);
+                }
+                else{
+                    s.image = BitmapFactory.decodeResource(getResources(),R.drawable.ic_launcher);
+                }
             }
             else
             {
@@ -681,8 +690,10 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 listItem = LayoutInflater.from(mContext).inflate(R.layout.song_listitem,parent,false);
             TextView sn = listItem.findViewById(R.id.listsongname);
             TextView in = listItem.findViewById(R.id.listinterpret);
+            ImageView iv = listItem.findViewById(R.id.imageview);
             sn.setText(songList.get(position).name);
             in.setText(songList.get(position).interpret);
+            iv.setImageBitmap(songList.get(position).image);
             return listItem;
         }
     }
@@ -691,5 +702,6 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     {
         String name;
         String interpret;
+        Bitmap image;
     }
 }
