@@ -62,7 +62,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             pt.printStep(LOG_TAG,"SETLISTENERS");
             pt.stop();
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
-            getSupportActionBar().setIcon(R.drawable.ic_launcher);
+            getSupportActionBar().setIcon(R.drawable.mainicon);
+            getSupportActionBar().setLogo(R.drawable.mainicon);
             pt.printStep(LOG_TAG,"onCreate");
             ActionBar actionbar = getSupportActionBar();
             //String t = "<font color='#c800ff'>ActionBarTitle </font>";
@@ -291,7 +292,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 int secondsT = ((int) dur / 1000) % 60;
                 int minutesP = ((int) pos / 1000) / 60;
                 int secondsP = ((int) pos / 1000) % 60;
-                String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + "-" + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
+                String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + " - " + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
                 //Log.v(LOG_TAG,"CALCULATING: " + pos + " / " + dur + " * " + "100");
                 if (pos > 0)
                     proc = (pos / dur) * 100;
@@ -346,7 +347,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         PendingIntent prevpi = PendingIntent.getBroadcast(this,0,prev,0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "42")
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.mainicon)
                 .setContentTitle("Currently Playing:")
                 .setContentText(txt)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -538,13 +539,14 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     s.image = BitmapFactory.decodeByteArray(art, 0, art.length);
                 }
                 else{
-                    s.image = BitmapFactory.decodeResource(getResources(),R.drawable.ic_launcher);
+                    s.image = BitmapFactory.decodeResource(getResources(),R.drawable.icon_unsetsong);
                 }
             }
             else
             {
                 s.name = files.get(i).getName();
                 s.interpret = "unknown";
+                s.image = BitmapFactory.decodeResource(getResources(),R.drawable.icon_unsetsong);
             }
             rtrn.add(s);
         }

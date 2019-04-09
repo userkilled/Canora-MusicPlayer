@@ -310,7 +310,7 @@ public class playerService extends Service {
                     .setMediaSession(msess.getSessionToken())
                     .setShowActionsInCompactView(0,1,2))
                 .setColor(0xFFDB4437)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.mainicon)
                 .setContentText("INTERPRET")
                 .setContentTitle("SONGNAME")
                 .addAction(R.drawable.notification_btnprev, "prev", retreivePlaybackAction(3))
