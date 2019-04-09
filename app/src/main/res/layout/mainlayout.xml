@@ -5,7 +5,7 @@
                 app:layout_behavior="@string/appbar_scrolling_view_behavior" android:background="@color/colorPrimaryDark">
     <RelativeLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/colorPrimaryDark" android:layout_above="@id/songDisplayContainer">
         <ListView android:layout_width="match_parent" android:id="@+id/listView1"
-                  android:layout_height="wrap_content"
+                  android:layout_height="match_parent"
                   android:layout_marginBottom="5dp"
                   android:layout_marginTop="5dp"
                   android:layout_marginLeft="5dp"
