@@ -2,25 +2,18 @@ package e.planet.musicman;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.*;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -39,10 +32,10 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     //Callbacks
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         globT.start();
         PerformanceTimer pt = new PerformanceTimer();
         Log.v(LOG_TAG, "onCreate Called");
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.mainlayout);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.v(LOG_TAG, "REQUESTING PERMISSION");
@@ -189,8 +182,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     PerformanceTimer globT = new PerformanceTimer();
 
-    ArrayList<File> daSongs = new ArrayList<>();
-    ArrayList<String> titles;
+    //The Only Reference to The SongFiles along with another one in the Player Service
+    List<SongItem> songItemList = new ArrayList<>();
 
     String LOG_TAG = "main";
 
@@ -201,8 +194,6 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     View.OnClickListener repbutton_click;
 
     ValueAnimator animator;
-    int idur = 0;
-    int ipos = 0;
 
     int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 42;
 
@@ -224,7 +215,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         int i = 0;
         while (i < 10) {
             i++;
-            if (daSongs == null)
+            if (songItemList == null)
             {
                 try{
                     wait(100);
@@ -234,11 +225,11 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     e.printStackTrace();
                 }
             }
-            else if (daSongs.size() > 0) {
+            else if (songItemList.size() > 0) {
                 Log.v(LOG_TAG, "Player Init.");
                 setListAdapter();
-                if (daSongs != null) {
-                    player.init(daSongs.toArray(new File[daSongs.size()]), daSongs.size());
+                if (songItemList != null) {
+                    player.init(songItemList, songItemList.size());
                 }
                 p.printStep(LOG_TAG,"Player Initialization");
                 updateSongDisplay();
@@ -251,19 +242,22 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
     public void loadFiles()
     {
+        //Main Entry Point after Permission is Granted
+        /* This Function Makes the Initial Search for Music Files, No Further Search is Performed after this Function */
+
         PerformanceTimer pt = new PerformanceTimer();
         pt.startAverage();
         for (String str : searchPaths) {
             Log.v(LOG_TAG, "Searching in Directory: " + str);
             if (getPlayList(str) != null)
-                daSongs.addAll(getPlayList(str));
+                songItemList.addAll(getPlayListAsItems(str));
             pt.stepAverage();
         }
         pt.printAverage(LOG_TAG,"File Loop to Fetch Files from Directory");
-        Log.v(LOG_TAG, "Found " + daSongs.size() + "Songs.");
+        Log.v(LOG_TAG, "Found " + songItemList.size() + "Songs.");
         Log.v(LOG_TAG,"Sorting Files.");
         pt.start();
-        daSongs = sortFilesByName(daSongs);
+        songItemList = sortSongsByTitle(songItemList);
         pt.printStep(LOG_TAG,"sortFilesByName");
         Log.v(LOG_TAG,"Files Sorted.");
     }
@@ -411,8 +405,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void setListAdapter()
     {
         ListView lv = (ListView) findViewById(R.id.listView1);
-        ArrayList<Song> t = getListDisplay(daSongs);
-        SongAdapter arrayAdapter = new SongAdapter(this,t);
+        SongAdapter arrayAdapter = new SongAdapter(this,songItemList);
         lv.setAdapter(arrayAdapter);
     }
 
@@ -428,8 +421,20 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         searchPaths.add("/storage/emulated/0/Download");
     }
 
+    List<SongItem> getPlayListAsItems(String rootPath)
+    {
+        Bitmap dicon = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.icon_unsetsong);
+        List<File> t = getPlayList(rootPath);
+        List<SongItem> ret = new ArrayList<>();
+        for (int i = 0; i < t.size(); i++)
+        {
+            SongItem n = new SongItem(this,t.get(i),dicon);
+            ret.add(n);
+        }
+        return ret;
+    }
+
     ArrayList<File> getPlayList(String rootPath) {
-        //Log.v(LOG_TAG, "GET PLAYLIST DIRECTORY: " + rootPath);
         ArrayList<File> fileList = new ArrayList<>();
         try {
             File rootFolder = new File(rootPath);
@@ -443,7 +448,6 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 } else if (validExtensions.contains(getFileExtension(file))) {
                     fileList.add(file);
-                    //Log.v(LOG_TAG, "Found File: " + file.getAbsolutePath());
                 }
             }
             return fileList;
@@ -452,85 +456,12 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private static String getFileExtension(File file) {
-        String extension = "";
-
-        try {
-            if (file != null && file.exists()) {
-                String name = file.getName();
-                extension = name.substring(name.lastIndexOf("."));
-            }
-        } catch (Exception e) {
-            extension = "";
-        }
-
-        return extension;
-
-    }
-
-    private ArrayList<Song> getListDisplay(ArrayList<File> files) {
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        ArrayList<Song> rtrn = new ArrayList<>(files.size());
-        for (int i = 0; i < files.size(); i++) {
-            Song s = new Song();
-            mmr.setDataSource(files.get(i).getAbsolutePath());
-            if (mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null && mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null)
-            {
-                s.name = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                s.interpret = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                byte[] art = mmr.getEmbeddedPicture();
-                if( art != null ){
-                    s.image = BitmapFactory.decodeByteArray(art, 0, art.length);
-                }
-                else{
-                    s.image = BitmapFactory.decodeResource(getResources(),R.drawable.icon_unsetsong);
-                }
-            }
-            else
-            {
-                s.name = files.get(i).getName();
-                s.interpret = "unknown";
-                s.image = BitmapFactory.decodeResource(getResources(),R.drawable.icon_unsetsong);
-            }
-            rtrn.add(s);
-        }
-        return rtrn;
-    }
-
-    private ArrayList<File> sortFilesByName(ArrayList<File> in)
+    private List<SongItem> sortSongsByTitle(List<SongItem> s)
     {
-        Log.v(LOG_TAG,"SORTING FILES");
+        List<SongItem> ret = new ArrayList<>();
         ListSorter ls = new ListSorter();
-        ArrayList<File> f = ls.sort(in,Constants.SORTBYTITLE,getApplicationContext());
-        titles = ls.titles;
-        return f;
-    }
-
-    private ServiceConnection mConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            player = ((playerService.LocalBinder) service).getService();
-            initPlayer();
-            //createNotification();
-            globT.printStep(LOG_TAG,"Service Initialization");
-            long l = globT.tdur;
-            Snackbar.make(findViewById(android.R.id.content),"Initialization Time: " + l + " ms.\nFound Songs: " + daSongs.size(),Snackbar.LENGTH_LONG).show();
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            player = null;
-        }
-    };
-
-    void doBindService() {
-        Intent intent = new Intent(this, playerService.class);
-        startService(intent);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    void doUnbindService() {
-        Intent intent = new Intent(this, playerService.class);
-        unbindService(mConnection);
-        stopService(intent);
+        ret = ls.sort(s,this);
+        return ret;
     }
 
     private void registerReceiver() {
@@ -591,6 +522,23 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    //Tools
+    private static String getFileExtension(File file) {
+        String extension = "";
+
+        try {
+            if (file != null && file.exists()) {
+                String name = file.getName();
+                extension = name.substring(name.lastIndexOf("."));
+            }
+        } catch (Exception e) {
+            extension = "";
+        }
+
+        return extension;
+
+    }
+
     public static int safeLongToInt(long l) {
         if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
             throw new IllegalArgumentException
@@ -617,12 +565,40 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    public class SongAdapter extends ArrayAdapter<Song> {
+    //Service Binding
+    void doBindService() {
+        Intent intent = new Intent(this, playerService.class);
+        startService(intent);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    void doUnbindService() {
+        Intent intent = new Intent(this, playerService.class);
+        unbindService(mConnection);
+        stopService(intent);
+    }
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            player = ((playerService.LocalBinder) service).getService();
+            initPlayer();
+            //createNotification();
+            globT.printStep(LOG_TAG,"Service Initialization");
+            long l = globT.tdur;
+            Snackbar.make(findViewById(android.R.id.content),"Initialization Time: " + l + " ms.\nFound Songs: " + songItemList.size(),Snackbar.LENGTH_LONG).show();
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            player = null;
+        }
+    };
+
+    //Classes
+    public class SongAdapter extends ArrayAdapter<SongItem> {
 
         private Context mContext;
-        private List<Song> songList = new ArrayList<>();
+        private List<SongItem> songList = new ArrayList<>();
 
-        public SongAdapter(@NonNull Context context, ArrayList<Song> list) {
+        public SongAdapter(@NonNull Context context, List<SongItem> list) {
             super(context, 0 , list);
             mContext = context;
             songList = list;
@@ -637,17 +613,10 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             TextView sn = listItem.findViewById(R.id.listsongname);
             TextView in = listItem.findViewById(R.id.listinterpret);
             ImageView iv = listItem.findViewById(R.id.imageview);
-            sn.setText(songList.get(position).name);
-            in.setText(songList.get(position).interpret);
-            iv.setImageBitmap(songList.get(position).image);
+            sn.setText(songList.get(position).Title);
+            in.setText(songList.get(position).Artist);
+            iv.setImageBitmap(songList.get(position).icon);
             return listItem;
         }
-    }
-
-    private class Song
-    {
-        String name;
-        String interpret;
-        Bitmap image;
     }
 }

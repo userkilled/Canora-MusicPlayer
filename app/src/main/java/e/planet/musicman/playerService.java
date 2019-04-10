@@ -96,16 +96,11 @@ public class playerService extends Service {
 
     //Public Control Functions
 
-    public int init(File[] files, int c) {
+    public int init(List<SongItem> files, int c) {
         Log.v(LOG_TAG, "Init called, " + c + " Files Found.");
         songPos = -1;
         if (files != null) {
-            songs = new ArrayList<>();
-            for (int i = 0; i < c; i++)
-            {
-                SongItem t = new SongItem(files[i]);
-                songs.add(t);
-            }
+            songs = files;
             songCount = c;
             return 0;
         } else {

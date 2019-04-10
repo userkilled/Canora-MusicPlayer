@@ -1,12 +1,19 @@
 package e.planet.musicman;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.util.Log;
 
 import java.io.File;
 
 public class SongItem {
+    //TODO: Load Album Cover via MediaStore
     public File file;
 
     public String Title;
@@ -17,85 +24,145 @@ public class SongItem {
 
     private Bitmap defIcon;
 
-    private MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+    private Context c;
 
-    public SongItem(File f, Bitmap defaultIcon)
-    {
+    private Cursor cursor;
+
+    private String LOG_TAG = "SONGITEM";
+
+    public SongItem(Context co, File f, Bitmap defaultIcon) {
         file = f;
         defIcon = defaultIcon;
-        if (file != null)
-        {
+        c = co;
+        if (file != null) {
+            ContentResolver cr = c.getContentResolver();
+
+            Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            String selection = MediaStore.Audio.Media.DATA;
+            String[] selectionArgs = {f.getAbsolutePath()};
+
+            String[] projection = {MediaStore.Audio.Media.TITLE};
+            String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
             Title = getTitle(f);
+
+            projection = new String[]{MediaStore.Audio.Media.ARTIST};
+            sortOrder = MediaStore.Audio.Media.ARTIST + " ASC";
+            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
             Artist = getArtist(f);
+
+            projection = new String[]{MediaStore.Audio.Media.ALBUM};
+            sortOrder = MediaStore.Audio.Media.ALBUM + " ASC";
+            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
             Album = getAlbum(f);
+
+            /*projection = new String[]{MediaStore.Audio.Albums.ALBUM_ART};
+            sortOrder = MediaStore.Audio.Albums.ALBUM_ART + " ASC";
+            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);*/
             icon = getIcon(f);
         }
     }
 
-    public SongItem(File f)
-    {
+    public SongItem(Context co, File f) {
         file = f;
         defIcon = null;
+        c = co;
         if (file != null) {
+            ContentResolver cr = c.getContentResolver();
+
+            Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            String selection = MediaStore.Audio.Media.DATA;
+            String[] selectionArgs = {f.getAbsolutePath()};
+
+            String[] projection = {MediaStore.Audio.Media.TITLE};
+            String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
             Title = getTitle(f);
+
+            projection = new String[]{MediaStore.Audio.Media.ARTIST};
+            sortOrder = MediaStore.Audio.Media.ARTIST + " ASC";
+            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
             Artist = getArtist(f);
+
+            projection = new String[]{MediaStore.Audio.Media.ALBUM};
+            sortOrder = MediaStore.Audio.Media.ALBUM + " ASC";
+            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
             Album = getAlbum(f);
+
+            /*projection = new String[]{MediaStore.Audio.Albums.ALBUM_ART};
+            sortOrder = MediaStore.Audio.Albums.ALBUM_ART + " ASC";
+            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);*/
             icon = getIcon(f);
         }
     }
 
-    private String getTitle(File f)
-    {
+    private String getTitle(File f) {
         String ret = "";
-        mmr.setDataSource(f.getAbsolutePath());
-        if (mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null)
-        {
-            ret = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-        }
-        else
-        {
-            ret = f.getName();
+
+        if (cursor != null) {
+            //Log.v(LOG_TAG, "CURSOR NOT NULL");
+            while (cursor.moveToNext()) {
+                //Log.v(LOG_TAG, "MOVENEXT");
+                int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+                String t = cursor.getString(idIndex);
+                if (t == "")
+                    t = f.getName();
+                return t;
+            }
+        } else {
+            Log.v(LOG_TAG, "CURSOR NULL");
         }
         return ret;
     }
-    private String getArtist(File f)
-    {
+
+    private String getArtist(File f) {
         String ret = "";
-        if (mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null)
-        {
-            ret = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-        }
-        else
-        {
-            ret = "unknown";
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+                String t = cursor.getString(idIndex);
+                //Log.v(LOG_TAG,"ARTIST: " + t);
+                if (t == "")
+                    t = f.getName();
+                return t;
+            }
+        } else {
+            Log.v(LOG_TAG, "CURSOR NULL");
         }
         return ret;
     }
-    private String getAlbum(File f)
-    {
+
+    private String getAlbum(File f) {
         String ret = "";
-        if (mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM) != null)
-        {
-            ret = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-        }
-        else
-        {
-            ret = "unknown";
+        if (cursor != null) {
+            //Log.v(LOG_TAG, "CURSOR NOT NULL");
+            while (cursor.moveToNext()) {
+                //Log.v(LOG_TAG, "MOVENEXT");
+                int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+                String t = cursor.getString(idIndex);
+                if (t == "")
+                    t = f.getName();
+                return t;
+            }
+        } else {
+            Log.v(LOG_TAG, "CURSOR NULL");
         }
         return ret;
     }
-    private Bitmap getIcon(File f)
-    {
-        Bitmap ret = null;
-        if (mmr.getEmbeddedPicture() != null)
-        {
-            byte[] art = mmr.getEmbeddedPicture();
-            ret = BitmapFactory.decodeByteArray(art,0,art.length);
+
+    private Bitmap getIcon(File f) {
+        Bitmap ret = defIcon;
+        return ret;
+        /*
+        if (cursor != null) {
+            Log.v(LOG_TAG,"CURSOR NOT NULL");
+            while (cursor.moveToNext()) {
+            }
         }
         else
         {
-            ret = defIcon;
+
         }
-        return ret;
+        return ret;*/
     }
 }
