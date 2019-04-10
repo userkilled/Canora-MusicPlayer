@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ListSorter {
+    //TODO: Try to Optimize sortSongsByName
 
     //Globals
     String LOG_TAG = "LISTSRT";
@@ -40,8 +41,6 @@ public class ListSorter {
     {
         PerformanceTimer pt = new PerformanceTimer(); //Function Performance Timer
         pt.start();
-        //TODO:This Function Eats up Startup Time, Optimize
-
         List<SongItem> rtrn = in;
         Log.v(LOG_TAG,"INPUT LIST SIZE: " + in.size());
         rtrn.sort(new NameSorter());

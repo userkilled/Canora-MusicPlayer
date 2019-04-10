@@ -101,7 +101,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onResume() {
         super.onResume();
-        //TODO: Add New Files on Resume
+        //TODO: Reload Song Cache on Resume
     }
 
     @Override
