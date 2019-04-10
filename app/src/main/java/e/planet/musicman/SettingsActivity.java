@@ -95,7 +95,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     void init() {
-        setContentView(R.layout.settingslayout);
+        setContentView(R.layout.layout_settings);
         if (player == null)
             doBindService();
         final SeekBar sk = (SeekBar) findViewById(R.id.seekBar1);

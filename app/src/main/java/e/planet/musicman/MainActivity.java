@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(LOG_TAG, "ONCREATE CALLED");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.mainlayout);
+        setContentView(R.layout.layout_main);
 
         globT.start();
 
@@ -551,7 +551,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             View listItem = convertView;
             if (listItem == null)
-                listItem = LayoutInflater.from(mContext).inflate(R.layout.song_listitem, parent, false);
+                listItem = LayoutInflater.from(mContext).inflate(R.layout.list_item_song, parent, false);
             TextView sn = listItem.findViewById(R.id.listsongname);
             TextView in = listItem.findViewById(R.id.listinterpret);
             ImageView iv = listItem.findViewById(R.id.imageview);
