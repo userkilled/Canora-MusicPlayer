@@ -87,6 +87,7 @@ public class playerService extends Service {
     private float volume = 0.8f;
 
     //Binder
+
     public class LocalBinder extends Binder {
         playerService getService() {
             return playerService.this;
@@ -94,6 +95,7 @@ public class playerService extends Service {
     }
 
     //Public Control Functions
+
     public int init(File[] files, int c) {
         Log.v(LOG_TAG, "Init called, " + c + " Files Found.");
         songPos = -1;
@@ -251,6 +253,7 @@ public class playerService extends Service {
             return true;
         }
     }
+
     public boolean enableRepeat()   {
         if (repeatSong){
             repeatSong = false;
@@ -296,17 +299,19 @@ public class playerService extends Service {
     }
 
     //Private Functions
+
     private void handleMediaController()
     {
         nfm = NotificationManagerCompat.from(this);
         showNotification();
     }
+
     private void showNotification()
     {
-        Log.v(LOG_TAG,"BUILDING NOTIFICATION");
+        //Log.v(LOG_TAG,"BUILDING NOTIFICATION");
         Map<String,String> md = new HashMap<>();
         if (songs != null) {
-            Log.v(LOG_TAG,"SONGPOS: " + songPos);
+            //Log.v(LOG_TAG,"SONGPOS: " + songPos);
             md.put("TITLE", songs.get(songPos).Title);
             md.put("ARTIST", songs.get(songPos).Artist);
         }
@@ -320,7 +325,7 @@ public class playerService extends Service {
                 .setStyle(new Notification.MediaStyle()
                         .setShowActionsInCompactView(0,1,2))
                 .setColor(0xFFDB4437)
-                .setSmallIcon(R.drawable.mainicon)
+                .setSmallIcon(R.drawable.notification_mainicon)
                 .setContentTitle(md.get("TITLE"))
                 .setContentText(md.get("ARTIST"))
                 .addAction(R.drawable.notification_btnprev, "prev", retreivePlaybackAction(3));
@@ -332,6 +337,7 @@ public class playerService extends Service {
         Notification noti = nb.build();
         nfm.notify(notificationID,noti);
     }
+
     private PendingIntent retreivePlaybackAction(int which) {
         Intent action;
         PendingIntent pendingIntent;
