@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -28,7 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class mainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     //Callbacks
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,8 +124,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.action_settings:
                 // User chose the "Settings" item, show the app settings UI...
                 Log.v(LOG_TAG, "Settings Pressed.");
-                Intent myIntent = new Intent(mainActivity.this, settingsActivity.class);
-                mainActivity.this.startActivity(myIntent);
+                Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                MainActivity.this.startActivity(myIntent);
                 return true;
 
             default:
@@ -173,7 +172,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //My Code
     //Globals
-    private playerService player;
+    private MusicPlayerService player;
 
     private BroadcastReceiver brcv;
 
@@ -549,20 +548,20 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //Service Binding
     void doBindService() {
-        Intent intent = new Intent(this, playerService.class);
+        Intent intent = new Intent(this, MusicPlayerService.class);
         startService(intent);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     void doUnbindService() {
-        Intent intent = new Intent(this, playerService.class);
+        Intent intent = new Intent(this, MusicPlayerService.class);
         unbindService(mConnection);
         stopService(intent);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
-            player = ((playerService.LocalBinder) service).getService();
+            player = ((MusicPlayerService.LocalBinder) service).getService();
             initPlayer();
             //createNotification();
             globT.printStep(LOG_TAG, "Service Initialization");

@@ -1,20 +1,17 @@
 package e.planet.musicman;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
-public class settingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
     //Callbacks
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,13 +68,13 @@ public class settingsActivity extends AppCompatActivity {
 
     //Globals
     String LOG_TAG = "SETTTINGS";
-    playerService player = null;
+    MusicPlayerService player = null;
 
     //Custom Functions
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             Log.v(LOG_TAG, "Service Connected.");
-            player = ((playerService.LocalBinder) service).getService();
+            player = ((MusicPlayerService.LocalBinder) service).getService();
             final SeekBar sk = (SeekBar) findViewById(R.id.seekBar1);
             sk.setProgress((int) (player.getVolume() * 100));
         }
@@ -88,12 +85,12 @@ public class settingsActivity extends AppCompatActivity {
     };
 
     void doBindService() {
-        Intent intent = new Intent(this, playerService.class);
+        Intent intent = new Intent(this, MusicPlayerService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     void doUnbindService() {
-        Intent intent = new Intent(this, playerService.class);
+        Intent intent = new Intent(this, MusicPlayerService.class);
         unbindService(mConnection);
     }
 

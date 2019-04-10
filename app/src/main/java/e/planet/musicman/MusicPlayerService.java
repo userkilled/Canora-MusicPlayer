@@ -1,33 +1,22 @@
 package e.planet.musicman;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.*;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadata;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.media.session.MediaController;
-import android.media.session.MediaSession;
-import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
-import java.io.File;
 import java.util.*;
-
-import e.planet.musicman.Constants;
 
 import static e.planet.musicman.Constants.*;
 
-public class playerService extends Service {
+public class MusicPlayerService extends Service {
     //Callbacks
     @Override
     public IBinder onBind(Intent intent) {
@@ -53,6 +42,9 @@ public class playerService extends Service {
         if (brcv != null) {
             unregisterReceiver(brcv);
             brcv = null;
+        }
+        if (nfm != null) {
+            nfm.cancelAll();
         }
     }
 
@@ -88,8 +80,8 @@ public class playerService extends Service {
     //Binder
 
     public class LocalBinder extends Binder {
-        playerService getService() {
-            return playerService.this;
+        MusicPlayerService getService() {
+            return MusicPlayerService.this;
         }
     }
 
@@ -292,10 +284,8 @@ public class playerService extends Service {
     }
 
     private void showNotification() {
-        //Log.v(LOG_TAG,"BUILDING NOTIFICATION");
         Map<String, String> md = new HashMap<>();
         if (songs != null) {
-            //Log.v(LOG_TAG,"SONGPOS: " + songPos);
             md.put("TITLE", songs.get(songPos).Title);
             md.put("ARTIST", songs.get(songPos).Artist);
         } else {
@@ -306,16 +296,22 @@ public class playerService extends Service {
                 .setShowWhen(false)
                 .setStyle(new Notification.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2))
-                .setColor(0xFFDB4437)
+                .setColor(0x020202)
                 .setSmallIcon(R.drawable.notification_mainicon)
                 .setContentTitle(md.get("TITLE"))
                 .setContentText(md.get("ARTIST"))
-                .addAction(R.drawable.notification_btnprev, "prev", retreivePlaybackAction(3));
+                .addAction(R.drawable.main_btnprev, "prev", retreivePlaybackAction(3));
+
         if (player != null && player.isPlaying())
-            nb.addAction(R.drawable.notification_btnpause, "pause", retreivePlaybackAction(1));
+            nb.addAction(R.drawable.main_btnpause, "pause", retreivePlaybackAction(1));
         else
-            nb.addAction(R.drawable.notification_btnplay, "play", retreivePlaybackAction(1));
-        nb.addAction(R.drawable.notification_btnnext, "next", retreivePlaybackAction(2));
+            nb.addAction(R.drawable.main_btnplay, "play", retreivePlaybackAction(1));
+        nb.addAction(R.drawable.main_btnnext, "next", retreivePlaybackAction(2));
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        resultIntent.setAction("android.intent.action.MAIN");
+        resultIntent.addCategory("android.intent.category.LAUNCHER");
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        nb.setContentIntent(resultPendingIntent);
         Notification noti = nb.build();
         nfm.notify(notificationID, noti);
     }
