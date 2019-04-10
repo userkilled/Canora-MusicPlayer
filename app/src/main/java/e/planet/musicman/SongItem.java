@@ -13,7 +13,9 @@ import android.util.Log;
 import java.io.File;
 
 public class SongItem {
+
     //TODO: Load Album Cover via MediaStore
+
     public File file;
 
     public String Title;
@@ -100,9 +102,7 @@ public class SongItem {
         String ret = "";
 
         if (cursor != null) {
-            //Log.v(LOG_TAG, "CURSOR NOT NULL");
             while (cursor.moveToNext()) {
-                //Log.v(LOG_TAG, "MOVENEXT");
                 int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
                 String t = cursor.getString(idIndex);
                 if (t == "")
@@ -121,7 +121,6 @@ public class SongItem {
             while (cursor.moveToNext()) {
                 int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
                 String t = cursor.getString(idIndex);
-                //Log.v(LOG_TAG,"ARTIST: " + t);
                 if (t == "")
                     t = f.getName();
                 return t;
@@ -135,9 +134,7 @@ public class SongItem {
     private String getAlbum(File f) {
         String ret = "";
         if (cursor != null) {
-            //Log.v(LOG_TAG, "CURSOR NOT NULL");
             while (cursor.moveToNext()) {
-                //Log.v(LOG_TAG, "MOVENEXT");
                 int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
                 String t = cursor.getString(idIndex);
                 if (t == "")

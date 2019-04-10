@@ -44,20 +44,20 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
             pt.start();
             startplayer();
-            pt.printStep(LOG_TAG,"STARTPLAYER");
+            pt.printStep(LOG_TAG, "STARTPLAYER");
             setExtensions();
-            pt.printStep(LOG_TAG,"SETEXTENSIONS");
+            pt.printStep(LOG_TAG, "SETEXTENSIONS");
             loadFiles();
-            pt.printStep(LOG_TAG,"LOADFILES");
+            pt.printStep(LOG_TAG, "LOADFILES");
             registerReceiver();
-            pt.printStep(LOG_TAG,"REGISTERRECEIVER");
+            pt.printStep(LOG_TAG, "REGISTERRECEIVER");
             setListeners();
-            pt.printStep(LOG_TAG,"SETLISTENERS");
+            pt.printStep(LOG_TAG, "SETLISTENERS");
             pt.stop();
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
             getSupportActionBar().setIcon(R.drawable.mainicon);
             getSupportActionBar().setLogo(R.drawable.mainicon);
-            pt.printStep(LOG_TAG,"onCreate");
+            pt.printStep(LOG_TAG, "onCreate");
             ActionBar actionbar = getSupportActionBar();
             //String t = "<font color='#c800ff'>ActionBarTitle </font>";
             String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(this, R.color.colorAccent) & 0x00ffffff); //Because ANDROID
@@ -81,7 +81,6 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     protected void onStart() {
-        //NOTE: Gets called Multiple Times
         super.onStart();
         Log.v(LOG_TAG, "onStart Called.");
         if (player != null && player.player != null) {
@@ -145,9 +144,9 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         ImageButton btn = findViewById(R.id.buttonPlay);
         if (player != null) {
             if (player.play(safeLongToInt(id)))
-                setPlayButton(btn,true);
+                setPlayButton(btn, true);
             else
-                setPlayButton(btn,false);
+                setPlayButton(btn, false);
             updateSongDisplay();
             handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
             //createNotification();
@@ -215,33 +214,29 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         int i = 0;
         while (i < 10) {
             i++;
-            if (songItemList == null)
-            {
-                try{
+            if (songItemList == null) {
+                try {
                     wait(100);
-                }
-                catch(Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-            else if (songItemList.size() > 0) {
+            } else if (songItemList.size() > 0) {
                 Log.v(LOG_TAG, "Player Init.");
                 setListAdapter();
                 if (songItemList != null) {
                     player.init(songItemList, songItemList.size());
                 }
-                p.printStep(LOG_TAG,"Player Initialization");
+                p.printStep(LOG_TAG, "Player Initialization");
                 updateSongDisplay();
-                p.printStep(LOG_TAG,"updateSongDisplay");
+                p.printStep(LOG_TAG, "updateSongDisplay");
                 break;
             }
         }
         if (i == 10)
-            Log.v(LOG_TAG,"initPlayer Failed to Load Files");
+            Log.v(LOG_TAG, "initPlayer Failed to Load Files");
     }
-    public void loadFiles()
-    {
+
+    public void loadFiles() {
         //Main Entry Point after Permission is Granted
         /* This Function Makes the Initial Search for Music Files, No Further Search is Performed after this Function */
 
@@ -253,13 +248,13 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 songItemList.addAll(getPlayListAsItems(str));
             pt.stepAverage();
         }
-        pt.printAverage(LOG_TAG,"File Loop to Fetch Files from Directory");
+        pt.printAverage(LOG_TAG, "File Loop to Fetch Files from Directory");
         Log.v(LOG_TAG, "Found " + songItemList.size() + "Songs.");
-        Log.v(LOG_TAG,"Sorting Files.");
+        Log.v(LOG_TAG, "Sorting Files.");
         pt.start();
         songItemList = sortSongsByTitle(songItemList);
-        pt.printStep(LOG_TAG,"sortFilesByName");
-        Log.v(LOG_TAG,"Files Sorted.");
+        pt.printStep(LOG_TAG, "sortFilesByName");
+        Log.v(LOG_TAG, "Files Sorted.");
     }
 
     public void handleProgressAnimation(int dur, int pos) {
@@ -291,12 +286,12 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (pos > 0)
                     proc = (pos / dur) * 100;
                 //Log.v(LOG_TAG,"Setting Value: " + proc + " Dur: " + dur + " Pos: " + pos);
-                    if (player.player.isPlaying()) {
-                        //Log.v(LOG_TAG,"Setting Progress: " + proc + " %");
-                        //Log.v(LOG_TAG,"Percentage: " + safeDoubleToInt(proc));
-                        pb.setProgress(safeDoubleToInt(proc));
-                        tv.setText(dspt);
-                    }
+                if (player.player.isPlaying()) {
+                    //Log.v(LOG_TAG,"Setting Progress: " + proc + " %");
+                    //Log.v(LOG_TAG,"Percentage: " + safeDoubleToInt(proc));
+                    pb.setProgress(safeDoubleToInt(proc));
+                    tv.setText(dspt);
+                }
             }
         });
         if (player.getPlayerStatus())
@@ -307,8 +302,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void updateSongDisplay() {
         String text = "";
         SongItem s = player.getCurrentSong();
-        if (s != null)
-        {
+        if (s != null) {
             text = s.Title + " by " + s.Artist;
         }
         TextView txt = findViewById(R.id.songDisplay);
@@ -330,11 +324,11 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onClick(View v) {
                 if (player != null && player.player != null) {
                     if (player.pauseResume())
-                        setPlayButton(playbtn,true);
+                        setPlayButton(playbtn, true);
                     else
-                        setPlayButton(playbtn,false);
+                        setPlayButton(playbtn, false);
                     handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
-                   // createNotification();
+                    // createNotification();
                 }
             }
         };
@@ -346,7 +340,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     updateSongDisplay();
                     handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
                     //createNotification();
-                    setPlayButton(playbtn,true);
+                    setPlayButton(playbtn, true);
                 }
             }
         };
@@ -358,7 +352,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     updateSongDisplay();
                     handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
                     //createNotification();
-                    setPlayButton(playbtn,true);
+                    setPlayButton(playbtn, true);
                 }
             }
         };
@@ -402,10 +396,9 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         listview.setOnItemClickListener(this);
     }
 
-    private void setListAdapter()
-    {
+    private void setListAdapter() {
         ListView lv = (ListView) findViewById(R.id.listView1);
-        SongAdapter arrayAdapter = new SongAdapter(this,songItemList);
+        SongAdapter arrayAdapter = new SongAdapter(this, songItemList);
         lv.setAdapter(arrayAdapter);
     }
 
@@ -421,14 +414,12 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         searchPaths.add("/storage/emulated/0/Download");
     }
 
-    List<SongItem> getPlayListAsItems(String rootPath)
-    {
-        Bitmap dicon = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.icon_unsetsong);
+    List<SongItem> getPlayListAsItems(String rootPath) {
+        Bitmap dicon = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.icon_unsetsong);
         List<File> t = getPlayList(rootPath);
         List<SongItem> ret = new ArrayList<>();
-        for (int i = 0; i < t.size(); i++)
-        {
-            SongItem n = new SongItem(this,t.get(i),dicon);
+        for (int i = 0; i < t.size(); i++) {
+            SongItem n = new SongItem(this, t.get(i), dicon);
             ret.add(n);
         }
         return ret;
@@ -456,11 +447,10 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private List<SongItem> sortSongsByTitle(List<SongItem> s)
-    {
+    private List<SongItem> sortSongsByTitle(List<SongItem> s) {
         List<SongItem> ret = new ArrayList<>();
         ListSorter ls = new ListSorter();
-        ret = ls.sort(s,this);
+        ret = ls.sort(s, this);
         return ret;
     }
 
@@ -479,26 +469,22 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
                     ImageButton btn = findViewById(R.id.buttonPlay);
                     if (player != null) {
                         if (player.pauseResume())
-                            setPlayButton(btn,true);
+                            setPlayButton(btn, true);
                         else
-                            setPlayButton(btn,false);
+                            setPlayButton(btn, false);
                         handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
                         //createNotification();
                     }
-                }
-                else if (intent.getAction().equals("com.musicman.PLAYING"))
-                {
+                } else if (intent.getAction().equals("com.musicman.PLAYING")) {
                     //createNotification();
                     ImageButton btn = findViewById(R.id.buttonPlay);
-                    setPlayButton(btn,true);
-                    handleProgressAnimation(player.player.getDuration(),player.player.getCurrentPosition());
-                }
-                else if (intent.getAction().equals("com.musicman.PAUSED"))
-                {
+                    setPlayButton(btn, true);
+                    handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
+                } else if (intent.getAction().equals("com.musicman.PAUSED")) {
                     //createNotification();
                     ImageButton btn = findViewById(R.id.buttonPlay);
-                    setPlayButton(btn,false);
-                    handleProgressAnimation(player.player.getDuration(),player.player.getCurrentPosition());
+                    setPlayButton(btn, false);
+                    handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
                 }
             }
         };
@@ -510,14 +496,10 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         registerReceiver(brcv, flt);
     }
 
-    public void setPlayButton(ImageButton btn ,boolean play)
-    {
-        if (play)
-        {
+    public void setPlayButton(ImageButton btn, boolean play) {
+        if (play) {
             btn.setImageResource(R.drawable.main_btnpause);
-        }
-        else
-        {
+        } else {
             btn.setImageResource(R.drawable.main_btnplay);
         }
     }
@@ -577,14 +559,15 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         unbindService(mConnection);
         stopService(intent);
     }
+
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             player = ((playerService.LocalBinder) service).getService();
             initPlayer();
             //createNotification();
-            globT.printStep(LOG_TAG,"Service Initialization");
+            globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
-            Snackbar.make(findViewById(android.R.id.content),"Initialization Time: " + l + " ms.\nFound Songs: " + songItemList.size(),Snackbar.LENGTH_LONG).show();
+            Snackbar.make(findViewById(android.R.id.content), "Initialization Time: " + l + " ms.\nFound Songs: " + songItemList.size(), Snackbar.LENGTH_LONG).show();
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -599,7 +582,7 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         private List<SongItem> songList = new ArrayList<>();
 
         public SongAdapter(@NonNull Context context, List<SongItem> list) {
-            super(context, 0 , list);
+            super(context, 0, list);
             mContext = context;
             songList = list;
         }
@@ -608,8 +591,8 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             View listItem = convertView;
-            if(listItem == null)
-                listItem = LayoutInflater.from(mContext).inflate(R.layout.song_listitem,parent,false);
+            if (listItem == null)
+                listItem = LayoutInflater.from(mContext).inflate(R.layout.song_listitem, parent, false);
             TextView sn = listItem.findViewById(R.id.listsongname);
             TextView in = listItem.findViewById(R.id.listinterpret);
             ImageView iv = listItem.findViewById(R.id.imageview);

@@ -19,7 +19,7 @@ public class settingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v(LOG_TAG,"ONCREATE CALLED");
+        Log.v(LOG_TAG, "ONCREATE CALLED");
         init();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -57,6 +57,7 @@ public class settingsActivity extends AppCompatActivity {
         if (player != null)
             doUnbindService();
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -75,15 +76,17 @@ public class settingsActivity extends AppCompatActivity {
     //Custom Functions
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.v(LOG_TAG,"Service Connected.");
+            Log.v(LOG_TAG, "Service Connected.");
             player = ((playerService.LocalBinder) service).getService();
-            final SeekBar sk=(SeekBar) findViewById(R.id.seekBar1);
-            sk.setProgress((int)(player.getVolume() * 100));
+            final SeekBar sk = (SeekBar) findViewById(R.id.seekBar1);
+            sk.setProgress((int) (player.getVolume() * 100));
         }
+
         public void onServiceDisconnected(ComponentName className) {
             player = null;
         }
     };
+
     void doBindService() {
         Intent intent = new Intent(this, playerService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -93,12 +96,12 @@ public class settingsActivity extends AppCompatActivity {
         Intent intent = new Intent(this, playerService.class);
         unbindService(mConnection);
     }
-    void init()
-    {
+
+    void init() {
         setContentView(R.layout.settingslayout);
         if (player == null)
             doBindService();
-        final SeekBar sk=(SeekBar) findViewById(R.id.seekBar1);
+        final SeekBar sk = (SeekBar) findViewById(R.id.seekBar1);
         sk.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             @Override
@@ -111,9 +114,9 @@ public class settingsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
-                float c = (float)progress / 100;
-                Log.v(LOG_TAG,"Setting Volume: " + c);
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float c = (float) progress / 100;
+                Log.v(LOG_TAG, "Setting Volume: " + c);
                 if (player != null)
                     player.setVolume(c);
             }

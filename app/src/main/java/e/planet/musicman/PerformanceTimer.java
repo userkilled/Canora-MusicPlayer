@@ -16,53 +16,52 @@ public class PerformanceTimer {
 
     String LOG_TAG = "PT";
 
-    public PerformanceTimer()
-    {
+    public PerformanceTimer() {
         tstart = 0;
         tdur = 0;
         genesis = System.currentTimeMillis();
     }
-    public long start()
-    {
-       tstart = System.currentTimeMillis();
-       return tstart;
+
+    public long start() {
+        tstart = System.currentTimeMillis();
+        return tstart;
     }
-    public long step()
-    {
+
+    public long step() {
         tdur = System.currentTimeMillis() - tstart;
         tstart = System.currentTimeMillis();
         return tdur;
     }
-    public long stop()
-    {
+
+    public long stop() {
         tdur = System.currentTimeMillis() - tstart;
         return tdur;
     }
-    public long printTotal(String context, String function)
-    {
+
+    public long printTotal(String context, String function) {
         long t = System.currentTimeMillis() - genesis;
-        Log.v(LOG_TAG,context + " " + function + " Took " + t + " Miliseconds in Total.");
+        Log.v(LOG_TAG, context + " " + function + " Took " + t + " Miliseconds in Total.");
         return t;
     }
-    public void printStep(String context, String function)
-    {
+
+    public void printStep(String context, String function) {
         tdur = System.currentTimeMillis() - tstart;
         tstart = System.currentTimeMillis();
-        Log.v(LOG_TAG,context + " " + function + " Took " + tdur + " Miliseconds to complete.");
+        Log.v(LOG_TAG, context + " " + function + " Took " + tdur + " Miliseconds to complete.");
     }
-    public void startAverage()
-    {
+
+    public void startAverage() {
         avg = new ArrayList<>();
         tstart = System.currentTimeMillis();
     }
-    public void stepAverage()
-    {
+
+    public void stepAverage() {
         tdur = System.currentTimeMillis() - tstart;
         tstart = System.currentTimeMillis();
         avg.add(safeLongToInt(tdur));
     }
-    public void printAverage(String context, String function)
-    {
+
+    public void printAverage(String context, String function) {
         if (avg != null) {
             int total = 0;
             int ret = 0;
@@ -70,10 +69,9 @@ public class PerformanceTimer {
                 total += avg.get(i);
                 ret = total / avg.size();
             }
-            Log.v(LOG_TAG,context + " " + function + " Took on Average: " + ret + " Miliseconds to Complete. Total: " + total + " Miliseconds.");
-        }
-        else
-            Log.v(LOG_TAG,context + " " + function + "ERROR GETTING AVERAGE");
+            Log.v(LOG_TAG, context + " " + function + " Took on Average: " + ret + " Miliseconds to Complete. Total: " + total + " Miliseconds.");
+        } else
+            Log.v(LOG_TAG, context + " " + function + "ERROR GETTING AVERAGE");
     }
 
     public static int safeLongToInt(long l) {

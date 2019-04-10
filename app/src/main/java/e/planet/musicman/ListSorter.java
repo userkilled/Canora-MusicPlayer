@@ -22,14 +22,12 @@ public class ListSorter {
     Context co;
 
     //Constructor
-    public ListSorter()
-    {
+    public ListSorter() {
 
     }
 
     //Callbacks
-    public List<SongItem> sort(List<SongItem> in, Context cont)
-    {
+    public List<SongItem> sort(List<SongItem> in, Context cont) {
         co = cont;
         List<SongItem> sorted = null;
         sorted = sortSongsByName(in);
@@ -37,25 +35,22 @@ public class ListSorter {
     }
 
     //Private Functions
-    private List<SongItem> sortSongsByName(List<SongItem> in)
-    {
+    private List<SongItem> sortSongsByName(List<SongItem> in) {
         PerformanceTimer pt = new PerformanceTimer(); //Function Performance Timer
         pt.start();
         List<SongItem> rtrn = in;
-        Log.v(LOG_TAG,"INPUT LIST SIZE: " + in.size());
+        Log.v(LOG_TAG, "INPUT LIST SIZE: " + in.size());
         rtrn.sort(new NameSorter());
-        Log.v(LOG_TAG,"SORTED LIST SIZE: " + rtrn.size());
+        Log.v(LOG_TAG, "SORTED LIST SIZE: " + rtrn.size());
         return rtrn;
     }
 
     //Objects
-    private class NameSorter implements Comparator<SongItem>
-    {
+    private class NameSorter implements Comparator<SongItem> {
         @Override
-        public int compare(SongItem f1, SongItem f2)
-        {
-           // Log.v(LOG_TAG,"Comparing: " + f1.Title + " to " + f2.Title);
-            return f1.Title.substring(0,1).toLowerCase().compareTo(f2.Title.substring(0,1).toLowerCase());
+        public int compare(SongItem f1, SongItem f2) {
+            // Log.v(LOG_TAG,"Comparing: " + f1.Title + " to " + f2.Title);
+            return f1.Title.substring(0, 1).toLowerCase().compareTo(f2.Title.substring(0, 1).toLowerCase());
         }
     }
 }

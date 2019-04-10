@@ -38,20 +38,19 @@ public class playerService extends Service {
     }
 
     public void onCreate() {
-        Log.v(LOG_TAG,"ONCREATE");
+        Log.v(LOG_TAG, "ONCREATE");
         Arrays.fill(songHistory, -1);
         registerReceiver();
         handleMediaController();
     }
 
     public void onDestroy() {
-        Log.v(LOG_TAG,"ONDESTROY");
+        Log.v(LOG_TAG, "ONDESTROY");
         if (player != null) {
             player.stop();
             player.release();
         }
-        if (brcv != null)
-        {
+        if (brcv != null) {
             unregisterReceiver(brcv);
             brcv = null;
         }
@@ -249,12 +248,11 @@ public class playerService extends Service {
         }
     }
 
-    public boolean enableRepeat()   {
-        if (repeatSong){
+    public boolean enableRepeat() {
+        if (repeatSong) {
             repeatSong = false;
             return false;
-        }
-        else{
+        } else {
             repeatSong = true;
             return true;
         }
@@ -266,59 +264,48 @@ public class playerService extends Service {
             player.setVolume(vol, vol);
     }
 
-    public float getVolume()
-    {
+    public float getVolume() {
         return volume;
     }
 
-    public boolean getPlayerStatus()
-    {
-        if (player != null)
-        {
+    public boolean getPlayerStatus() {
+        if (player != null) {
             if (player.isPlaying())
                 return true;
         }
         return false;
     }
 
-    public SongItem getCurrentSong()
-    {
-        if (songPos > -1 && songs != null)
-        {
+    public SongItem getCurrentSong() {
+        if (songPos > -1 && songs != null) {
             return songs.get(songPos);
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
     //Private Functions
 
-    private void handleMediaController()
-    {
+    private void handleMediaController() {
         nfm = NotificationManagerCompat.from(this);
         showNotification();
     }
 
-    private void showNotification()
-    {
+    private void showNotification() {
         //Log.v(LOG_TAG,"BUILDING NOTIFICATION");
-        Map<String,String> md = new HashMap<>();
+        Map<String, String> md = new HashMap<>();
         if (songs != null) {
             //Log.v(LOG_TAG,"SONGPOS: " + songPos);
             md.put("TITLE", songs.get(songPos).Title);
             md.put("ARTIST", songs.get(songPos).Artist);
-        }
-        else
-        {
-            md.put("TITLE","");
-            md.put("ARTIST","");
+        } else {
+            md.put("TITLE", "");
+            md.put("ARTIST", "");
         }
         Notification.Builder nb = new Notification.Builder(this)
                 .setShowWhen(false)
                 .setStyle(new Notification.MediaStyle()
-                        .setShowActionsInCompactView(0,1,2))
+                        .setShowActionsInCompactView(0, 1, 2))
                 .setColor(0xFFDB4437)
                 .setSmallIcon(R.drawable.notification_mainicon)
                 .setContentTitle(md.get("TITLE"))
@@ -330,7 +317,7 @@ public class playerService extends Service {
             nb.addAction(R.drawable.notification_btnplay, "play", retreivePlaybackAction(1));
         nb.addAction(R.drawable.notification_btnnext, "next", retreivePlaybackAction(2));
         Notification noti = nb.build();
-        nfm.notify(notificationID,noti);
+        nfm.notify(notificationID, noti);
     }
 
     private PendingIntent retreivePlaybackAction(int which) {
@@ -339,17 +326,17 @@ public class playerService extends Service {
         switch (which) {
             case 1:
                 action = new Intent(ACTION_TOGGLE_PLAYBACK);
-                PendingIntent playpi = PendingIntent.getBroadcast(this,0,action,0);
+                PendingIntent playpi = PendingIntent.getBroadcast(this, 0, action, 0);
                 pendingIntent = playpi;
                 return pendingIntent;
             case 2:
                 action = new Intent(ACTION_NEXT);
-                PendingIntent nex = PendingIntent.getBroadcast(this,0,action,0);
+                PendingIntent nex = PendingIntent.getBroadcast(this, 0, action, 0);
                 pendingIntent = nex;
                 return pendingIntent;
             case 3:
                 action = new Intent(ACTION_PREV);
-                PendingIntent prevpi = PendingIntent.getBroadcast(this,0,action,0);
+                PendingIntent prevpi = PendingIntent.getBroadcast(this, 0, action, 0);
                 pendingIntent = prevpi;
                 return pendingIntent;
             default:
