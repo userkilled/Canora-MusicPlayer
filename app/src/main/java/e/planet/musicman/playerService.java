@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.*;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadata;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -15,6 +16,8 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import java.io.File;
@@ -56,27 +59,32 @@ public class playerService extends Service {
 
     //Globals
     MediaPlayer player;
-    Random rand = new Random();
+
+    private Random rand = new Random();
+
     private final IBinder mBinder = new LocalBinder();
     private BroadcastReceiver brcv;
-    MediaSession msess;
+
+    private NotificationManagerCompat nfm;
+    private int notificationID = 1;
 
     /*The Player iterates over this Array of File handles depending on the Settings(Shuffle ,repeat)*/
-    File[] songs; //Song Files in Sorted Form
+    private List<SongItem> songs; //Song Files in Sorted Form
 
-    int position; //Position of Playing Song in Miliseconds
-    int songPos; //Index of currently Playing Song
-    int songCount; //Number of Songs Added
-    int[] songHistory = new int[6];
+    private int position; //Position of Playing Song in Miliseconds
+    private int songPos; //Index of currently Playing Song
+    private int songCount; //Number of Songs Added
 
-    String LOG_TAG = "SERV";
+    private int[] songHistory = new int[6];
+
+    private String LOG_TAG = "SERV";
 
     //Settings
-    boolean shuffle;
-    boolean repeatSong;
-    boolean playing;
+    private boolean shuffle;
+    private boolean repeatSong;
+    private boolean playing;
 
-    float volume = 0.8f;
+    private float volume = 0.8f;
 
     //Binder
     public class LocalBinder extends Binder {
@@ -90,9 +98,13 @@ public class playerService extends Service {
         Log.v(LOG_TAG, "Init called, " + c + " Files Found.");
         songPos = -1;
         if (files != null) {
-            songs = files;
+            songs = new ArrayList<>();
+            for (int i = 0; i < c; i++)
+            {
+                SongItem t = new SongItem(files[i]);
+                songs.add(t);
+            }
             songCount = c;
-            //player = MediaPlayer.create(getApplicationContext(), Uri.parse(songs[0].getAbsolutePath()));
             return 0;
         } else {
             Log.v(LOG_TAG, "Files are Null");
@@ -102,15 +114,16 @@ public class playerService extends Service {
 
     public boolean play(int id) {
         position = 0;
-        if (songs[id] != null && songs[id].exists()) {
-            Log.v(LOG_TAG, "Setting up Song: " + songs[id].getName());
+        if (songs.get(id) != null) {
+            Log.v(LOG_TAG, "Setting up Song: " + songs.get(id).Title);
+            songPos = id;
             if (player != null) {
                 player.stop();
                 player.reset();
                 player.release();
             }
-            createPlayer(songs[id].getAbsolutePath());
-            songPos = id;
+            createPlayer(songs.get(id).file.getAbsolutePath());
+            showNotification();
             handleHistory(true);
             return true;
         } else {
@@ -138,6 +151,7 @@ public class playerService extends Service {
             player.pause();
             playing = false;
             position = player.getCurrentPosition();
+            showNotification();
         }
         return false;
     }
@@ -151,11 +165,13 @@ public class playerService extends Service {
                 playing = true;
                 setListener();
                 setVolume(volume);
+                showNotification();
             } else {
                 player.start();
                 playing = true;
                 setListener();
                 setVolume(volume);
+                showNotification();
             }
             return true;
         }
@@ -177,9 +193,10 @@ public class playerService extends Service {
                 songPos = rand.nextInt(songCount - 1);
                 while (tmp.contains(songPos) && songCount > 5)
                     songPos = rand.nextInt(songCount - 1);
-                createPlayer(songs[songPos].getAbsolutePath());
+                createPlayer(songs.get(songPos).file.getAbsolutePath());
+                showNotification();
                 handleHistory(true);
-                Log.v(LOG_TAG, "Playing: " + songs[songPos].getName());
+                Log.v(LOG_TAG, "Playing: " + songs.get(songPos).Title);
             } else {
                 player.stop();
                 player.reset();
@@ -189,9 +206,10 @@ public class playerService extends Service {
                 } else {
                     songPos = 0;
                 }
-                createPlayer(songs[songPos].getAbsolutePath());
+                createPlayer(songs.get(songPos).file.getAbsolutePath());
+                showNotification();
                 handleHistory(true);
-                Log.v(LOG_TAG, "Playing: " + songs[songPos].getName());
+                Log.v(LOG_TAG, "Playing: " + songs.get(songPos).Title);
             }
         }
     }
@@ -204,9 +222,10 @@ public class playerService extends Service {
                 player.reset();
                 player.release();
                 handleHistory(false);
-                createPlayer(songs[songHistory[0]].getAbsolutePath());
+                createPlayer(songs.get(songHistory[0]).file.getAbsolutePath());
                 songPos = songHistory[0];
-                Log.v(LOG_TAG, "Playing: " + songs[songPos].getName());
+                showNotification();
+                Log.v(LOG_TAG, "Playing: " + songs.get(songPos).Title);
             } else {
                 player.stop();
                 player.reset();
@@ -216,8 +235,9 @@ public class playerService extends Service {
                 } else {
                     songPos = songCount - 1;
                 }
-                createPlayer(songs[songPos].getAbsolutePath());
-                Log.v(LOG_TAG, "Playing: " + songs[songPos].getName());
+                createPlayer(songs.get(songPos).file.getAbsolutePath());
+                showNotification();
+                Log.v(LOG_TAG, "Playing: " + songs.get(songPos).Title);
             }
         }
     }
@@ -248,42 +268,11 @@ public class playerService extends Service {
             player.setVolume(vol, vol);
     }
 
-    public String getSongDisplay() {
-        if (songPos > -1 && songs != null)
-        {
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            mmr.setDataSource(songs[songPos].getAbsolutePath());
-            if (mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null && mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null) {
-               // Log.v(LOG_TAG, "SONG NAME: " + mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
-                return mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) + " by " + mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            }
-            else
-                return songs[songPos].getName();
-        }
-        return "";
+    public float getVolume()
+    {
+        return volume;
     }
 
-    public String getInterpreter()
-    {
-        if (songPos > -1)
-        {
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            mmr.setDataSource(songs[songPos].getAbsolutePath());
-            return mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-        }
-        return "";
-    }
-
-    public String getAlbum()
-    {
-        if (songPos > -1)
-        {
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            mmr.setDataSource(songs[songPos].getAbsolutePath());
-            return mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-        }
-        return "";
-    }
     public boolean getPlayerStatus()
     {
         if (player != null)
@@ -294,56 +283,73 @@ public class playerService extends Service {
         return false;
     }
 
+    public SongItem getCurrentSong()
+    {
+        if (songPos > -1 && songs != null)
+        {
+            return songs.get(songPos);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     //Private Functions
     private void handleMediaController()
     {
-        msess = new MediaSession(this,"mysession");
-        msess.setMetadata(new MediaMetadata.Builder()
-                .putString(MediaMetadata.METADATA_KEY_TITLE,"SONGTITLE")
-                .putString(MediaMetadata.METADATA_KEY_ARTIST,"SONGARTIST")
-                .build());
-        msess.setActive(true);
-        msess.setFlags(MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
-        final Notification noti = new Notification.Builder(this)
+        nfm = NotificationManagerCompat.from(this);
+        showNotification();
+    }
+    private void showNotification()
+    {
+        Log.v(LOG_TAG,"BUILDING NOTIFICATION");
+        Map<String,String> md = new HashMap<>();
+        if (songs != null) {
+            Log.v(LOG_TAG,"SONGPOS: " + songPos);
+            md.put("TITLE", songs.get(songPos).Title);
+            md.put("ARTIST", songs.get(songPos).Artist);
+        }
+        else
+        {
+            md.put("TITLE","");
+            md.put("ARTIST","");
+        }
+        Notification.Builder nb = new Notification.Builder(this)
                 .setShowWhen(false)
                 .setStyle(new Notification.MediaStyle()
-                    .setMediaSession(msess.getSessionToken())
-                    .setShowActionsInCompactView(0,1,2))
+                        .setShowActionsInCompactView(0,1,2))
                 .setColor(0xFFDB4437)
                 .setSmallIcon(R.drawable.mainicon)
-                .setContentText("INTERPRET")
-                .setContentTitle("SONGNAME")
-                .addAction(R.drawable.notification_btnprev, "prev", retreivePlaybackAction(3))
-                .addAction(R.drawable.notification_btnpause, "pause", retreivePlaybackAction(1))
-                .addAction(R.drawable.notification_btnnext, "next", retreivePlaybackAction(2))
-                .build();
-        //((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(1, noti);
+                .setContentTitle(md.get("TITLE"))
+                .setContentText(md.get("ARTIST"))
+                .addAction(R.drawable.notification_btnprev, "prev", retreivePlaybackAction(3));
+        if (player != null && player.isPlaying())
+            nb.addAction(R.drawable.notification_btnpause, "pause", retreivePlaybackAction(1));
+        else
+            nb.addAction(R.drawable.notification_btnplay, "play", retreivePlaybackAction(1));
+        nb.addAction(R.drawable.notification_btnnext, "next", retreivePlaybackAction(2));
+        Notification noti = nb.build();
+        nfm.notify(notificationID,noti);
     }
     private PendingIntent retreivePlaybackAction(int which) {
         Intent action;
         PendingIntent pendingIntent;
-        final ComponentName serviceName = new ComponentName(this, playerService.class);
         switch (which) {
             case 1:
-                // Play and pause
-                //Log.v(LOG_TAG,"PLAYPAUSE");
                 action = new Intent(ACTION_TOGGLE_PLAYBACK);
-                action.setComponent(serviceName);
-                pendingIntent = PendingIntent.getService(this, 1, action, 0);
+                PendingIntent playpi = PendingIntent.getBroadcast(this,0,action,0);
+                pendingIntent = playpi;
                 return pendingIntent;
             case 2:
-                // Skip tracks
-                //Log.v(LOG_TAG,"NEXT");
                 action = new Intent(ACTION_NEXT);
-                action.setComponent(serviceName);
-                pendingIntent = PendingIntent.getService(this, 2, action, 0);
+                PendingIntent nex = PendingIntent.getBroadcast(this,0,action,0);
+                pendingIntent = nex;
                 return pendingIntent;
             case 3:
-                // Previous tracks
-                //Log.v(LOG_TAG,"PREV");
                 action = new Intent(ACTION_PREV);
-                action.setComponent(serviceName);
-                pendingIntent = PendingIntent.getService(this, 3, action, 0);
+                PendingIntent prevpi = PendingIntent.getBroadcast(this,0,action,0);
+                pendingIntent = prevpi;
                 return pendingIntent;
             default:
                 break;
@@ -351,16 +357,6 @@ public class playerService extends Service {
         return null;
     }
 
-    private void updateMediaSession()
-    {
-        if (player != null)
-        {
-            msess.setMetadata(new MediaMetadata.Builder()
-                    .putString(MediaMetadata.METADATA_KEY_TITLE,songs[songPos].getName())
-                    .putString(MediaMetadata.METADATA_KEY_ARTIST,"STRING UPDATED")
-                    .build());
-        }
-    }
     private void broadcastNewSong() {
         if (player != null) {
             Intent in = new Intent("com.musicman.NEWSONG");

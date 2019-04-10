@@ -78,7 +78,7 @@ public class settingsActivity extends AppCompatActivity {
             Log.v(LOG_TAG,"Service Connected.");
             player = ((playerService.LocalBinder) service).getService();
             final SeekBar sk=(SeekBar) findViewById(R.id.seekBar1);
-            sk.setProgress((int)(player.volume * 100));
+            sk.setProgress((int)(player.getVolume() * 100));
         }
         public void onServiceDisconnected(ComponentName className) {
             player = null;

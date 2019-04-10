@@ -311,74 +311,18 @@ public class mainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void updateSongDisplay() {
+        String text = "";
+        SongItem s = player.getCurrentSong();
+        if (s != null)
+        {
+            text = s.Title + " by " + s.Artist;
+        }
         TextView txt = findViewById(R.id.songDisplay);
-        String txts = "";
-        if (player != null)
-            txts = player.getSongDisplay();
-        if (txts.length() > 39) {
-            txts = txts.substring(0, 36);
-            txts += "...";
+        if (text.length() > 39) {
+            text = text.substring(0, 36);
+            text += "...";
         }
-        txt.setText(txts);
-    }
-
-    public void createNotification()
-    {
-        //OLD
-        if (notificationManager == null)
-            notificationManager = NotificationManagerCompat.from(this);
-        else
-            notificationManager.cancelAll();
-        String txt = "";
-        if (player != null)
-            txt = player.getSongDisplay();
-        Log.v(LOG_TAG,"Creating Notification");
-        Intent intent = new Intent(this, mainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        Intent play = new Intent("com.musicman.PLAYPAUSE");
-        PendingIntent pi = PendingIntent.getBroadcast(this,0,play,0);
-
-        Intent nex = new Intent("com.musicman.NEXT");
-        PendingIntent nexpi = PendingIntent.getBroadcast(this,0,nex,0);
-
-        Intent prev = new Intent("com.musicman.PREV");
-        PendingIntent prevpi = PendingIntent.getBroadcast(this,0,prev,0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "42")
-                .setSmallIcon(R.drawable.mainicon)
-                .setContentTitle("Currently Playing:")
-                .setContentText(txt)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent)
-                .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(0,1,2)
-                        .setMediaSession(null))
-                .addAction(R.drawable.notification_btnprev,"Prev",prevpi);
-        if (player != null && player.player != null && player.player.isPlaying())
-            builder.addAction(R.drawable.notification_btnpause,"Pause",pi);
-        else
-                builder.addAction(R.drawable.notification_btnplay,"Play/Pause",pi);
-        builder.addAction(R.drawable.notification_btnnext,"Next",nexpi);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            //Log.v(LOG_TAG,"CREATING MANAGER");
-            CharSequence name = "MusicMan Control Channel";
-            String description = "Description";
-            int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel channel = new NotificationChannel("42", name, importance);
-            channel.setDescription(description);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-        else {
-            //Log.v(LOG_TAG, "BELOW 25");
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-            notificationManager.notify(42, builder.build());
-        }
-        notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(42, builder.build());
+        txt.setText(text);
     }
 
     public void setListeners() {
