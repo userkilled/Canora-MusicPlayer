@@ -66,6 +66,8 @@ public class SongItem {
     }
 
     public SongItem(Context co, File f) {
+        PerformanceTimer p = new PerformanceTimer();
+        p.start();
         file = f;
         defIcon = null;
         c = co;
@@ -79,23 +81,29 @@ public class SongItem {
             String[] projection = {MediaStore.Audio.Media.TITLE};
             String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
             cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
+            p.printStep(LOG_TAG,"Building Cursor");
             Title = getTitle(f);
+            p.printStep(LOG_TAG,"GetTitle");
 
             projection = new String[]{MediaStore.Audio.Media.ARTIST};
             sortOrder = MediaStore.Audio.Media.ARTIST + " ASC";
             cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
             Artist = getArtist(f);
+            p.printStep(LOG_TAG,"GetArtist");
 
             projection = new String[]{MediaStore.Audio.Media.ALBUM};
             sortOrder = MediaStore.Audio.Media.ALBUM + " ASC";
             cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
             Album = getAlbum(f);
+            p.printStep(LOG_TAG,"GetAlbum");
 
             /*projection = new String[]{MediaStore.Audio.Albums.ALBUM_ART};
             sortOrder = MediaStore.Audio.Albums.ALBUM_ART + " ASC";
             cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);*/
             icon = getIcon(f);
+            p.printStep(LOG_TAG,"GetIcon");
         }
+        p.printTotal(LOG_TAG,"SongItemBuilt");
     }
 
     private String getTitle(File f) {

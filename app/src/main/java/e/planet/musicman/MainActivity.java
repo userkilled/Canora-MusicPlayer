@@ -243,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         pt.startAverage();
         for (String str : searchPaths) {
             Log.v(LOG_TAG, "Searching in Directory: " + str);
-            if (getPlayList(str) != null)
+            if (getPlayListFiles(str) != null)
                 songItemList.addAll(getPlayListAsItems(str));
             pt.stepAverage();
         }
@@ -414,25 +414,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     List<SongItem> getPlayListAsItems(String rootPath) {
+        PerformanceTimer p = new PerformanceTimer();
+        p.start();
         Bitmap dicon = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.icon_unsetsong);
-        List<File> t = getPlayList(rootPath);
+        List<File> t = getPlayListFiles(rootPath);
+        p.printStep(LOG_TAG,"getPlayListFiles"); // 13ms
         List<SongItem> ret = new ArrayList<>();
-        for (int i = 0; i < t.size(); i++) {
-            SongItem n = new SongItem(this, t.get(i), dicon);
-            ret.add(n);
+        PerformanceTimer ap = new PerformanceTimer();
+        ap.startAverage();
+        for (int i = 0; i < t.size(); i++)
+        {
+            SongItem s = new SongItem(this,t.get(i));
+            ret.add(s);
+            ap.printStep(LOG_TAG,"Load File into SongItem");
         }
+        ap.printTotal(LOG_TAG,"Load Files into SongItems");
         return ret;
     }
 
-    ArrayList<File> getPlayList(String rootPath) {
+    ArrayList<File> getPlayListFiles(String rootPath) {
         ArrayList<File> fileList = new ArrayList<>();
         try {
             File rootFolder = new File(rootPath);
             File[] files = rootFolder.listFiles();
             for (File file : files) {
                 if (file.isDirectory()) {
-                    if (getPlayList(file.getAbsolutePath()) != null) {
-                        fileList.addAll(getPlayList(file.getAbsolutePath()));
+                    if (getPlayListFiles(file.getAbsolutePath()) != null) {
+                        fileList.addAll(getPlayListFiles(file.getAbsolutePath()));
                     } else {
                         break;
                     }
