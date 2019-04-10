@@ -4,11 +4,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import java.io.File;
 
@@ -33,6 +30,7 @@ public class SongItem {
     private String LOG_TAG = "SONGITEM";
 
     public SongItem(Context co, File f, Bitmap defaultIcon) {
+        PerformanceTimer p = new PerformanceTimer();
         file = f;
         defIcon = defaultIcon;
         c = co;
@@ -43,26 +41,39 @@ public class SongItem {
             String selection = MediaStore.Audio.Media.DATA;
             String[] selectionArgs = {f.getAbsolutePath()};
 
-            String[] projection = {MediaStore.Audio.Media.TITLE};
+            String[] projection = {MediaStore.Audio.Media.TITLE,MediaStore.Audio.Media.ARTIST,MediaStore.Audio.Media.ALBUM};//MediaStore.Audio.Albums.ALBUM_ART
             String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
             cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
-            Title = getTitle(f);
 
-            projection = new String[]{MediaStore.Audio.Media.ARTIST};
-            sortOrder = MediaStore.Audio.Media.ARTIST + " ASC";
-            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
-            Artist = getArtist(f);
+            String title = "";
+            String artist = "";
+            String album = "";
 
-            projection = new String[]{MediaStore.Audio.Media.ALBUM};
-            sortOrder = MediaStore.Audio.Media.ALBUM + " ASC";
-            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
-            Album = getAlbum(f);
-
-            /*projection = new String[]{MediaStore.Audio.Albums.ALBUM_ART};
-            sortOrder = MediaStore.Audio.Albums.ALBUM_ART + " ASC";
-            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);*/
-            icon = getIcon(f);
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+                    title = cursor.getString(idIndex);
+                    int adIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+                    artist = cursor.getString(adIndex);
+                    int AdIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+                    album = cursor.getString(AdIndex);
+                }
+            }
+            p.printStep(LOG_TAG,"Building Cursor");
+            if (title == null || title == "")
+                title = file.getName();
+            setTitle(title);
+            p.printStep(LOG_TAG,"GetTitle");
+            if (artist == null || artist == "")
+                artist = "unknown";
+            setArtist(artist);
+            p.printStep(LOG_TAG,"GetArtist");
+            setAlbum(album);
+            p.printStep(LOG_TAG,"GetAlbum");
+            setIcon(defIcon);
+            p.printStep(LOG_TAG,"GetIcon");
         }
+        p.printTotal(LOG_TAG,"SongItemBuilt");
     }
 
     public SongItem(Context co, File f) {
@@ -78,96 +89,54 @@ public class SongItem {
             String selection = MediaStore.Audio.Media.DATA;
             String[] selectionArgs = {f.getAbsolutePath()};
 
-            String[] projection = {MediaStore.Audio.Media.TITLE};
+            String[] projection = {MediaStore.Audio.Media.TITLE,MediaStore.Audio.Media.ARTIST,MediaStore.Audio.Media.ALBUM};//MediaStore.Audio.Albums.ALBUM_ART
             String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
             cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
+
+            String title = "";
+            String artist = "";
+            String album = "";
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+                    title = cursor.getString(idIndex);
+                    int adIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+                    artist = cursor.getString(adIndex);
+                    int AdIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+                    album = cursor.getString(AdIndex);
+                }
+            }
             p.printStep(LOG_TAG,"Building Cursor");
-            Title = getTitle(f);
+            if (title == null || title == "")
+                title = file.getName();
+            setTitle(title);
             p.printStep(LOG_TAG,"GetTitle");
-
-            projection = new String[]{MediaStore.Audio.Media.ARTIST};
-            sortOrder = MediaStore.Audio.Media.ARTIST + " ASC";
-            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
-            Artist = getArtist(f);
+            if (artist == null || artist == "")
+                artist = "unknown";
+            setArtist(artist);
             p.printStep(LOG_TAG,"GetArtist");
-
-            projection = new String[]{MediaStore.Audio.Media.ALBUM};
-            sortOrder = MediaStore.Audio.Media.ALBUM + " ASC";
-            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
-            Album = getAlbum(f);
+            setAlbum(album);
             p.printStep(LOG_TAG,"GetAlbum");
-
-            /*projection = new String[]{MediaStore.Audio.Albums.ALBUM_ART};
-            sortOrder = MediaStore.Audio.Albums.ALBUM_ART + " ASC";
-            cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);*/
-            icon = getIcon(f);
+            setIcon(defIcon);
             p.printStep(LOG_TAG,"GetIcon");
         }
         p.printTotal(LOG_TAG,"SongItemBuilt");
     }
 
-    private String getTitle(File f) {
-        String ret = "";
-
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-                String t = cursor.getString(idIndex);
-                if (t == "")
-                    t = f.getName();
-                return t;
-            }
-        } else {
-            Log.v(LOG_TAG, "CURSOR NULL");
-        }
-        return ret;
+    private void setTitle(String s) {
+        Title = s;
     }
 
-    private String getArtist(File f) {
-        String ret = "";
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-                String t = cursor.getString(idIndex);
-                if (t == "")
-                    t = f.getName();
-                return t;
-            }
-        } else {
-            Log.v(LOG_TAG, "CURSOR NULL");
-        }
-        return ret;
+    private void setArtist(String s) {
+        Artist = s;
     }
 
-    private String getAlbum(File f) {
-        String ret = "";
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                int idIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
-                String t = cursor.getString(idIndex);
-                if (t == "")
-                    t = f.getName();
-                return t;
-            }
-        } else {
-            Log.v(LOG_TAG, "CURSOR NULL");
-        }
-        return ret;
+    private void setAlbum(String s) {
+        Album = s;
     }
 
-    private Bitmap getIcon(File f) {
-        Bitmap ret = defIcon;
-        return ret;
-        /*
-        if (cursor != null) {
-            Log.v(LOG_TAG,"CURSOR NOT NULL");
-            while (cursor.moveToNext()) {
-            }
-        }
-        else
-        {
-
-        }
-        return ret;*/
+    private void setIcon(Bitmap p) {
+        icon = p;
     }
 }

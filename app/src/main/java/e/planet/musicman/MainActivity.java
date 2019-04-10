@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         ap.startAverage();
         for (int i = 0; i < t.size(); i++)
         {
-            SongItem s = new SongItem(this,t.get(i));
+            SongItem s = new SongItem(this,t.get(i),dicon);
             ret.add(s);
             ap.printStep(LOG_TAG,"Load File into SongItem");
         }
