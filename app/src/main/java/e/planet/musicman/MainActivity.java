@@ -260,10 +260,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             text = s.Title + " by " + s.Artist;
         }
         TextView txt = findViewById(R.id.songDisplay);
+        /* No Longer Needed 1 Line Max Set
         if (text.length() > 39) {
             text = text.substring(0, 36);
             text += "...";
-        }
+        }*/
         txt.setText(text);
     }
 

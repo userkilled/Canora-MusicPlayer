@@ -13,6 +13,7 @@
             android:textColor="@color/colorAccent"
             android:layout_toRightOf="@+id/imageview"
             android:layout_marginTop="7dp"
+            android:maxLines="1"
             />
     <TextView
             android:id="@+id/listinterpret"
@@ -25,6 +26,8 @@
             android:paddingTop="0dp"
             android:includeFontPadding="false"
             android:textColor="@color/colorAccent"
-            android:layout_toRightOf="@+id/imageview"/>
+            android:layout_toRightOf="@+id/imageview"
+            android:maxLines="1"
+            />
     <ImageView android:id="@+id/imageview" android:layout_width="50dp" android:layout_height="50dp" android:layout_centerVertical="true" android:layout_marginBottom="5dp" android:layout_marginTop="5dp"/>
 </RelativeLayout>

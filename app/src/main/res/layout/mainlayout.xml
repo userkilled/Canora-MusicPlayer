@@ -37,7 +37,8 @@
                   android:layout_marginBottom="2dp"
                   android:layout_marginLeft="5dp"
                   android:layout_marginRight="5dp"
-                  android:background="@color/colorPrimary"/>
+                  android:background="@color/colorPrimary"
+                  android:maxLines="1"/>
     </RelativeLayout>
 
     <RelativeLayout android:layout_width="match_parent"
@@ -83,7 +84,8 @@
                 android:gravity="center"
                 android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/buttonPrev"/>
+                android:layout_toLeftOf="@+id/buttonPrev"
+                android:maxLines="1"/>
         <ImageButton
                 android:id="@+id/buttonShuff"
                 android:text="Shuffle"
