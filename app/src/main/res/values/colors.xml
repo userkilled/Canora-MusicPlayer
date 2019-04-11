@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#00172E</color>
     <color name="colorAccent">#ffffff</color> //Mostly Text
     <color name="colorhighlight">#CC42f486</color>
+
+    <color name="colorDialogText">#000000</color>
 </resources>

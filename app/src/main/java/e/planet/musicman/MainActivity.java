@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
@@ -37,25 +39,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         globT.start();
 
-        PerformanceTimer pt = new PerformanceTimer();
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.v(LOG_TAG, "REQUESTING PERMISSION");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
         } else {
             Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
-            pt.start();
             startplayer();
-            pt.printStep(LOG_TAG, "STARTPLAYER");
-            setExtensions();
-            pt.printStep(LOG_TAG, "SETEXTENSIONS");
+            setExtensionsAndSearchPaths();
             loadFiles();
-            pt.printStep(LOG_TAG, "LOADFILES");
             registerReceiver();
-            pt.printStep(LOG_TAG, "REGISTERRECEIVER");
             setListeners();
-            pt.printStep(LOG_TAG, "SETLISTENERS");
-            pt.stop();
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
             getSupportActionBar().setIcon(R.drawable.mainicon);
             getSupportActionBar().setLogo(R.drawable.mainicon);
@@ -82,8 +75,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onStart() {
         super.onStart();
         Log.v(LOG_TAG, "ONSTART CALLED");
-        if (player != null && player.player != null) {
-            handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
+        if (serv != null && serv.player != null) {
+            handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
         }
     }
 
@@ -121,11 +114,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+
             case R.id.action_settings:
-                Log.v(LOG_TAG, "Settings Pressed.");
-                Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
-                MainActivity.this.startActivity(myIntent);
+                Log.v(LOG_TAG, "Settings Pressed");
+                displayDialog(Constants.DIALOG_SETTINGS);
                 return true;
+
+            case R.id.action_sortby:
+                Log.v(LOG_TAG, "SortBy Pressed");
+                displayDialog(Constants.DIALOG_SORT);
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -135,13 +134,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
         Log.v(LOG_TAG, "You clicked Item: " + id + " at position:" + position);
         ImageButton btn = findViewById(R.id.buttonPlay);
-        if (player != null) {
-            if (player.play(safeLongToInt(id)))
+        if (serv != null) {
+            if (serv.play(position))
                 setPlayButton(btn, true);
             else
                 setPlayButton(btn, false);
             updateSongDisplay();
-            handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
+            handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
         }
     }
 
@@ -150,11 +149,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (requestCode == MY_PERMISSIONS_REQUEST_READ_CONTACTS) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERM GRANTED");
-                setExtensions();
-                loadFiles();
                 startplayer();
+                setExtensionsAndSearchPaths();
+                loadFiles();
                 registerReceiver();
                 setListeners();
+                getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
+                getSupportActionBar().setIcon(R.drawable.mainicon);
+                getSupportActionBar().setLogo(R.drawable.mainicon);
+                ActionBar actionbar = getSupportActionBar();
+                String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(this, R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+                String t = "<font color='" + hexColor + "'>MusicMan </font>";
+                actionbar.setTitle(Html.fromHtml(t));
             } else {
                 Log.v(LOG_TAG, "PERM DENIED");
                 System.exit(1);
@@ -164,14 +170,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     //Globals
-    private MusicPlayerService player;
+    private MusicPlayerService serv;
 
     private BroadcastReceiver brcv;
 
     NotificationManagerCompat notificationManager;
 
-    //The Only Reference to The SongFiles along with another one in the Player Service
+    /*The Only Reference to The SongFiles along with a Copy in The MusicPlayerService*/
     List<SongItem> songItemList = new ArrayList<>();
+
+    int sortBy = Constants.SORT_BYTITLE; //Global Sorter Variable
+
+    int idH = 0; //Stores Maximum ID Given out, Used for getting a new ID each Song
 
     PerformanceTimer globT = new PerformanceTimer();
 
@@ -196,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (songItemList.size() > 0) {
             setListAdapter();
             if (songItemList != null) {
-                player.init(songItemList, songItemList.size());
+                serv.init(songItemList);
             }
             updateSongDisplay();
         } else {
@@ -217,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void handleProgressAnimation(int dur, int pos) {
         /* Creates a new ValueAnimator for the Duration Bar and the Digits, And Calls Update Song Display*/
-        Log.v(LOG_TAG, "UPDATE UI, DUR: " + dur + " POS: " + pos + " ISPLAYING: " + player.player.isPlaying());
+        Log.v(LOG_TAG, "UPDATE UI, DUR: " + dur + " POS: " + pos + " ISPLAYING: " + serv.player.isPlaying());
         final ProgressBar pb = findViewById(R.id.songDurBar);
         final TextView tv = findViewById(R.id.digitDisp);
         if (animator != null)
@@ -229,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                if (player == null || player.player == null)
+                if (serv == null || serv.player == null)
                     return;
                 double proc = 0;
                 double dur = animation.getDuration();
@@ -241,13 +251,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + " - " + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
                 if (pos > 0)
                     proc = (pos / dur) * 100;
-                if (player.player.isPlaying()) {
+                if (serv.player.isPlaying()) {
                     pb.setProgress(safeDoubleToInt(proc));
                     tv.setText(dspt);
                 }
             }
         });
-        if (player.getPlayerStatus())
+        if (serv.getPlaybackStatus())
             animator.start();
         updateSongDisplay();
     }
@@ -255,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void updateSongDisplay() {
         /* Set the Song Title Text */
         String text = "";
-        SongItem s = player.getCurrentSong();
+        SongItem s = serv.getCurrentSong();
         if (s != null) {
             text = s.Title + " by " + s.Artist;
         }
@@ -268,6 +278,109 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         txt.setText(text);
     }
 
+    public void displayDialog(int m) {
+        switch (m) {
+            case Constants.DIALOG_SORT:
+                AlertDialog.Builder b = new AlertDialog.Builder(this);
+                b.setTitle("Sort By");
+                b.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Sort By Selection
+                        switch (sortBy) {
+                            case Constants.SORT_BYTITLE:
+                                songItemList = sortSongsByTitle(songItemList);
+                                break;
+                            case Constants.SORT_BYARTIST:
+                                songItemList = sortSongsByArtist(songItemList);
+                                break;
+                        }
+                        serv.reload(songItemList);
+                        setListAdapter();
+                    }
+                });
+                b.setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Do Nothing
+                    }
+                });
+                CharSequence[] arr = {"Title", "Artist"};
+                b.setSingleChoiceItems(arr, sortBy, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                sortBy = Constants.SORT_BYTITLE;
+                                break;
+                            case 1:
+                                sortBy = Constants.SORT_BYARTIST;
+                                break;
+                        }
+                    }
+                });
+                final AlertDialog sortdia = b.create();
+
+                LayoutInflater l = LayoutInflater.from(this);
+                View e = l.inflate(R.layout.dialog_sort, null);
+
+                sortdia.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorDialogText,null));
+                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorDialogText,null));
+                    }
+                });
+
+                sortdia.setView(e);
+                sortdia.show();
+                break;
+
+            case Constants.DIALOG_SETTINGS:
+                AlertDialog.Builder d = new AlertDialog.Builder(this);
+                d.setTitle("Settings");
+                d.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                final AlertDialog setdia = d.create();
+                LayoutInflater f = LayoutInflater.from(this);
+                View v = f.inflate(R.layout.dialog_settings, null);
+                SeekBar pb = v.findViewById(R.id.seekBar1);
+                pb.setProgress((int) (serv.getVolume() * 100));
+                pb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                    }
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        float c = (float) progress / 100;
+                        Log.v(LOG_TAG, "Setting Volume: " + c);
+                        if (serv != null)
+                            serv.setVolume(c);
+                    }
+                });
+
+                setdia.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorDialogText,null));
+                    }
+                });
+
+                setdia.setView(v);
+                setdia.show();
+                break;
+        }
+    }
+
     public void setListeners() {
         final ImageButton playbtn = findViewById(R.id.buttonPlay);
         ImageButton prevbtn = findViewById(R.id.buttonPrev);
@@ -277,22 +390,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (player != null && player.player != null) {
-                    if (player.pauseResume())
+                if (serv != null && serv.player != null) {
+                    if (serv.pauseResume())
                         setPlayButton(playbtn, true);
                     else
                         setPlayButton(playbtn, false);
-                    handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
+                    handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
                 }
             }
         };
         prevbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (player != null && player.player != null) {
-                    player.previous();
+                if (serv != null && serv.player != null) {
+                    serv.previous();
                     updateSongDisplay();
-                    handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
+                    handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
                     setPlayButton(playbtn, true);
                 }
             }
@@ -300,10 +413,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         nexbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (player != null && player.player != null) {
-                    player.next();
+                if (serv != null && serv.player != null) {
+                    serv.next();
                     updateSongDisplay();
-                    handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
+                    handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
                     setPlayButton(playbtn, true);
                 }
             }
@@ -312,10 +425,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onClick(View v) {
                 ImageButton btn = findViewById(R.id.buttonShuff);
-                if (player != null) {
-                    if (player.enableShuffle()) {
+                if (serv != null) {
+                    if (serv.enableShuffle()) {
 
-                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight));
+                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight,null));
                     } else {
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
@@ -326,10 +439,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onClick(View v) {
                 ImageButton btn = findViewById(R.id.buttonRep);
-                if (player != null) {
-                    if (player.enableRepeat()) {
+                if (serv != null) {
+                    if (serv.enableRepeat()) {
 
-                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight));
+                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight,null));
                     } else {
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
@@ -352,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         lv.setAdapter(arrayAdapter);
     }
 
-    private void setExtensions() {
+    private void setExtensionsAndSearchPaths() {
         validExtensions.add(".mp3");
         validExtensions.add(".mp4");
         validExtensions.add(".m4a");
@@ -365,20 +478,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     List<SongItem> getPlayListAsItems(String rootPath) {
-        PerformanceTimer p = new PerformanceTimer();
-        p.start();
         Bitmap dicon = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.icon_unsetsong);
         List<File> t = getPlayListFiles(rootPath);
-        p.printStep(LOG_TAG, "getPlayListFiles"); // 13ms
         List<SongItem> ret = new ArrayList<>();
-        PerformanceTimer ap = new PerformanceTimer();
-        ap.startAverage();
         for (int i = 0; i < t.size(); i++) {
-            SongItem s = new SongItem(this, t.get(i), dicon);
+            SongItem s = new SongItem(this, t.get(i), requestSongID(), dicon);
             ret.add(s);
-            ap.printStep(LOG_TAG, "Load File into SongItem");
         }
-        ap.printTotal(LOG_TAG, "Load Files into SongItems");
         return ret;
     }
 
@@ -404,10 +510,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    private int requestSongID() {
+        return idH++;
+    }
+
     private List<SongItem> sortSongsByTitle(List<SongItem> s) {
         List<SongItem> ret = new ArrayList<>();
         ListSorter ls = new ListSorter();
-        ret = ls.sort(s, this);
+        ret = ls.sort(this, s, Constants.SORT_BYTITLE);
+        return ret;
+    }
+
+    private List<SongItem> sortSongsByArtist(List<SongItem> s) {
+        List<SongItem> ret = new ArrayList<>();
+        ListSorter ls = new ListSorter();
+        ret = ls.sort(this, s, Constants.SORT_BYARTIST);
         return ret;
     }
 
@@ -415,36 +532,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         brcv = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals("com.musicman.NEWSONG")) {
-                    int dur = intent.getIntExtra("dur", 0);
-                    int pos = intent.getIntExtra("pos", 0);
-                    handleProgressAnimation(dur, pos);
-                } else if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
-                    Log.v(LOG_TAG, "ACTION_AUDIO_BECOMING_NOISY Received.");
-                    ImageButton btn = findViewById(R.id.buttonPlay);
-                    if (player != null) {
-                        if (player.pauseResume())
-                            setPlayButton(btn, true);
-                        else
-                            setPlayButton(btn, false);
-                        handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
-                    }
-                } else if (intent.getAction().equals("com.musicman.PLAYING")) {
-                    ImageButton btn = findViewById(R.id.buttonPlay);
-                    setPlayButton(btn, true);
-                    handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
-                } else if (intent.getAction().equals("com.musicman.PAUSED")) {
-                    ImageButton btn = findViewById(R.id.buttonPlay);
-                    setPlayButton(btn, false);
-                    handleProgressAnimation(player.player.getDuration(), player.player.getCurrentPosition());
+                switch (intent.getAction()) {
+                    case Constants.ACTION_STATUS_NEWSONG:
+                        int dur = intent.getIntExtra("dur", 0);
+                        int pos = intent.getIntExtra("pos", 0);
+                        handleProgressAnimation(dur, pos);
+                        break;
+                    case Constants.ACTION_STATUS_PLAYING:
+                        ImageButton btn = findViewById(R.id.buttonPlay);
+                        setPlayButton(btn, true);
+                        handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
+                        break;
+                    case Constants.ACTION_STATUS_PAUSED:
+                        ImageButton btn1 = findViewById(R.id.buttonPlay);
+                        setPlayButton(btn1, false);
+                        handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
+                        break;
                 }
             }
         };
         IntentFilter flt = new IntentFilter();
-        flt.addAction("com.musicman.NEWSONG");
-        flt.addAction("com.musicman.PLAYING");
-        flt.addAction("com.musicman.PAUSED");
-        flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        flt.addAction(Constants.ACTION_STATUS_NEWSONG);
+        flt.addAction(Constants.ACTION_STATUS_PLAYING);
+        flt.addAction(Constants.ACTION_STATUS_PAUSED);
         registerReceiver(brcv, flt);
     }
 
@@ -505,7 +615,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void stopplayer() {
-        if (player != null) doUnbindService();
+        if (serv != null) doUnbindService();
     }
 
     void doBindService() {
@@ -522,7 +632,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
-            player = ((MusicPlayerService.LocalBinder) service).getService();
+            serv = ((MusicPlayerService.LocalBinder) service).getService();
             initPlayer();
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
@@ -530,11 +640,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         public void onServiceDisconnected(ComponentName className) {
-            player = null;
+            serv = null;
         }
     };
 
-    //Classes
+    //ArrayAdapter of Song List Display
     public class SongAdapter extends ArrayAdapter<SongItem> {
 
         private Context mContext;

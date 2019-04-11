@@ -1,0 +1,24 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content">
+    <SeekBar
+            android:id="@+id/seekBar1"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:layout_centerHorizontal="true"
+            android:indeterminateTint="@color/colorhighlight"
+            android:indeterminateTintMode="src_in"
+            android:max="100"
+            android:progress="0"
+            android:layout_toRightOf="@+id/textView"/>
+    <TextView
+            android:id="@+id/textView"
+            android:text="Internal Volume:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorDialogText"
+            android:includeFontPadding="false"
+            android:paddingLeft="10dp"
+            android:layout_centerVertical="true"/>
+</RelativeLayout>

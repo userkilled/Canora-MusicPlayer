@@ -23,9 +23,6 @@ public class MusicPlayerService extends Service {
         return mBinder;
     }
 
-    public void onStartCommand() {
-    }
-
     public void onCreate() {
         Log.v(LOG_TAG, "ONCREATE");
         Arrays.fill(songHistory, -1);
@@ -60,10 +57,10 @@ public class MusicPlayerService extends Service {
     private int notificationID = 1;
 
     /*The Player iterates over this Array of File handles depending on the Settings(Shuffle ,repeat)*/
-    private List<SongItem> songs; //Song Files in Sorted Form
+    private List<SongItem> songs; //Song Files in SORTED Form
 
-    private int position; //Position of Playing Song in Miliseconds
     private int songPos; //Index of currently Playing Song
+    private int position; //Position of Playing Song in Miliseconds
     private int songCount; //Number of Songs Added
 
     private int[] songHistory = new int[6];
@@ -79,6 +76,10 @@ public class MusicPlayerService extends Service {
 
     //Binder
 
+    public MusicPlayerService() {
+        songPos = -1;
+    }
+
     public class LocalBinder extends Binder {
         MusicPlayerService getService() {
             return MusicPlayerService.this;
@@ -86,17 +87,39 @@ public class MusicPlayerService extends Service {
     }
 
     //Public Control Functions
-
-    public int init(List<SongItem> files, int c) {
-        Log.v(LOG_TAG, "Init called, " + c + " Files Found.");
-        songPos = -1;
+    public int init(List<SongItem> files) {
+        Log.v(LOG_TAG, "Init called, " + files.size() + " Files Found.");
         if (files != null) {
-            songs = files;
-            songCount = c;
+            songs = new ArrayList<>(files);
+            songCount = songs.size();
             return 0;
         } else {
             Log.v(LOG_TAG, "Files are Null");
             return 1;
+        }
+    }
+
+    public int reload(List<SongItem> files) {
+        Log.v(LOG_TAG, "Reload Called");
+        if (songs != null) {
+            for (int i = 0; i < songHistory.length; i++) {
+                for (int y = 0; y < files.size(); y++) {
+                    if (songHistory[i] > -1 && songs.get(songHistory[i]).id == files.get(y).id) {
+                        songHistory[i] = y;
+                    }
+                }
+            }
+            for (int i = 0; i < files.size(); i++) {
+                if (songPos > -1 && songs.get(songPos).id == files.get(i).id) {
+                    songPos = i;
+                    break;
+                }
+            }
+            songs = new ArrayList<>(files);
+            return 0;
+        } else {
+            songs = new ArrayList<>(files);
+            return 0;
         }
     }
 
@@ -260,7 +283,7 @@ public class MusicPlayerService extends Service {
         return volume;
     }
 
-    public boolean getPlayerStatus() {
+    public boolean getPlaybackStatus() {
         if (player != null) {
             if (player.isPlaying())
                 return true;
@@ -277,7 +300,6 @@ public class MusicPlayerService extends Service {
     }
 
     //Private Functions
-
     private void handleMediaController() {
         nfm = NotificationManagerCompat.from(this);
         showNotification();
@@ -343,16 +365,16 @@ public class MusicPlayerService extends Service {
 
     private void broadcastNewSong() {
         if (player != null) {
-            Intent in = new Intent("com.musicman.NEWSONG");
+            Intent in = new Intent(ACTION_STATUS_NEWSONG);
             Bundle extras = new Bundle();
             extras.putInt("dur", player.getDuration());
             extras.putInt("pos", player.getCurrentPosition());
             in.putExtras(extras);
             sendBroadcast(in);
             if (player.isPlaying())
-                broadcast("com.musicman.PLAYING");
+                broadcast(ACTION_STATUS_PLAYING);
             else
-                broadcast("com.musicman.PAUSED");
+                broadcast(ACTION_STATUS_PAUSED);
         }
     }
 
@@ -416,28 +438,32 @@ public class MusicPlayerService extends Service {
         brcv = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals("com.musicman.PLAYPAUSE")) {
-                    pauseResume();
-                    if (player != null && player.isPlaying())
-                        broadcast("com.musicman.PLAYING");
-                    else
-                        broadcast("com.musicman.PAUSED");
-                } else if (intent.getAction().equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
-                    pause();
-                    broadcast("com.musicman.PAUSED");
-                } else if (intent.getAction().equals("com.musicman.NEXT")) {
-                    next();
-                    broadcastNewSong();
-                } else if (intent.getAction().equals("com.musicman.PREV")) {
-                    previous();
-                    broadcastNewSong();
+                switch (intent.getAction()) {
+                    case android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY:
+                        pause();
+                        broadcast(ACTION_STATUS_PAUSED);
+                        break;
+                    case ACTION_TOGGLE_PLAYBACK:
+                        pauseResume();
+                        if (player != null && player.isPlaying())
+                            broadcast(ACTION_STATUS_PLAYING);
+                        else
+                            broadcast(ACTION_STATUS_PAUSED);
+                        break;
+                    case ACTION_NEXT:
+                        next();
+                        broadcastNewSong();
+                        break;
+                    case ACTION_PREV:
+                        previous();
+                        broadcastNewSong();
                 }
             }
         };
         IntentFilter flt = new IntentFilter();
-        flt.addAction("com.musicman.PLAYPAUSE");
-        flt.addAction("com.musicman.NEXT");
-        flt.addAction("com.musicman.PREV");
+        flt.addAction(ACTION_TOGGLE_PLAYBACK);
+        flt.addAction(ACTION_NEXT);
+        flt.addAction(ACTION_PREV);
         flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         registerReceiver(brcv, flt);
     }

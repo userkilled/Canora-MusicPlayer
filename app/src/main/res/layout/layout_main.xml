@@ -5,11 +5,28 @@
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 android:background="@color/colorPrimaryDark">
-
-    <RelativeLayout android:layout_width="wrap_content"
+    <!-- PlayLists
+    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:id="@+id/playlistdisplay">
+        <ScrollView android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/scr"
+                    android:scrollbars="horizontal">
+            <RelativeLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+                <Button android:layout_width="75dp"
+                        android:layout_height="75dp"
+                        android:text="1"
+                />
+            </RelativeLayout>
+        </ScrollView>
+    </RelativeLayout>
+    -->
+    <RelativeLayout android:id="@+id/songdisplay"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/colorPrimaryDark"
-                    android:layout_above="@id/songDisplayContainer">
+                    android:layout_above="@id/songDisplayContainer"
+                    android:layout_alignParentTop="true">
+
         <ListView android:layout_width="match_parent" android:id="@+id/listView1"
                   android:layout_height="match_parent"
                   android:layout_marginBottom="5dp"
