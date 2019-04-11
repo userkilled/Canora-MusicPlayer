@@ -9,6 +9,8 @@ public final class Constants {
     public static final String ACTION_STATUS_PLAYING = "com.musicman.PLAYING";
     public static final String ACTION_STATUS_PAUSED = "com.musicman.PAUSED";
 
+    public static final String ACTION_QUIT = "com.musicman.QUIT";
+
     public static final int SORT_BYTITLE = 0;
     public static final int SORT_BYARTIST = 1;
 

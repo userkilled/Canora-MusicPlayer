@@ -329,11 +329,17 @@ public class MusicPlayerService extends Service {
         else
             nb.addAction(R.drawable.main_btnplay, "play", retreivePlaybackAction(1));
         nb.addAction(R.drawable.main_btnnext, "next", retreivePlaybackAction(2));
+
         Intent resultIntent = new Intent(this, MainActivity.class);
         resultIntent.setAction("android.intent.action.MAIN");
         resultIntent.addCategory("android.intent.category.LAUNCHER");
         PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         nb.setContentIntent(resultPendingIntent);
+
+        Intent oncloseIntent = new Intent(ACTION_QUIT);
+        PendingIntent onclosepi = PendingIntent.getBroadcast(this.getApplicationContext(),0,oncloseIntent,0);
+        nb.setDeleteIntent(onclosepi);
+
         Notification noti = nb.build();
         nfm.notify(notificationID, noti);
     }
@@ -439,6 +445,8 @@ public class MusicPlayerService extends Service {
             @Override
             public void onReceive(Context context, Intent intent) {
                 switch (intent.getAction()) {
+                    case ACTION_QUIT:
+                        stopSelf();
                     case android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY:
                         pause();
                         broadcast(ACTION_STATUS_PAUSED);
@@ -464,6 +472,7 @@ public class MusicPlayerService extends Service {
         flt.addAction(ACTION_TOGGLE_PLAYBACK);
         flt.addAction(ACTION_NEXT);
         flt.addAction(ACTION_PREV);
+        flt.addAction(ACTION_QUIT);
         flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         registerReceiver(brcv, flt);
     }

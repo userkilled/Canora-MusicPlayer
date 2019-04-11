@@ -533,6 +533,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onReceive(Context context, Intent intent) {
                 switch (intent.getAction()) {
+                    case Constants.ACTION_QUIT:
+                        finish();
+                        break;
                     case Constants.ACTION_STATUS_NEWSONG:
                         int dur = intent.getIntExtra("dur", 0);
                         int pos = intent.getIntExtra("pos", 0);
@@ -555,6 +558,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         flt.addAction(Constants.ACTION_STATUS_NEWSONG);
         flt.addAction(Constants.ACTION_STATUS_PLAYING);
         flt.addAction(Constants.ACTION_STATUS_PAUSED);
+        flt.addAction(Constants.ACTION_QUIT);
         registerReceiver(brcv, flt);
     }
 
