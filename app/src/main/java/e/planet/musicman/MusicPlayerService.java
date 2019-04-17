@@ -55,7 +55,7 @@ public class MusicPlayerService extends Service {
     private int notificationID = 1;
 
     /*The Player iterates over this Array of File handles depending on the Settings(Shuffle ,repeat)*/
-    private List<SongItem> songs; //Song Files in SORTED Form
+    public List<SongItem> songs; //Song Files in SORTED Form
 
     private int songPos; //Index of currently Playing Song
     private int position; //Position of Playing Song in Miliseconds
@@ -124,6 +124,7 @@ public class MusicPlayerService extends Service {
             return 0;
         } else {
             songs = new ArrayList<>(files);
+            songCount = songs.size();
             return 0;
         }
     }

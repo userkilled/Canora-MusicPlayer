@@ -29,6 +29,7 @@ import android.widget.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     //Callbacks
@@ -42,12 +43,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         sortBy = Constants.SORT_BYTITLE;//TODO SETTING
 
+        songItemList = pl.songRef;
+
+        setListAdapter();
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.v(LOG_TAG, "REQUESTING PERMISSION");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
         } else {
             Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
-            startplayer();
             setExtensionsAndSearchPaths();
             new LoadFilesTask().execute(this);
             registerReceiver();
@@ -183,8 +187,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     NotificationManagerCompat notificationManager;
 
-    /*The Only Reference to The SongFiles along with a Copy in The MusicPlayerService*/
-    List<SongItem> songItemList = new ArrayList<>();
+    PlayListManager pl = new PlayListManager(this);
+
+    List<SongItem> songItemList = pl.songRef;
 
     int sortBy = Constants.SORT_BYTITLE; //Global Sorter Variable
 
@@ -210,9 +215,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void initPlayer() {
         /* Callback when Player Service is Ready */
         Log.v(LOG_TAG, "INIT PLAYER");
-        setListAdapter();
-        serv.init(songItemList);
         updateSongDisplay();
+        serv.songs = songItemList;
     }
 
     public void loadFiles() {
@@ -224,9 +228,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (getPlayListFiles(str) != null)
                 nl.addAll(getPlayListAsItems(str));
         }
-        songItemList.clear();
-        songItemList.addAll(nl);
-        songItemList = sortSongsWrapper(songItemList);
+        pl.updateFullList(nl);
+        pl.sortPlayList(pl.DefDisp,sortBy);
+        pl.selectPlayList(pl.DefDisp);
     }
 
     public void handleProgressAnimation(int dur, int pos) {
@@ -292,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Sort By Selection
-                        songItemList = sortSongsWrapper(songItemList);
+                        pl.sortPlayList(pl.DefDisp,sortBy);
                         serv.reload(songItemList);
                         arrayAdapter.notifyDataSetChanged();
                     }
@@ -509,32 +513,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private int requestSongID() {
-        return idH++;
-    }
-
-    private List<SongItem> sortSongsWrapper(List<SongItem> s) {
-        switch (sortBy) {
-            case Constants.SORT_BYARTIST:
-                return sortSongsByArtist(s);
-            case Constants.SORT_BYTITLE:
-                return sortSongsByTitle(s);
-            default:
-                return null;
-        }
-    }
-
-    private List<SongItem> sortSongsByTitle(List<SongItem> s) {
-        List<SongItem> ret = new ArrayList<>();
-        ListSorter ls = new ListSorter();
-        ret = ls.sort(this, s, Constants.SORT_BYTITLE);
-        return ret;
-    }
-
-    private List<SongItem> sortSongsByArtist(List<SongItem> s) {
-        List<SongItem> ret = new ArrayList<>();
-        ListSorter ls = new ListSorter();
-        ret = ls.sort(this, s, Constants.SORT_BYARTIST);
-        return ret;
+        return (new Random()).nextInt((99999 - 0) + 1) + 0;
     }
 
     private void registerReceiver() {
@@ -692,8 +671,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         protected String doInBackground(Context... params) {
             // Do the time comsuming task here
             loadFiles();
-            Log.v(LOG_TAG,"NEW SIZE: " + songItemList.size());
-            serv.reload(songItemList);
+            songItemList = pl.songRef;
+            Log.v(LOG_TAG,"NEW SIZE: " + songItemList.size() + " PL: " + pl.songRef.size());
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
