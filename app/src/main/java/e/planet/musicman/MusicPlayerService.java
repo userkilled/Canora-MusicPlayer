@@ -1,8 +1,6 @@
 package e.planet.musicman;
 
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.app.Service;
+import android.app.*;
 import android.content.*;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -102,13 +100,20 @@ public class MusicPlayerService extends Service {
     public int reload(List<SongItem> files) {
         Log.v(LOG_TAG, "Reload Called");
         if (songs != null) {
+            int[] newHist = new int[6];
             for (int i = 0; i < songHistory.length; i++) {
                 for (int y = 0; y < files.size(); y++) {
                     if (songHistory[i] > -1 && songs.get(songHistory[i]).id == files.get(y).id) {
-                        songHistory[i] = y;
+                        newHist[i] = y;
+                    }
+                    else
+                    {
+                        newHist[i] = songHistory[i];
                     }
                 }
             }
+            songHistory = newHist;
+            Log.v(LOG_TAG,"Mid");
             for (int i = 0; i < files.size(); i++) {
                 if (songPos > -1 && songs.get(songPos).id == files.get(i).id) {
                     songPos = i;
@@ -339,6 +344,19 @@ public class MusicPlayerService extends Service {
         Intent oncloseIntent = new Intent(ACTION_QUIT);
         PendingIntent onclosepi = PendingIntent.getBroadcast(this.getApplicationContext(),0,oncloseIntent,0);
         nb.setDeleteIntent(onclosepi);
+
+        NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        String NOTIFICATION_CHANNEL_ID = "420";
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+        {
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+
+            nb.setChannelId(NOTIFICATION_CHANNEL_ID);
+            mNotifyMgr.createNotificationChannel(notificationChannel);
+        }
 
         Notification noti = nb.build();
         nfm.notify(notificationID, noti);

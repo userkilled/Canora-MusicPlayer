@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.layout_main);
 
         globT.start();
+
+        sortBy = Constants.SORT_BYTITLE;//TODO SETTING
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.v(LOG_TAG, "REQUESTING PERMISSION");
@@ -92,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onResume() {
         super.onResume();
-        //TODO: Reload Song Cache on Resume
     }
 
     @Override
@@ -103,6 +105,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onRestart() {
         super.onRestart();
+        Log.v(LOG_TAG, "ONRESTART CALLED");
+        //TODO: Reload Song Cache on Resume
+        loadFiles();
+        if (serv != null)
+            serv.reload(songItemList);
+        arrayAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -174,6 +182,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private BroadcastReceiver brcv;
 
+    private SongAdapter arrayAdapter;
+
     NotificationManagerCompat notificationManager;
 
     /*The Only Reference to The SongFiles along with a Copy in The MusicPlayerService*/
@@ -217,12 +227,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void loadFiles() {
         /* Main Entry Point after Permission is Granted, This Function Makes the Initial Search for Music Files, No Further Search is Performed after this Function */
         Log.v(LOG_TAG, "LOADING FILES");
+        songItemList.clear();
         for (String str : searchPaths) {
             Log.v(LOG_TAG, "Searching in Directory: " + str);
             if (getPlayListFiles(str) != null)
                 songItemList.addAll(getPlayListAsItems(str));
         }
-        songItemList = sortSongsByTitle(songItemList);
+        songItemList = sortSongsWrapper(songItemList);
     }
 
     public void handleProgressAnimation(int dur, int pos) {
@@ -279,6 +290,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void displayDialog(int m) {
+        /*Toolbar Menu Item Dialoges*/
         switch (m) {
             case Constants.DIALOG_SORT:
                 AlertDialog.Builder b = new AlertDialog.Builder(this);
@@ -287,14 +299,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Sort By Selection
-                        switch (sortBy) {
-                            case Constants.SORT_BYTITLE:
-                                songItemList = sortSongsByTitle(songItemList);
-                                break;
-                            case Constants.SORT_BYARTIST:
-                                songItemList = sortSongsByArtist(songItemList);
-                                break;
-                        }
+                        songItemList = sortSongsWrapper(songItemList);
                         serv.reload(songItemList);
                         setListAdapter();
                     }
@@ -327,8 +332,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 sortdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorDialogText,null));
-                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorDialogText,null));
+                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorDialogText, null));
+                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorDialogText, null));
                     }
                 });
 
@@ -371,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorDialogText,null));
+                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorDialogText, null));
                     }
                 });
 
@@ -428,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.enableShuffle()) {
 
-                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight,null));
+                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight, null));
                     } else {
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
@@ -442,7 +447,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.enableRepeat()) {
 
-                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight,null));
+                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight, null));
                     } else {
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
@@ -461,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setListAdapter() {
         ListView lv = (ListView) findViewById(R.id.listView1);
-        SongAdapter arrayAdapter = new SongAdapter(this, songItemList);
+        arrayAdapter = new SongAdapter(this, songItemList);
         lv.setAdapter(arrayAdapter);
     }
 
@@ -512,6 +517,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private int requestSongID() {
         return idH++;
+    }
+
+    private List<SongItem> sortSongsWrapper(List<SongItem> s) {
+        switch (sortBy) {
+            case Constants.SORT_BYARTIST:
+                return sortSongsByArtist(s);
+            case Constants.SORT_BYTITLE:
+                return sortSongsByTitle(s);
+            default:
+                return null;
+        }
     }
 
     private List<SongItem> sortSongsByTitle(List<SongItem> s) {
@@ -673,6 +689,46 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             in.setText(songList.get(position).Artist);
             iv.setImageBitmap(songList.get(position).icon);
             return listItem;
+        }
+    }
+    initTask = new InitTask();
+initTask.execute(this);
+
+
+    protected class InitTask extends AsyncTask<Context, Integer, String> {
+        @Override
+        protected String doInBackground(Context... params) {
+            // Do the time comsuming task here
+            return "COMPLETE!";
+        }
+
+        // -- gets called just before thread begins
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        // -- called from the publish progress
+        // -- notice that the datatype of the second param gets passed to this
+        // method
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+
+        }
+
+        // -- called if the cancel button is pressed
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+        }
+
+        // -- called as soon as doInBackground method completes
+        // -- notice that the third param gets passed to this method
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            // Show the toast message here
         }
     }
 }
