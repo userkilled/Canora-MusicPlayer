@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
             startplayer();
             setExtensionsAndSearchPaths();
-            loadFiles();
+            new LoadFilesTask().execute(this);
             registerReceiver();
             setListeners();
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
@@ -107,10 +107,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onRestart();
         Log.v(LOG_TAG, "ONRESTART CALLED");
         //TODO: Reload Song Cache on Resume
-        loadFiles();
-        if (serv != null)
-            serv.reload(songItemList);
-        arrayAdapter.notifyDataSetChanged();
+        new LoadFilesTask().execute(this);
     }
 
     @Override
@@ -213,26 +210,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void initPlayer() {
         /* Callback when Player Service is Ready */
         Log.v(LOG_TAG, "INIT PLAYER");
-        if (songItemList.size() > 0) {
-            setListAdapter();
-            if (songItemList != null) {
-                serv.init(songItemList);
-            }
-            updateSongDisplay();
-        } else {
-            Log.v(LOG_TAG, "INIT FAILED");
-        }
+        setListAdapter();
+        serv.init(songItemList);
+        updateSongDisplay();
     }
 
     public void loadFiles() {
         /* Main Entry Point after Permission is Granted, This Function Makes the Initial Search for Music Files, No Further Search is Performed after this Function */
         Log.v(LOG_TAG, "LOADING FILES");
-        songItemList.clear();
+        List<SongItem> nl = new ArrayList<>();
         for (String str : searchPaths) {
             Log.v(LOG_TAG, "Searching in Directory: " + str);
             if (getPlayListFiles(str) != null)
-                songItemList.addAll(getPlayListAsItems(str));
+                nl.addAll(getPlayListAsItems(str));
         }
+        songItemList.clear();
+        songItemList.addAll(nl);
         songItemList = sortSongsWrapper(songItemList);
     }
 
@@ -301,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         //Sort By Selection
                         songItemList = sortSongsWrapper(songItemList);
                         serv.reload(songItemList);
-                        setListAdapter();
+                        arrayAdapter.notifyDataSetChanged();
                     }
                 });
                 b.setNegativeButton("Back", new DialogInterface.OnClickListener() {
@@ -691,14 +684,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             return listItem;
         }
     }
-    initTask = new InitTask();
-initTask.execute(this);
 
+    //AsyncTask
 
-    protected class InitTask extends AsyncTask<Context, Integer, String> {
+    protected class LoadFilesTask extends AsyncTask<Context, Integer, String> {
         @Override
         protected String doInBackground(Context... params) {
             // Do the time comsuming task here
+            loadFiles();
+            Log.v(LOG_TAG,"NEW SIZE: " + songItemList.size());
+            serv.reload(songItemList);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    arrayAdapter.notifyDataSetChanged();
+                }
+            });
             return "COMPLETE!";
         }
 
