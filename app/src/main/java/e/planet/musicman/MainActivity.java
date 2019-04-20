@@ -29,6 +29,7 @@ import android.widget.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     //Callbacks
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         sortBy = Constants.SORT_BYTITLE;//TODO SETTING
 
+        setupActionBar();
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.v(LOG_TAG, "REQUESTING PERMISSION");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
@@ -49,16 +52,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
             startplayer();
             setExtensionsAndSearchPaths();
-            new LoadFilesTask().execute(this);
             registerReceiver();
             setListeners();
-            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
-            getSupportActionBar().setIcon(R.drawable.mainicon);
-            getSupportActionBar().setLogo(R.drawable.mainicon);
-            ActionBar actionbar = getSupportActionBar();
-            String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(this, R.color.colorAccent) & 0x00ffffff); //Because ANDROID
-            String t = "<font color='" + hexColor + "'>MusicMan </font>";
-            actionbar.setTitle(Html.fromHtml(t));
         }
     }
 
@@ -159,13 +154,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 loadFiles();
                 registerReceiver();
                 setListeners();
-                getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
-                getSupportActionBar().setIcon(R.drawable.mainicon);
-                getSupportActionBar().setLogo(R.drawable.mainicon);
-                ActionBar actionbar = getSupportActionBar();
-                String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(this, R.color.colorAccent) & 0x00ffffff); //Because ANDROID
-                String t = "<font color='" + hexColor + "'>MusicMan </font>";
-                actionbar.setTitle(Html.fromHtml(t));
             } else {
                 Log.v(LOG_TAG, "PERM DENIED");
                 System.exit(1);
@@ -377,6 +365,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setdia.show();
                 break;
         }
+    }
+
+    private void setupActionBar() {
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
+        getSupportActionBar().setIcon(R.drawable.mainicon);
+        getSupportActionBar().setLogo(R.drawable.mainicon);
+        ActionBar actionbar = getSupportActionBar();
+        String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(this, R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+        String t = "<font color='" + hexColor + "'>MusicMan </font>";
+        actionbar.setTitle(Html.fromHtml(t));
     }
 
     public void setListeners() {
@@ -647,6 +645,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         public void onServiceConnected(ComponentName className, IBinder service) {
             serv = ((MusicPlayerService.LocalBinder) service).getService();
             initPlayer();
+            new LoadFilesTask().execute(getApplicationContext());
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
             Snackbar.make(findViewById(android.R.id.content), "Initialization Time: " + l + " ms.\nFound Songs: " + songItemList.size(), Snackbar.LENGTH_LONG).show();
@@ -677,10 +676,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 listItem = LayoutInflater.from(mContext).inflate(R.layout.list_item_song, parent, false);
             TextView sn = listItem.findViewById(R.id.listsongname);
             TextView in = listItem.findViewById(R.id.listinterpret);
-            ImageView iv = listItem.findViewById(R.id.imageview);
+            TextView ln = listItem.findViewById(R.id.songlength);
+            //ImageView iv = listItem.findViewById(R.id.imageview);
             sn.setText(songList.get(position).Title);
             in.setText(songList.get(position).Artist);
-            iv.setImageBitmap(songList.get(position).icon);
+
+            String lstr = "" + TimeUnit.MILLISECONDS.toMinutes(songList.get(position).length) + ":" + TimeUnit.MILLISECONDS.toSeconds(songList.get(position).length - TimeUnit.MILLISECONDS.toMinutes(songList.get(position).length) * 60000);
+            ln.setText(lstr);
+            //iv.setImageBitmap(songList.get(position).icon);
             return listItem;
         }
     }
@@ -692,7 +695,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         protected String doInBackground(Context... params) {
             // Do the time comsuming task here
             loadFiles();
-            Log.v(LOG_TAG,"NEW SIZE: " + songItemList.size());
+            Log.v(LOG_TAG, "NEW SIZE: " + songItemList.size());
             serv.reload(songItemList);
             runOnUiThread(new Runnable() {
                 @Override

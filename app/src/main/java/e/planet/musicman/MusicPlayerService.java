@@ -103,17 +103,25 @@ public class MusicPlayerService extends Service {
             int[] newHist = new int[6];
             for (int i = 0; i < songHistory.length; i++) {
                 for (int y = 0; y < files.size(); y++) {
-                    if (songHistory[i] > -1 && songs.get(songHistory[i]).id == files.get(y).id) {
+                    if (songHistory[i] > -1 && songs.get(songHistory[i]).Title.equals(files.get(y).Title)) {
+                        //Log.v(LOG_TAG,"NewHistory " + i + " = " + y);
                         newHist[i] = y;
-                    }
-                    else
-                    {
+                        break;
+                    } else {
+                        //Log.v(LOG_TAG,"NewHistory " + i + " = " + songHistory[i]);
                         newHist[i] = songHistory[i];
+
                     }
                 }
             }
+            Log.v(LOG_TAG, "SongHistory Length: " + songHistory.length + " New Hist Length: " + newHist.length);
+            for (int i = 0; i < songHistory.length; i++) {
+                if (songs.size() > 0 && files.size() > 0)
+                    Log.v(LOG_TAG, "SONG HISTORY " + i + ": " + songs.get(songHistory[i]).Title + " == " + files.get(newHist[i]).Title);
+                else
+                    Log.v(LOG_TAG, "Songs Size: " + songs.size());
+            }
             songHistory = newHist;
-            Log.v(LOG_TAG,"Mid");
             for (int i = 0; i < files.size(); i++) {
                 if (songPos > -1 && songs.get(songPos).id == files.get(i).id) {
                     songPos = i;
@@ -121,9 +129,11 @@ public class MusicPlayerService extends Service {
                 }
             }
             songs = new ArrayList<>(files);
+            songCount = songs.size();
             return 0;
         } else {
             songs = new ArrayList<>(files);
+            songCount = songs.size();
             return 0;
         }
     }
@@ -199,6 +209,7 @@ public class MusicPlayerService extends Service {
         if (player != null) {
             position = 0;
             if (shuffle) {
+                Log.v(LOG_TAG, "SHUFFLING");
                 player.stop();
                 player.reset();
                 player.release();
@@ -214,6 +225,7 @@ public class MusicPlayerService extends Service {
                 handleHistory(true);
                 Log.v(LOG_TAG, "Playing: " + songs.get(songPos).Title);
             } else {
+                Log.v(LOG_TAG, "NOT SHUFFLING");
                 player.stop();
                 player.reset();
                 player.release();
@@ -342,15 +354,14 @@ public class MusicPlayerService extends Service {
         nb.setContentIntent(resultPendingIntent);
 
         Intent oncloseIntent = new Intent(ACTION_QUIT);
-        PendingIntent onclosepi = PendingIntent.getBroadcast(this.getApplicationContext(),0,oncloseIntent,0);
+        PendingIntent onclosepi = PendingIntent.getBroadcast(this.getApplicationContext(), 0, oncloseIntent, 0);
         nb.setDeleteIntent(onclosepi);
 
         NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         String NOTIFICATION_CHANNEL_ID = "420";
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
-        {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             int importance = NotificationManager.IMPORTANCE_LOW;
             NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
 

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.io.File;
 
@@ -21,6 +22,7 @@ public class SongItem {
     public String Artist;
     public String Album;
     public Bitmap icon;
+    public long length;
 
     //Privates
     private Bitmap defIcon;
@@ -40,13 +42,14 @@ public class SongItem {
             String selection = MediaStore.Audio.Media.DATA;
             String[] selectionArgs = {f.getAbsolutePath()};
 
-            String[] projection = {MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM};//MediaStore.Audio.Albums.ALBUM_ART
+            String[] projection = {MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION};//MediaStore.Audio.Albums.ALBUM_ART
             String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
             cursor = cr.query(uri, projection, selection + "=?", selectionArgs, sortOrder);
 
             String title = "";
             String artist = "";
             String album = "";
+            long ltemp = 0;
 
             if (cursor != null) {
                 while (cursor.moveToNext()) {
@@ -56,6 +59,8 @@ public class SongItem {
                     artist = cursor.getString(adIndex);
                     int AdIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
                     album = cursor.getString(AdIndex);
+                    int ldIndex = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+                    ltemp = cursor.getLong(ldIndex);
                 }
             }
             if (title == null || title == "")
@@ -66,6 +71,8 @@ public class SongItem {
             setArtist(artist);
             setAlbum(album);
             setIcon(defIcon);
+            Log.v(LOG_TAG, "SONG LENGTH: " + ltemp);
+            setLength(ltemp);
         }
     }
 
@@ -83,5 +90,9 @@ public class SongItem {
 
     private void setIcon(Bitmap p) {
         icon = p;
+    }
+
+    private void setLength(long l) {
+        length = l;
     }
 }
