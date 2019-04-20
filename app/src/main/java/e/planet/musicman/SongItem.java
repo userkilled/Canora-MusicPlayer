@@ -71,7 +71,6 @@ public class SongItem {
             setArtist(artist);
             setAlbum(album);
             setIcon(defIcon);
-            Log.v(LOG_TAG, "SONG LENGTH: " + ltemp);
             setLength(ltemp);
         }
     }

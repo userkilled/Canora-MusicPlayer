@@ -119,7 +119,7 @@ public class MusicPlayerService extends Service {
                 if (songs.size() > 0 && files.size() > 0 && songHistory[i] != -1 && newHist[i] != -1)
                     Log.v(LOG_TAG, "SONG HISTORY " + i + ": " + songs.get(songHistory[i]).Title + " == " + files.get(newHist[i]).Title);
                 else
-                    Log.v(LOG_TAG, "Songs Size: " + songs.size());
+                    Log.v(LOG_TAG, "Songs Size: " + songs.size());break;
             }
             songHistory = newHist;
             for (int i = 0; i < files.size(); i++) {
