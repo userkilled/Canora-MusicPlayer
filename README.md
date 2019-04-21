@@ -1,4 +1,4 @@
-<p>
+<p align=center>
   <img src="https://github.com/ZoidbergZero/MusicMan/raw/master/app/src/main/res/drawable/mainicon.png" alt="MainIcon"/>
   <h1>MusicMan</h1>
 </p>
