@@ -1,4 +1,7 @@
-# MusicMan
+<p>
+  <img src="https://github.com/ZoidbergZero/MusicMan/raw/master/app/src/main/res/drawable/mainicon.png" alt="MainIcon"/>
+  <h1>MusicMan</h1>
+</p>
 The Aim of this Project is to Provide a Lightweight Fast and Costumizable Music Playback Experience.<br>
 <br>
 Version 0.1 Features:
