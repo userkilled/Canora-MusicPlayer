@@ -72,12 +72,11 @@ public class MusicPlayerService extends Service {
 
     private float volume = 0.8f;
 
-    //Binder
-
     public MusicPlayerService() {
         songPos = -1;
     }
 
+    //Binder
     public class LocalBinder extends Binder {
         MusicPlayerService getService() {
             return MusicPlayerService.this;

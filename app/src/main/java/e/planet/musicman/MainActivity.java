@@ -2,12 +2,12 @@ package e.planet.musicman;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -24,6 +24,7 @@ import android.text.Html;
 import android.util.Log;
 import android.view.*;
 import android.view.animation.LinearInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
 import java.io.File;
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         sortBy = Constants.SORT_BYTITLE;//TODO SETTING
 
         setupActionBar();
+
+        findViewById(R.id.searchbox).setVisibility(View.GONE);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.v(LOG_TAG, "REQUESTING PERMISSION");
@@ -119,12 +122,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.v(LOG_TAG, "Settings Pressed");
                 displayDialog(Constants.DIALOG_SETTINGS);
                 return true;
-
             case R.id.action_sortby:
                 Log.v(LOG_TAG, "SortBy Pressed");
                 displayDialog(Constants.DIALOG_SORT);
                 return true;
-
+            case R.id.action_search:
+                Log.v(LOG_TAG, "Search Pressed");
+                handleSearch();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -377,6 +382,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         actionbar.setTitle(Html.fromHtml(t));
     }
 
+    private void handleSearch() {
+        EditText ed = findViewById(R.id.searchbox);
+        if (ed.getVisibility() == View.GONE)
+        {
+            ed.setVisibility(View.VISIBLE);
+            ed.setFocusableInTouchMode(true);
+            ed.requestFocus();
+            toggleKeyboardView(this,this.getCurrentFocus(),true);
+        }
+        else
+        {
+            toggleKeyboardView(this,this.getCurrentFocus(),false);
+            ed.setVisibility(View.GONE);
+        }
+    }
+
     public void setListeners() {
         final ImageButton playbtn = findViewById(R.id.buttonPlay);
         ImageButton prevbtn = findViewById(R.id.buttonPrev);
@@ -619,6 +640,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             return rt;
         }
     }
+    public static void toggleKeyboardView(Context context, View view, boolean b) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (b)
+            imm.showSoftInput(view,0);
+        else
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
 
     //Service Binding
     public void startplayer() {
@@ -648,7 +676,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             new LoadFilesTask().execute(getApplicationContext());
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
-            Snackbar.make(findViewById(android.R.id.content), "Initialization Time: " + l + " ms.\nFound Songs: " + songItemList.size(), Snackbar.LENGTH_LONG).show();
+            Snackbar.make(findViewById(android.R.id.content), "Initialization Time: " + l + " ms.", Snackbar.LENGTH_LONG).show();
         }
 
         public void onServiceDisconnected(ComponentName className) {

@@ -7,4 +7,8 @@
     <item android:id="@+id/action_sortby"
           android:title="SortBy"
           app:showAsAction="never"/>
+    <item android:id="@+id/action_search"
+          android:title="Search"
+          android:icon="@drawable/searchicon"
+          app:showAsAction="always"/>
 </menu>
