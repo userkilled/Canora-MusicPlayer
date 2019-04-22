@@ -20,7 +20,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.*;
 import android.view.animation.LinearInterpolator;
@@ -42,11 +44,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         globT.start();
 
-        sortBy = Constants.SORT_BYTITLE;//TODO SETTING
+        pl = new PlayListContainer(getApplicationContext());
 
         setupActionBar();
 
         findViewById(R.id.searchbox).setVisibility(View.GONE);
+        findViewById(R.id.searchbybtn).setVisibility(View.GONE);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.v(LOG_TAG, "REQUESTING PERMISSION");
@@ -105,7 +108,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onRestart();
         Log.v(LOG_TAG, "ONRESTART CALLED");
         //TODO: Reload Song Cache on Resume
-        new LoadFilesTask().execute(this);
+        if (!taskIsRunning)
+            new LoadFilesTask().execute(this);
     }
 
     @Override
@@ -140,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "You clicked Item: " + id + " at position:" + position);
         ImageButton btn = findViewById(R.id.buttonPlay);
         if (serv != null) {
-            if (serv.play(position))
+            if (serv.play(pl.viewList.get(position).id))
                 setPlayButton(btn, true);
             else
                 setPlayButton(btn, false);
@@ -177,9 +181,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     NotificationManagerCompat notificationManager;
 
     /*The Only Reference to The SongFiles along with a Copy in The MusicPlayerService*/
-    List<SongItem> songItemList = new ArrayList<>();
+    PlayListContainer pl;
 
-    int sortBy = Constants.SORT_BYTITLE; //Global Sorter Variable
+    int sortBy = Constants.SORT_BYTITLE; //Global Sorter Variable TODO:PERSISTENCE
+    int searchBy = Constants.SEARCH_BYTITLE; //GLOBAL Search Variable TODO:PERSISTENCE
 
     int idH = 0; //Stores Maximum ID Given out, Used for getting a new ID each Song
 
@@ -192,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     View.OnClickListener nexbutton_click;
     View.OnClickListener shufbutton_click;
     View.OnClickListener repbutton_click;
+    View.OnClickListener sortbybtn_click;
 
     ValueAnimator animator;
 
@@ -204,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         /* Callback when Player Service is Ready */
         Log.v(LOG_TAG, "INIT PLAYER");
         setListAdapter();
-        serv.init(songItemList);
+        serv.init(pl);
         updateSongDisplay();
     }
 
@@ -217,9 +223,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (getPlayListFiles(str) != null)
                 nl.addAll(getPlayListAsItems(str));
         }
-        songItemList.clear();
-        songItemList.addAll(nl);
-        songItemList = sortSongsWrapper(songItemList);
+        pl.setContent(nl);
+        pl.sortPlayList(sortBy);
     }
 
     public void handleProgressAnimation(int dur, int pos) {
@@ -285,8 +290,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Sort By Selection
-                        songItemList = sortSongsWrapper(songItemList);
-                        serv.reload(songItemList);
+                        pl.sortPlayList(sortBy);
+                        serv.reload();
                         arrayAdapter.notifyDataSetChanged();
                     }
                 });
@@ -369,6 +374,50 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setdia.setView(v);
                 setdia.show();
                 break;
+            case Constants.DIALOG_SEARCHBY:
+                AlertDialog.Builder b1 = new AlertDialog.Builder(this);
+                b1.setTitle("Search By:");
+                b1.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                b1.setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Do Nothing
+                    }
+                });
+                CharSequence[] arr1 = {"Title", "Artist"};
+                b1.setSingleChoiceItems(arr1, searchBy, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                searchBy = Constants.SEARCH_BYTITLE;
+                                break;
+                            case 1:
+                                searchBy = Constants.SEARCH_BYARTIST;
+                                break;
+                        }
+                    }
+                });
+                final AlertDialog serdia = b1.create();
+
+                LayoutInflater l1 = LayoutInflater.from(this);
+                View e1 = l1.inflate(R.layout.dialog_sort, null);
+
+                serdia.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        serdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorDialogText, null));
+                        serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorDialogText, null));
+                    }
+                });
+
+                serdia.setView(e1);
+                serdia.show();
+                break;
         }
     }
 
@@ -384,17 +433,28 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void handleSearch() {
         EditText ed = findViewById(R.id.searchbox);
-        if (ed.getVisibility() == View.GONE)
-        {
+        ImageButton iv = findViewById(R.id.searchbybtn);
+        if (ed.getVisibility() == View.GONE) {
             ed.setVisibility(View.VISIBLE);
+            iv.setVisibility(View.VISIBLE);
             ed.setFocusableInTouchMode(true);
             ed.requestFocus();
-            toggleKeyboardView(this,this.getCurrentFocus(),true);
-        }
-        else
-        {
-            toggleKeyboardView(this,this.getCurrentFocus(),false);
+            ed.addTextChangedListener(new TextChangedListener<EditText>(ed) {
+                public void onTextChanged(EditText target, Editable s) {
+                    String searchTerm = target.getText().toString();
+                    Log.v(LOG_TAG, "SEARCHTEXT: " + searchTerm);
+                    if (searchTerm != "") {
+                        pl.showFiltered(searchTerm, searchBy);
+                        serv.reload();
+                        arrayAdapter.notifyDataSetChanged();
+                    }
+                }
+            });
+            toggleKeyboardView(this, this.getCurrentFocus(), true);
+        } else {
+            toggleKeyboardView(this, this.getCurrentFocus(), false);
             ed.setVisibility(View.GONE);
+            iv.setVisibility(View.GONE);
         }
     }
 
@@ -404,6 +464,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         ImageButton nexbtn = findViewById(R.id.buttonNex);
         ImageButton shufbtn = findViewById(R.id.buttonShuff);
         ImageButton repbtn = findViewById(R.id.buttonRep);
+        ImageButton sbbtn = findViewById(R.id.searchbybtn);
         playbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -466,11 +527,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
         };
+        sortbybtn_click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                displayDialog(Constants.DIALOG_SEARCHBY);
+            }
+        };
         playbtn.setOnClickListener(playbutton_click);
         prevbtn.setOnClickListener(prevbutton_click);
         nexbtn.setOnClickListener(nexbutton_click);
         shufbtn.setOnClickListener(shufbutton_click);
         repbtn.setOnClickListener(repbutton_click);
+        sbbtn.setOnClickListener(sortbybtn_click);
 
         ListView listview = (ListView) findViewById(R.id.listView1);
         listview.setOnItemClickListener(this);
@@ -478,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setListAdapter() {
         ListView lv = (ListView) findViewById(R.id.listView1);
-        arrayAdapter = new SongAdapter(this, songItemList);
+        arrayAdapter = new SongAdapter(this, pl.viewList);
         lv.setAdapter(arrayAdapter);
     }
 
@@ -529,31 +597,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private int requestSongID() {
         return idH++;
-    }
-
-    private List<SongItem> sortSongsWrapper(List<SongItem> s) {
-        switch (sortBy) {
-            case Constants.SORT_BYARTIST:
-                return sortSongsByArtist(s);
-            case Constants.SORT_BYTITLE:
-                return sortSongsByTitle(s);
-            default:
-                return null;
-        }
-    }
-
-    private List<SongItem> sortSongsByTitle(List<SongItem> s) {
-        List<SongItem> ret = new ArrayList<>();
-        ListSorter ls = new ListSorter();
-        ret = ls.sort(this, s, Constants.SORT_BYTITLE);
-        return ret;
-    }
-
-    private List<SongItem> sortSongsByArtist(List<SongItem> s) {
-        List<SongItem> ret = new ArrayList<>();
-        ListSorter ls = new ListSorter();
-        ret = ls.sort(this, s, Constants.SORT_BYARTIST);
-        return ret;
     }
 
     private void registerReceiver() {
@@ -640,10 +683,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             return rt;
         }
     }
+
     public static void toggleKeyboardView(Context context, View view, boolean b) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (b)
-            imm.showSoftInput(view,0);
+            imm.showSoftInput(view, 0);
         else
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
@@ -673,7 +717,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         public void onServiceConnected(ComponentName className, IBinder service) {
             serv = ((MusicPlayerService.LocalBinder) service).getService();
             initPlayer();
-            new LoadFilesTask().execute(getApplicationContext());
+            if (!taskIsRunning)
+                new LoadFilesTask().execute(getApplicationContext());
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
             Snackbar.make(findViewById(android.R.id.content), "Initialization Time: " + l + " ms.", Snackbar.LENGTH_LONG).show();
@@ -683,6 +728,32 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             serv = null;
         }
     };
+
+    //Classes
+
+    //TextChangedListener For Search Function
+    public abstract class TextChangedListener<T> implements TextWatcher {
+        private T target;
+
+        public TextChangedListener(T target) {
+            this.target = target;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            this.onTextChanged(target, s);
+        }
+
+        public abstract void onTextChanged(T target, Editable s);
+    }
 
     //ArrayAdapter of Song List Display
     public class SongAdapter extends ArrayAdapter<SongItem> {
@@ -716,21 +787,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    //AsyncTask
+    private boolean taskIsRunning = false;
 
+    //AsyncTask
     protected class LoadFilesTask extends AsyncTask<Context, Integer, String> {
         @Override
         protected String doInBackground(Context... params) {
             // Do the time comsuming task here
+            taskIsRunning = true;
             loadFiles();
-            Log.v(LOG_TAG, "NEW SIZE: " + songItemList.size());
-            serv.reload(songItemList);
+            Log.v(LOG_TAG, "NEW SIZE: " + pl.viewList.size());
+            serv.reload();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     arrayAdapter.notifyDataSetChanged();
                 }
             });
+            taskIsRunning = false;
             return "COMPLETE!";
         }
 

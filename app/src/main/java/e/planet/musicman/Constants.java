@@ -14,6 +14,10 @@ public final class Constants {
     public static final int SORT_BYTITLE = 0;
     public static final int SORT_BYARTIST = 1;
 
+    public static final int SEARCH_BYTITLE = 0;
+    public static final int SEARCH_BYARTIST = 1;
+
     public static final int DIALOG_SORT = 1;
     public static final int DIALOG_SETTINGS = 2;
+    public static final int DIALOG_SEARCHBY = 3;
 }

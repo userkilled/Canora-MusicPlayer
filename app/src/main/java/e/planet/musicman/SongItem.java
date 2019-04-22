@@ -30,6 +30,15 @@ public class SongItem {
     private Cursor cursor;
     private String LOG_TAG = "SONGITEM";
 
+    public SongItem(SongItem in) {
+        id = in.id;
+        file = in.file;
+        Title = in.Title;
+        Artist = in.Artist;
+        Album = in.Album;
+        icon = in.icon;
+    }
+
     public SongItem(Context co, File f, int i, Bitmap defaultIcon) {
         file = f;
         defIcon = defaultIcon;
