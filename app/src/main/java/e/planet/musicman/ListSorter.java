@@ -3,6 +3,7 @@ package e.planet.musicman;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -36,13 +37,13 @@ public class ListSorter {
     //Sort Functions
     private List<SongItem> sortSongsByTitle(List<SongItem> in) {
         List<SongItem> rtrn = in;
-        rtrn.sort(new TitleSorter());
+        Collections.sort(rtrn,new TitleSorter());
         return rtrn;
     }
 
     private List<SongItem> sortSongsByArtist(List<SongItem> in) {
         List<SongItem> rt = in;
-        rt.sort(new ArtistSorter());
+        Collections.sort(rt,new ArtistSorter());
         return rt;
     }
 

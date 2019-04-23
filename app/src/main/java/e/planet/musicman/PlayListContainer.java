@@ -32,6 +32,8 @@ public class PlayListContainer {
     }
 
     public void showFiltered(String term, int srb) {
+        if (contentList.size() == 0)
+            return;
         List<SongItem> flt = new ArrayList<>();
         switch (srb) {
             case Constants.SEARCH_BYTITLE:
@@ -58,6 +60,8 @@ public class PlayListContainer {
     }
 
     public void sortPlayList(int sortBy) {
+        if (contentList.size() == 0)
+            return;
         List<SongItem> srted;
         Log.v(LOG_TAG, "SORTING BY: " + sortBy);
         switch (sortBy) {
