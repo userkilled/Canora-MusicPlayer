@@ -15,3 +15,5 @@ Upcoming Features:
 * Playlists
 * Costumization/Themes
 * Search
+
+Requirements: Android 7.0 or Higher
