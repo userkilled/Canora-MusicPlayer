@@ -323,8 +323,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 sortdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorDialogText, null));
-                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorDialogText, null));
+                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(null,R.color.colorDialogText));
+                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(null,R.color.colorDialogText));
                     }
                 });
 
@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorDialogText, null));
+                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(null,R.color.colorDialogText));
                     }
                 });
 
@@ -410,8 +410,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 serdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        serdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorDialogText, null));
-                        serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorDialogText, null));
+                        serdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(null,R.color.colorDialogText));
+                        serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(null,R.color.colorDialogText));
                     }
                 });
 
@@ -506,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.enableShuffle()) {
 
-                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight, null));
+                        btn.setBackgroundColor(ContextCompat.getColor(null,R.color.colorhighlight));
                     } else {
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
@@ -520,7 +520,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.enableRepeat()) {
 
-                        btn.setBackgroundColor(getResources().getColor(R.color.colorhighlight, null));
+                        btn.setBackgroundColor(ContextCompat.getColor(null,R.color.colorhighlight));
                     } else {
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
