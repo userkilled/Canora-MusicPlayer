@@ -52,6 +52,16 @@ public class PlayListContainer {
                     }
                 }
                 break;
+            case Constants.SEARCH_BYBOTH:
+                Log.v(LOG_TAG,"SEARCH BY BOTH");
+                for (int i = 0; i < contentList.size(); i++)
+                {
+                    if (compareStrings(contentList.get(i).Title,term) || compareStrings(contentList.get(i).Artist,term))
+                    {
+                        flt.add(contentList.get(i));
+                    }
+                }
+                break;
         }
         if (flt.size() > 0) {
             viewList.clear();

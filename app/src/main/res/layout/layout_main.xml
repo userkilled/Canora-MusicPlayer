@@ -27,7 +27,7 @@
         <EditText android:id="@+id/searchbox"
                   android:layout_width="match_parent"
                   android:hint="Search For..."
-                  android:textColorHint="@color/colorAccent"
+                  android:textColorHint="@color/colorGreyed"
                   android:textSize="20dp"
                   android:textColor="@color/colorAccent"
                   android:paddingLeft="10dp"

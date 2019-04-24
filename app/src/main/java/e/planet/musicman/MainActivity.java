@@ -323,8 +323,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 sortdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(null,R.color.colorDialogText));
-                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(null,R.color.colorDialogText));
+                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorDialogText));
+                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorDialogText));
                     }
                 });
 
@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(null,R.color.colorDialogText));
+                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorDialogText));
                     }
                 });
 
@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         //Do Nothing
                     }
                 });
-                CharSequence[] arr1 = {"Title", "Artist"};
+                CharSequence[] arr1 = {"Title", "Artist", "Both"};
                 b1.setSingleChoiceItems(arr1, searchBy, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -398,6 +398,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                 break;
                             case 1:
                                 searchBy = Constants.SEARCH_BYARTIST;
+                                break;
+                            case 2:
+                                searchBy = Constants.SEARCH_BYBOTH;
                                 break;
                         }
                     }
@@ -410,8 +413,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 serdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        serdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(null,R.color.colorDialogText));
-                        serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(null,R.color.colorDialogText));
+                        serdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorDialogText));
+                        serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorDialogText));
                     }
                 });
 
@@ -426,8 +429,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         getSupportActionBar().setIcon(R.drawable.mainicon);
         getSupportActionBar().setLogo(R.drawable.mainicon);
         ActionBar actionbar = getSupportActionBar();
-        String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(this, R.color.colorAccent) & 0x00ffffff); //Because ANDROID
-        String t = "<font color='" + hexColor + "'>MusicMan </font>";
+        String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+        String t = "<font color='" + hexColor + "'>MusicMan</font>";
         actionbar.setTitle(Html.fromHtml(t));
     }
 
@@ -506,7 +509,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.enableShuffle()) {
 
-                        btn.setBackgroundColor(ContextCompat.getColor(null,R.color.colorhighlight));
+                        btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(),R.color.colorhighlight));
                     } else {
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
@@ -520,7 +523,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.enableRepeat()) {
 
-                        btn.setBackgroundColor(ContextCompat.getColor(null,R.color.colorhighlight));
+                        btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(),R.color.colorhighlight));
                     } else {
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }

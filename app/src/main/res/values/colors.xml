@@ -6,4 +6,5 @@
     <color name="colorhighlight">#CC42f486</color>
 
     <color name="colorDialogText">#000000</color>
+    <color name="colorGreyed">#999a9d</color>
 </resources>
