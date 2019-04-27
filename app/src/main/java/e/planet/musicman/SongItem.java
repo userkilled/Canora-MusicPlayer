@@ -30,6 +30,9 @@ public class SongItem {
     private Cursor cursor;
     private String LOG_TAG = "SONGITEM";
 
+    public SongItem() {
+    }
+
     public SongItem(SongItem in) {
         id = in.id;
         file = in.file;

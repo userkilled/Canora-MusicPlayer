@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         globT.start();
 
-        pl = new PlayListContainer(getApplicationContext());
+        pl = new PlayListContainer(getApplicationContext(), this);
 
         setupActionBar();
 
@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } else {
             Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
             startplayer();
-            setExtensionsAndSearchPaths();
             registerReceiver();
             setListeners();
         }
@@ -108,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onRestart();
         Log.v(LOG_TAG, "ONRESTART CALLED");
         //TODO: Reload Song Cache on Resume
-        if (!taskIsRunning)
-            new LoadFilesTask().execute(this);
+        if (serv != null)
+            loadFiles();
     }
 
     @Override
@@ -159,7 +158,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERM GRANTED");
                 startplayer();
-                setExtensionsAndSearchPaths();
                 loadFiles();
                 registerReceiver();
                 setListeners();
@@ -172,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     //Globals
-    private MusicPlayerService serv;
+    public MusicPlayerService serv;
 
     private BroadcastReceiver brcv;
 
@@ -186,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     int sortBy = Constants.SORT_BYTITLE; //Global Sorter Variable TODO:PERSISTENCE
     int searchBy = Constants.SEARCH_BYTITLE; //GLOBAL Search Variable TODO:PERSISTENCE
 
-    int idH = 0; //Stores Maximum ID Given out, Used for getting a new ID each Song
+    //int idH; //Stores Maximum ID Given out, Used for getting a new ID each Song
 
     PerformanceTimer globT = new PerformanceTimer();
 
@@ -203,9 +201,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 42;
 
-    List<String> validExtensions = new ArrayList<String>();
-    List<String> searchPaths = new ArrayList<>();
-
     public void initPlayer() {
         /* Callback when Player Service is Ready */
         Log.v(LOG_TAG, "INIT PLAYER");
@@ -215,15 +210,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void loadFiles() {
-        /* Main Entry Point after Permission is Granted, This Function Makes the Initial Search for Music Files, No Further Search is Performed after this Function */
         Log.v(LOG_TAG, "LOADING FILES");
-        List<SongItem> nl = new ArrayList<>();
-        for (String str : searchPaths) {
-            Log.v(LOG_TAG, "Searching in Directory: " + str);
-            if (getPlayListFiles(str) != null)
-                nl.addAll(getPlayListAsItems(str));
-        }
-        pl.setContent(nl);
+        pl.loadContent();
         pl.sortPlayList(sortBy);
     }
 
@@ -272,11 +260,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             text = s.Title + " by " + s.Artist;
         }
         TextView txt = findViewById(R.id.songDisplay);
-        /* No Longer Needed 1 Line Max Set
-        if (text.length() > 39) {
-            text = text.substring(0, 36);
-            text += "...";
-        }*/
         txt.setText(text);
     }
 
@@ -323,8 +306,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 sortdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorDialogText));
-                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorDialogText));
+                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
                     }
                 });
 
@@ -367,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorDialogText));
+                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
                     }
                 });
 
@@ -413,8 +396,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 serdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        serdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorDialogText));
-                        serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorDialogText));
+                        serdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
                     }
                 });
 
@@ -422,6 +405,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 serdia.show();
                 break;
         }
+    }
+
+    public void updateArrayAdapter() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                arrayAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void setupActionBar() {
@@ -509,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.enableShuffle()) {
 
-                        btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(),R.color.colorhighlight));
+                        btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
                     } else {
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
@@ -523,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.enableRepeat()) {
 
-                        btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(),R.color.colorhighlight));
+                        btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
                     } else {
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
@@ -551,55 +543,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         ListView lv = (ListView) findViewById(R.id.listView1);
         arrayAdapter = new SongAdapter(this, pl.viewList);
         lv.setAdapter(arrayAdapter);
-    }
-
-    private void setExtensionsAndSearchPaths() {
-        validExtensions.add(".mp3");
-        validExtensions.add(".mp4");
-        validExtensions.add(".m4a");
-        validExtensions.add(".avi");
-        validExtensions.add(".aac");
-        validExtensions.add(".mkv");
-        validExtensions.add(".wav");
-        searchPaths.add("/storage/emulated/0/Music");
-        searchPaths.add("/storage/emulated/0/Download");
-    }
-
-    List<SongItem> getPlayListAsItems(String rootPath) {
-        Bitmap dicon = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.icon_unsetsong);
-        List<File> t = getPlayListFiles(rootPath);
-        List<SongItem> ret = new ArrayList<>();
-        for (int i = 0; i < t.size(); i++) {
-            SongItem s = new SongItem(this, t.get(i), requestSongID(), dicon);
-            ret.add(s);
-        }
-        return ret;
-    }
-
-    ArrayList<File> getPlayListFiles(String rootPath) {
-        ArrayList<File> fileList = new ArrayList<>();
-        try {
-            File rootFolder = new File(rootPath);
-            File[] files = rootFolder.listFiles();
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    if (getPlayListFiles(file.getAbsolutePath()) != null) {
-                        fileList.addAll(getPlayListFiles(file.getAbsolutePath()));
-                    } else {
-                        break;
-                    }
-                } else if (validExtensions.contains(getFileExtension(file))) {
-                    fileList.add(file);
-                }
-            }
-            return fileList;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private int requestSongID() {
-        return idH++;
     }
 
     private void registerReceiver() {
@@ -645,22 +588,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     //Tools
-    private static String getFileExtension(File file) {
-        String extension = "";
-
-        try {
-            if (file != null && file.exists()) {
-                String name = file.getName();
-                extension = name.substring(name.lastIndexOf("."));
-            }
-        } catch (Exception e) {
-            extension = "";
-        }
-
-        return extension;
-
-    }
-
     public static int safeLongToInt(long l) {
         if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
             throw new IllegalArgumentException
@@ -720,8 +647,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         public void onServiceConnected(ComponentName className, IBinder service) {
             serv = ((MusicPlayerService.LocalBinder) service).getService();
             initPlayer();
-            if (!taskIsRunning)
-                new LoadFilesTask().execute(getApplicationContext());
+            loadFiles();
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
             Snackbar.make(findViewById(android.R.id.content), "Initialization Time: " + l + " ms.", Snackbar.LENGTH_LONG).show();
@@ -787,57 +713,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             ln.setText(lstr);
             //iv.setImageBitmap(songList.get(position).icon);
             return listItem;
-        }
-    }
-
-    private boolean taskIsRunning = false;
-
-    //AsyncTask
-    protected class LoadFilesTask extends AsyncTask<Context, Integer, String> {
-        @Override
-        protected String doInBackground(Context... params) {
-            // Do the time comsuming task here
-            taskIsRunning = true;
-            loadFiles();
-            Log.v(LOG_TAG, "NEW SIZE: " + pl.viewList.size());
-            serv.reload();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    arrayAdapter.notifyDataSetChanged();
-                }
-            });
-            taskIsRunning = false;
-            return "COMPLETE!";
-        }
-
-        // -- gets called just before thread begins
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
-
-        // -- called from the publish progress
-        // -- notice that the datatype of the second param gets passed to this
-        // method
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-
-        }
-
-        // -- called if the cancel button is pressed
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-
-        // -- called as soon as doInBackground method completes
-        // -- notice that the third param gets passed to this method
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            // Show the toast message here
         }
     }
 }
