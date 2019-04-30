@@ -41,16 +41,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "ONCREATE CALLED");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_main);
-
         globT.start();
-
         pl = new PlayListContainer(getApplicationContext(), this);
-
+        sc = new SettingsContainer(getApplicationContext());
+        sortBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY));
+        searchBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SEARCHBY));
         setupActionBar();
-
         findViewById(R.id.searchbox).setVisibility(View.GONE);
         findViewById(R.id.searchbybtn).setVisibility(View.GONE);
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.v(LOG_TAG, "REQUESTING PERMISSION");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
@@ -120,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-
             case R.id.action_settings:
                 Log.v(LOG_TAG, "Settings Pressed");
                 displayDialog(Constants.DIALOG_SETTINGS);
@@ -178,13 +175,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     NotificationManagerCompat notificationManager;
 
-    /*The Only Reference to The SongFiles along with a Copy in The MusicPlayerService*/
+    /* Contains all the Song Data */
     PlayListContainer pl;
 
-    int sortBy = Constants.SORT_BYTITLE; //Global Sorter Variable TODO:PERSISTENCE
-    int searchBy = Constants.SEARCH_BYTITLE; //GLOBAL Search Variable TODO:PERSISTENCE
+    /* Settings Manager */
+    SettingsContainer sc;
 
-    //int idH; //Stores Maximum ID Given out, Used for getting a new ID each Song
+    int sortBy;
+    int searchBy;
 
     PerformanceTimer globT = new PerformanceTimer();
 
@@ -291,18 +289,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         switch (which) {
                             case 0:
                                 sortBy = Constants.SORT_BYTITLE;
+                                sc.putSetting(Constants.SETTING_SORTBY, "" + sortBy);
                                 break;
                             case 1:
                                 sortBy = Constants.SORT_BYARTIST;
+                                sc.putSetting(Constants.SETTING_SORTBY, "" + sortBy);
                                 break;
                         }
                     }
                 });
                 final AlertDialog sortdia = b.create();
-
                 LayoutInflater l = LayoutInflater.from(this);
                 View e = l.inflate(R.layout.dialog_sort, null);
-
                 sortdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
@@ -344,6 +342,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         Log.v(LOG_TAG, "Setting Volume: " + c);
                         if (serv != null)
                             serv.setVolume(c);
+                        sc.putSetting(Constants.SETTING_VOLUME, "" + c);
                     }
                 });
 
@@ -378,21 +377,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         switch (which) {
                             case 0:
                                 searchBy = Constants.SEARCH_BYTITLE;
+                                sc.putSetting(Constants.SETTING_SEARCHBY, "" + searchBy);
                                 break;
                             case 1:
                                 searchBy = Constants.SEARCH_BYARTIST;
+                                sc.putSetting(Constants.SETTING_SEARCHBY, "" + searchBy);
                                 break;
                             case 2:
                                 searchBy = Constants.SEARCH_BYBOTH;
+                                sc.putSetting(Constants.SETTING_SEARCHBY, "" + searchBy);
                                 break;
                         }
                     }
                 });
                 final AlertDialog serdia = b1.create();
-
                 LayoutInflater l1 = LayoutInflater.from(this);
                 View e1 = l1.inflate(R.layout.dialog_sort, null);
-
                 serdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
@@ -400,7 +400,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
                     }
                 });
-
                 serdia.setView(e1);
                 serdia.show();
                 break;
@@ -534,7 +533,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         shufbtn.setOnClickListener(shufbutton_click);
         repbtn.setOnClickListener(repbutton_click);
         sbbtn.setOnClickListener(sortbybtn_click);
-
         ListView listview = (ListView) findViewById(R.id.listView1);
         listview.setOnItemClickListener(this);
     }
@@ -646,6 +644,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             serv = ((MusicPlayerService.LocalBinder) service).getService();
+            serv.setVolume(Float.parseFloat(sc.getSetting(Constants.SETTING_VOLUME)));
             initPlayer();
             loadFiles();
             globT.printStep(LOG_TAG, "Service Initialization");
@@ -708,7 +707,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             //ImageView iv = listItem.findViewById(R.id.imageview);
             sn.setText(songList.get(position).Title);
             in.setText(songList.get(position).Artist);
-
             String lstr = "" + TimeUnit.MILLISECONDS.toMinutes(songList.get(position).length) + ":" + TimeUnit.MILLISECONDS.toSeconds(songList.get(position).length - TimeUnit.MILLISECONDS.toMinutes(songList.get(position).length) * 60000);
             ln.setText(lstr);
             //iv.setImageBitmap(songList.get(position).icon);

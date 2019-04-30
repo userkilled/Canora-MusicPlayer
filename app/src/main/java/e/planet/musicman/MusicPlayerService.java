@@ -72,7 +72,7 @@ public class MusicPlayerService extends Service {
     private boolean repeatSong;
     private boolean playing;
 
-    private float volume = 0.8f; //TODO:PERSISTENCE
+    private float volume = 0.8f;
 
     public MusicPlayerService() {
         songPos = -1;
