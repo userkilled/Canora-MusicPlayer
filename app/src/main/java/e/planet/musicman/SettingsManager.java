@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SettingsContainer {
-    public SettingsContainer(Context mA) {
+public class SettingsManager {
+    public SettingsManager(Context mA) {
         mainAct = mA;
         settingsFile = new File(mainAct.getExternalCacheDir().getAbsolutePath() + "/settings.xml");
         Log.v(LOG_TAG, "SETTINGS PATH: " + settingsFile.getAbsolutePath());

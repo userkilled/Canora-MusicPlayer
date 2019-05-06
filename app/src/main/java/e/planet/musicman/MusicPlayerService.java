@@ -56,7 +56,7 @@ public class MusicPlayerService extends Service {
 
     /*The Player iterates over this Array of File handles depending on the Settings(Shuffle ,repeat)*/
     private List<SongItem> songs; //Reference to pl.viewList
-    private PlayListContainer pl;
+    private PlayListManager pl;
 
     private int songPos; //Index of currently Playing Song
     private SongItem currSong; //Currently Playing Song
@@ -86,7 +86,7 @@ public class MusicPlayerService extends Service {
     }
 
     //Public Control Functions
-    public int init(PlayListContainer plv) {
+    public int init(PlayListManager plv) {
         Log.v(LOG_TAG, "Init called, ");
         if (plv != null) {
             pl = plv;

@@ -13,14 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class PlayListContainer {
+public class PlayListManager {
     //Main Reference For ListView
     public List<SongItem> viewList = new ArrayList<>();
 
     //Reference of the Currently Playing PlayList for the Service
     public List<SongItem> playList = new ArrayList<>();
 
-    public PlayListContainer(Context c, MainActivity b) {
+    public PlayListManager(Context c, MainActivity b) {
         gc = c;
         mainActivity = b;
         setExtensionsAndSearchPaths();

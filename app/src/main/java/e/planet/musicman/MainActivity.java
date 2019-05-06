@@ -5,10 +5,7 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -29,7 +26,6 @@ import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -42,8 +38,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_main);
         globT.start();
-        pl = new PlayListContainer(getApplicationContext(), this);
-        sc = new SettingsContainer(getApplicationContext());
+        pl = new PlayListManager(getApplicationContext(), this);
+        sc = new SettingsManager(getApplicationContext());
         sortBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY));
         searchBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SEARCHBY));
         setupActionBar();
@@ -176,10 +172,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     NotificationManagerCompat notificationManager;
 
     /* Contains all the Song Data */
-    PlayListContainer pl;
+    PlayListManager pl;
 
     /* Settings Manager */
-    SettingsContainer sc;
+    SettingsManager sc;
 
     int sortBy;
     int searchBy;
