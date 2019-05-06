@@ -26,6 +26,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (animator != null) {
             animator.cancel();
         }
+        handleSearch();
     }
 
     @Override
@@ -100,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onRestart() {
         super.onRestart();
         Log.v(LOG_TAG, "ONRESTART CALLED");
-        //TODO: Reload Song Cache on Resume
         if (serv != null)
             loadFiles();
     }
@@ -206,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void loadFiles() {
         Log.v(LOG_TAG, "LOADING FILES");
         pl.loadContent();
-        pl.sortPlayList(sortBy);
+        pl.sortContent(sortBy);
     }
 
     public void handleProgressAnimation(int dur, int pos) {
@@ -249,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void updateSongDisplay() {
         /* Set the Song Title Text */
         String text = "";
-        SongItem s = serv.getCurrentSong();
+        ItemSong s = serv.getCurrentSong();
         if (s != null) {
             text = s.Title + " by " + s.Artist;
         }
@@ -267,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Sort By Selection
-                        pl.sortPlayList(sortBy);
+                        pl.sortContent(sortBy);
                         serv.reload();
                         arrayAdapter.notifyDataSetChanged();
                     }
@@ -643,6 +644,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             serv.setVolume(Float.parseFloat(sc.getSetting(Constants.SETTING_VOLUME)));
             initPlayer();
             loadFiles();
+
+            /*List<ItemSong> t = new ArrayList<>();
+            ItemSong tp = new ItemSong();
+            tp.Title = "AWESOME";
+            tp.Album = "WESOME";
+            tp.Artist = "bLA";
+            tp.file = new File("/storage/emulated/0/Download/Käptn Peng Und Die Tentakel Von Delphi - Unten.mp3");
+            t.add(tp);
+            ItemPlayList pls = new ItemPlayList("MYPLAYLIST",t);
+            pl.createPlayList("MYPLAYLIST",pls);
+            pl.selectPlayList("MYPLAYLIST");
+            pl.sortContent(sortBy);*/
+
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
             Snackbar.make(findViewById(android.R.id.content), "Initialization Time: " + l + " ms.", Snackbar.LENGTH_LONG).show();
@@ -680,12 +694,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     //ArrayAdapter of Song List Display
-    public class SongAdapter extends ArrayAdapter<SongItem> {
+    public class SongAdapter extends ArrayAdapter<ItemSong> {
 
         private Context mContext;
-        private List<SongItem> songList = new ArrayList<>();
+        private List<ItemSong> songList = new ArrayList<>();
 
-        public SongAdapter(@NonNull Context context, List<SongItem> list) {
+        public SongAdapter(@NonNull Context context, List<ItemSong> list) {
             super(context, 0, list);
             mContext = context;
             songList = list;

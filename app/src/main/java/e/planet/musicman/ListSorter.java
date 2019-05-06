@@ -1,7 +1,6 @@
 package e.planet.musicman;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,9 +19,9 @@ public class ListSorter {
     }
 
     //Callbacks
-    public List<SongItem> sort(Context c, List<SongItem> in, int SortMode) {
+    public List<ItemSong> sort(Context c, List<ItemSong> in, int SortMode) {
         co = c;
-        List<SongItem> sorted = null;
+        List<ItemSong> sorted = null;
         switch (SortMode) {
             case Constants.SORT_BYTITLE:
                 sorted = sortSongsByTitle(in);
@@ -35,29 +34,29 @@ public class ListSorter {
     }
 
     //Sort Functions
-    private List<SongItem> sortSongsByTitle(List<SongItem> in) {
-        List<SongItem> rtrn = in;
+    private List<ItemSong> sortSongsByTitle(List<ItemSong> in) {
+        List<ItemSong> rtrn = in;
         Collections.sort(rtrn,new TitleSorter());
         return rtrn;
     }
 
-    private List<SongItem> sortSongsByArtist(List<SongItem> in) {
-        List<SongItem> rt = in;
+    private List<ItemSong> sortSongsByArtist(List<ItemSong> in) {
+        List<ItemSong> rt = in;
         Collections.sort(rt,new ArtistSorter());
         return rt;
     }
 
     //Comparators
-    private class TitleSorter implements Comparator<SongItem> {
+    private class TitleSorter implements Comparator<ItemSong> {
         @Override
-        public int compare(SongItem f1, SongItem f2) {
+        public int compare(ItemSong f1, ItemSong f2) {
             return f1.Title.toLowerCase().compareTo(f2.Title.toLowerCase());
         }
     }
 
-    private class ArtistSorter implements Comparator<SongItem> {
+    private class ArtistSorter implements Comparator<ItemSong> {
         @Override
-        public int compare(SongItem o1, SongItem o2) {
+        public int compare(ItemSong o1, ItemSong o2) {
             return o1.Artist.toLowerCase().compareTo(o2.Artist.toLowerCase());
         }
     }
