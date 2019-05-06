@@ -55,4 +55,7 @@ public final class Constants {
     public static final int DIALOG_SORT = 1;
     public static final int DIALOG_SETTINGS = 2;
     public static final int DIALOG_SEARCHBY = 3;
+
+    public static final int ARRAYADAPT_STATE_DEFAULT = 0;
+    public static final int ARRAYADAPT_STATE_SELECT = 1;
 }

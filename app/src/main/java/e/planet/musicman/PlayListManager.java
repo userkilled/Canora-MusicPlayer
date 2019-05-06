@@ -50,37 +50,9 @@ public class PlayListManager {
     }
 
     public void showFiltered(String term, int srb) {
-        if (contentList.size() == 0)
-            return;
-        List<ItemSong> flt = new ArrayList<>();
-        switch (srb) {
-            case Constants.SEARCH_BYTITLE:
-                Log.v(LOG_TAG, "SEARCH BY TITLE");
-                for (int i = 0; i < contentList.size(); i++) {
-                    if (compareStrings(contentList.get(i).Title, term)) {
-                        flt.add(contentList.get(i));
-                    }
-                }
-                break;
-            case Constants.SEARCH_BYARTIST:
-                Log.v(LOG_TAG, "SEARCH BY ARTIST");
-                for (int i = 0; i < contentList.size(); i++) {
-                    if (compareStrings(contentList.get(i).Artist, term)) {
-                        flt.add(contentList.get(i));
-                    }
-                }
-                break;
-            case Constants.SEARCH_BYBOTH:
-                Log.v(LOG_TAG, "SEARCH BY BOTH");
-                for (int i = 0; i < contentList.size(); i++) {
-                    if (compareStrings(contentList.get(i).Title, term) || compareStrings(contentList.get(i).Artist, term)) {
-                        flt.add(contentList.get(i));
-                    }
-                }
-                break;
-        }
-        viewList.clear();
-        viewList.addAll(flt);
+        searchTerm = term;
+        SearchBy = srb;
+        new SearchFilesTask().execute(gc);
     }
 
     public void sortContent(int sortBy) {
@@ -123,6 +95,9 @@ public class PlayListManager {
     //Private Globals
     private Context gc;
     private MainActivity mainActivity;
+
+    private int SearchBy;
+    private String searchTerm;
 
     private String LOG_TAG = "PLC";
 
@@ -453,7 +428,7 @@ public class PlayListManager {
             Log.v(LOG_TAG, "NEW SIZE: " + contentList.size());
             sortContent(mainActivity.sortBy);
             mainActivity.serv.reload();
-            mainActivity.updateArrayAdapter();
+            mainActivity.updateContentArrayAdapter();
             return "COMPLETE!";
         }
 
@@ -473,6 +448,73 @@ public class PlayListManager {
             super.onPostExecute(result);
             Log.v(LOG_TAG, "ASYNC END: " + result);
             taskIsRunning = false;
+        }
+    }
+
+    public boolean searchtaskIsRunning = false;
+
+    protected class SearchFilesTask extends AsyncTask<Context, Integer, String> {
+        @Override
+        protected String doInBackground(Context... params) {
+            int srb = 0 + SearchBy;
+            String term = "" + searchTerm;
+            if (contentList.size() == 0)
+                return "ERROR: CONTENT LIST SIZE EQUALS 0";
+            List<ItemSong> flt = new ArrayList<>();
+            switch (srb) {
+                case Constants.SEARCH_BYTITLE:
+                    Log.v(LOG_TAG, "SEARCH BY TITLE");
+                    for (int i = 0; i < contentList.size(); i++) {
+                        if (compareStrings(contentList.get(i).Title, term)) {
+                            flt.add(contentList.get(i));
+                        }
+                    }
+                    break;
+                case Constants.SEARCH_BYARTIST:
+                    Log.v(LOG_TAG, "SEARCH BY ARTIST");
+                    for (int i = 0; i < contentList.size(); i++) {
+                        if (compareStrings(contentList.get(i).Artist, term)) {
+                            flt.add(contentList.get(i));
+                        }
+                    }
+                    break;
+                case Constants.SEARCH_BYBOTH:
+                    Log.v(LOG_TAG, "SEARCH BY BOTH");
+                    for (int i = 0; i < contentList.size(); i++) {
+                        if (compareStrings(contentList.get(i).Title, term) || compareStrings(contentList.get(i).Artist, term)) {
+                            flt.add(contentList.get(i));
+                        }
+                    }
+                    break;
+            }
+            viewList.clear();
+            viewList.addAll(flt);
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mainActivity.serv.reload();
+                    mainActivity.notifyArrayAdapter();
+                }
+            });
+            return "COMPLETE!";
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.v(LOG_TAG, "ASYNC START");
+            if (searchtaskIsRunning) {
+                //TODO#POLISHING: Possible Race Condition
+                Log.v(LOG_TAG, "ASYNC TASK ALREADY RUNNING");
+            } else
+                searchtaskIsRunning = true;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            Log.v(LOG_TAG, "ASYNC END: " + result);
+            searchtaskIsRunning = false;
         }
     }
 }

@@ -16,6 +16,8 @@
                   android:textColorHint="@color/colorGreyed"
                   android:textSize="20dp"
                   android:textColor="@color/colorAccent"
+                  android:backgroundTint="@color/colorAccent"
+                  android:textCursorDrawable="@null"
                   android:paddingLeft="10dp"
                   android:paddingRight="10dp"
                   android:layout_toLeftOf="@id/searchbybtn"
@@ -65,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/colorPrimaryDark"
                     android:layout_weight="1">
-        <ListView android:id="@+id/listView1"
+        <ListView android:id="@+id/mainViewport"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent"
                   android:layout_marginBottom="5dp"

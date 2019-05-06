@@ -36,13 +36,13 @@ public class ListSorter {
     //Sort Functions
     private List<ItemSong> sortSongsByTitle(List<ItemSong> in) {
         List<ItemSong> rtrn = in;
-        Collections.sort(rtrn,new TitleSorter());
+        Collections.sort(rtrn, new TitleSorter());
         return rtrn;
     }
 
     private List<ItemSong> sortSongsByArtist(List<ItemSong> in) {
         List<ItemSong> rt = in;
-        Collections.sort(rt,new ArtistSorter());
+        Collections.sort(rt, new ArtistSorter());
         return rt;
     }
 

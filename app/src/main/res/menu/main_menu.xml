@@ -5,10 +5,21 @@
           android:title="Settings"
           app:showAsAction="never"/>
     <item android:id="@+id/action_sortby"
-          android:title="SortBy"
+          android:title="Sort"
           app:showAsAction="never"/>
     <item android:id="@+id/action_search"
           android:title="Search"
           android:icon="@drawable/searchicon"
           app:showAsAction="always"/>
+    <item android:id="@+id/action_addItemsToPlaylist"
+          android:title="Add Selection To Playlist"
+          app:showAsAction="never"
+          android:visible="false"/>
+    <item android:id="@+id/action_cancel"
+          android:title="Cancel Selection"
+          app:showAsAction="never"
+          android:visible="false"/>
+    <item android:id="@+id/action_select"
+          android:title="Select"
+          app:showAsAction="never"/>
 </menu>

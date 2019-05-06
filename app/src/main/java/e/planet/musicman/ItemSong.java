@@ -23,6 +23,8 @@ public class ItemSong {
     public Bitmap icon;
     public long length;
 
+    public boolean selected;
+
     //Privates
     private Bitmap defIcon;
     private Context c;

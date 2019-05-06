@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -21,14 +22,15 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.*;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
@@ -37,8 +39,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(LOG_TAG, "ONCREATE CALLED");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_main);
         globT.start();
+        setContentView(R.layout.layout_main);
+        ListView lv = findViewById(R.id.mainViewport);
+        registerForContextMenu(lv);
         pl = new PlayListManager(getApplicationContext(), this);
         sc = new SettingsManager(getApplicationContext());
         sortBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY));
@@ -106,8 +110,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             loadFiles();
     }
 
+    private Menu menu;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
@@ -126,6 +133,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.action_search:
                 Log.v(LOG_TAG, "Search Pressed");
                 handleSearch();
+                return true;
+            case R.id.action_select:
+                Log.v(LOG_TAG, "Select Pressed");
+                multiSelect();
+                return true;
+            case R.id.action_addItemsToPlaylist:
+                Log.v(LOG_TAG, "ADDTOPLAYLIST PRESSED");
+                //Ask Which PlayList / New Playlist
+                /*pl.createPlayList("MYPLAYLIST",pls);
+                    pl.selectPlayList("MYPLAYLIST");
+                    pl.sortContent(sortBy);*/
+                return true;
+            case R.id.action_cancel:
+                Log.v(LOG_TAG, "CANCEL PRESSED");
+                multiSelect();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -160,6 +182,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 System.exit(1);
             }
             return;
+        }
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId() == R.id.mainViewport) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.list_menu, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.add:
+                // add stuff here
+                return true;
+            case R.id.info:
+                // edit stuff here
+                return true;
+            case R.id.del:
+                // remove stuff here
+                return true;
+            default:
+                return super.onContextItemSelected(item);
         }
     }
 
@@ -403,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    public void updateArrayAdapter() {
+    public void updateContentArrayAdapter() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -436,8 +485,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     Log.v(LOG_TAG, "SEARCHTEXT: " + searchTerm);
                     if (searchTerm != "") {
                         pl.showFiltered(searchTerm, searchBy);
-                        serv.reload();
-                        arrayAdapter.notifyDataSetChanged();
                     }
                 }
             });
@@ -530,14 +577,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         shufbtn.setOnClickListener(shufbutton_click);
         repbtn.setOnClickListener(repbutton_click);
         sbbtn.setOnClickListener(sortbybtn_click);
-        ListView listview = (ListView) findViewById(R.id.listView1);
+        ListView listview = (ListView) findViewById(R.id.mainViewport);
         listview.setOnItemClickListener(this);
     }
 
     private void setListAdapter() {
-        ListView lv = (ListView) findViewById(R.id.listView1);
+        ListView lv = (ListView) findViewById(R.id.mainViewport);
         arrayAdapter = new SongAdapter(this, pl.viewList);
         lv.setAdapter(arrayAdapter);
+        lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     }
 
     private void registerReceiver() {
@@ -582,6 +630,62 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    private void multiSelect() {
+        if (arrayAdapter.state == Constants.ARRAYADAPT_STATE_DEFAULT) {
+            Log.v(LOG_TAG, "SWITCHING TO SELECT MODE");
+            arrayAdapter.state = Constants.ARRAYADAPT_STATE_SELECT;
+            setOptionsMenu(arrayAdapter.state);
+        } else {
+            Log.v(LOG_TAG, "SWITCHING TO NORMAL MODE");
+            ListView v = findViewById(R.id.mainViewport);
+            List<ItemSong> p = getSelected();
+            Log.v(LOG_TAG, "NUMSEL: " + p.size());
+            for (int i = 0; i < p.size(); i++) {
+                Log.v(LOG_TAG, "PATH: " + p.get(i).file.getAbsolutePath());
+            }
+            arrayAdapter.state = Constants.ARRAYADAPT_STATE_DEFAULT;
+            setOptionsMenu(arrayAdapter.state);
+            for (int i = 0; i < pl.contentList.size(); i++) {
+                pl.contentList.get(i).selected = false;
+            }
+        }
+        arrayAdapter.notifyDataSetChanged();
+    }
+
+    private void setOptionsMenu(int state) {
+        switch (state) {
+            case Constants.ARRAYADAPT_STATE_DEFAULT:
+                Log.v(LOG_TAG, "NORMAL MODE");
+                closeOptionsMenu();//TODO#POLISHING: Make Options Menu Transition Invisible
+                menu.findItem(R.id.action_addItemsToPlaylist).setVisible(false);
+                menu.findItem(R.id.action_cancel).setVisible(false);
+                menu.findItem(R.id.action_select).setVisible(true);
+                break;
+            case Constants.ARRAYADAPT_STATE_SELECT:
+                Log.v(LOG_TAG, "SELECT MODE");
+                closeOptionsMenu();
+                menu.findItem(R.id.action_addItemsToPlaylist).setVisible(true);
+                menu.findItem(R.id.action_cancel).setVisible(true);
+                menu.findItem(R.id.action_select).setVisible(false);
+                break;
+        }
+    }
+
+    private List<ItemSong> getSelected() {
+        List<ItemSong> ret = new ArrayList<>();
+        for (int i = 0; i < pl.contentList.size(); i++) {
+            if (pl.contentList.get(i).selected) {
+                ret.add(pl.contentList.get(i));
+            }
+        }
+        return ret;
+    }
+
+    public void notifyArrayAdapter()
+    {
+        arrayAdapter.notifyDataSetChanged();
+    }
+
     //Tools
     public static int safeLongToInt(long l) {
         if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
@@ -617,6 +721,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    public static void expandTouchArea(final View bigView, final View smallView, final int extraPadding) {
+        bigView.post(new Runnable() {
+            @Override
+            public void run() {
+                Rect rect = new Rect();
+                smallView.getHitRect(rect);
+                rect.top -= extraPadding;
+                rect.left -= extraPadding;
+                rect.right += extraPadding;
+                rect.bottom += extraPadding;
+                bigView.setTouchDelegate(new TouchDelegate(rect, smallView));
+            }
+        });
+    }
+
     //Service Binding
     public void startplayer() {
         doBindService();
@@ -644,19 +763,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             serv.setVolume(Float.parseFloat(sc.getSetting(Constants.SETTING_VOLUME)));
             initPlayer();
             loadFiles();
-
-            /*List<ItemSong> t = new ArrayList<>();
-            ItemSong tp = new ItemSong();
-            tp.Title = "AWESOME";
-            tp.Album = "WESOME";
-            tp.Artist = "bLA";
-            tp.file = new File("/storage/emulated/0/Download/Käptn Peng Und Die Tentakel Von Delphi - Unten.mp3");
-            t.add(tp);
-            ItemPlayList pls = new ItemPlayList("MYPLAYLIST",t);
-            pl.createPlayList("MYPLAYLIST",pls);
-            pl.selectPlayList("MYPLAYLIST");
-            pl.sortContent(sortBy);*/
-
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
             Snackbar.make(findViewById(android.R.id.content), "Initialization Time: " + l + " ms.", Snackbar.LENGTH_LONG).show();
@@ -668,7 +774,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     };
 
     //Classes
-
     //TextChangedListener For Search Function
     public abstract class TextChangedListener<T> implements TextWatcher {
         private T target;
@@ -696,30 +801,59 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //ArrayAdapter of Song List Display
     public class SongAdapter extends ArrayAdapter<ItemSong> {
 
+        public int state = Constants.ARRAYADAPT_STATE_DEFAULT;
+
         private Context mContext;
-        private List<ItemSong> songList = new ArrayList<>();
+        private List<ItemSong> viewList;
 
         public SongAdapter(@NonNull Context context, List<ItemSong> list) {
             super(context, 0, list);
             mContext = context;
-            songList = list;
+            viewList = list;
+        }
+
+        @Override
+        public void notifyDataSetChanged() {
+            super.notifyDataSetChanged();
         }
 
         @NonNull
         @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             View listItem = convertView;
             if (listItem == null)
                 listItem = LayoutInflater.from(mContext).inflate(R.layout.list_item_song, parent, false);
             TextView sn = listItem.findViewById(R.id.listsongname);
             TextView in = listItem.findViewById(R.id.listinterpret);
             TextView ln = listItem.findViewById(R.id.songlength);
-            //ImageView iv = listItem.findViewById(R.id.imageview);
-            sn.setText(songList.get(position).Title);
-            in.setText(songList.get(position).Artist);
-            String lstr = "" + TimeUnit.MILLISECONDS.toMinutes(songList.get(position).length) + ":" + TimeUnit.MILLISECONDS.toSeconds(songList.get(position).length - TimeUnit.MILLISECONDS.toMinutes(songList.get(position).length) * 60000);
+            sn.setText(viewList.get(position).Title);
+            in.setText(viewList.get(position).Artist);
+            String lstr = "" + TimeUnit.MILLISECONDS.toMinutes(viewList.get(position).length) + ":" + TimeUnit.MILLISECONDS.toSeconds(viewList.get(position).length - TimeUnit.MILLISECONDS.toMinutes(viewList.get(position).length) * 60000);
             ln.setText(lstr);
-            //iv.setImageBitmap(songList.get(position).icon);
+            final CheckBox mcb = listItem.findViewById(R.id.checkbox);
+            final View exp = listItem.findViewById(R.id.hitbox);
+            switch (state) {
+                case Constants.ARRAYADAPT_STATE_SELECT:
+                    mcb.setVisibility(View.VISIBLE);
+                    final ListView lv = findViewById(R.id.mainViewport);
+                    mcb.setChecked(viewList.get(position).selected);
+                    mcb.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            if (((CheckBox) v).isChecked()) {
+                                viewList.get(position).selected = true;
+
+                            } else {
+                                viewList.get(position).selected = false;
+                            }
+                        }
+                    });
+                    expandTouchArea(exp, (View) mcb, 1000);
+                    break;
+                default:
+                    mcb.setVisibility(View.GONE);
+                    expandTouchArea(exp, (View) mcb, 0);
+                    break;
+            }
             return listItem;
         }
     }
