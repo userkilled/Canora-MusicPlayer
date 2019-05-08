@@ -399,6 +399,7 @@ public class MusicPlayerService extends Service {
     }
 
     private void handleHistory(boolean add) {
+        //TODO#POLISHING: Improve History
         Log.v(LOG_TAG, "Handle History Called. SongPos: " + songPos);
         if (add) {
             songIDHistory[5] = songIDHistory[4];

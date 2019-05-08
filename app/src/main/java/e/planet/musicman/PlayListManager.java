@@ -32,7 +32,7 @@ public class PlayListManager {
         gc = c;
         mainActivity = b;
         plPath = mainActivity.getExternalFilesDir(null).getAbsolutePath() + "/PlayLists.xml";
-        Log.v(LOG_TAG, "PLAYLIST PATH: " + plPath);
+        //Log.v(LOG_TAG, "PLAYLIST PATH: " + plPath);
         setExtensionsAndSearchPaths();
     }
 
@@ -49,31 +49,43 @@ public class PlayListManager {
             new LoadFilesTask().execute(gc);
     }
 
+    public boolean filtering = false;
+
     public void showFiltered(String term, int srb) {
         searchTerm = term;
-        SearchBy = srb;
+        searchBy = srb;
         new SearchFilesTask().execute(gc);
     }
 
     public void sortContent(int sortBy) {
         if (contentList.size() == 0)
             return;
-        List<ItemSong> srted;
+        final List<ItemSong> srted;
         Log.v(LOG_TAG, "SORTING BY: " + sortBy);
         switch (sortBy) {
             case Constants.SORT_BYARTIST:
                 Log.v(LOG_TAG, "SORTING BY ARTIST");
                 srted = sortSongsByArtist(contentList);
                 Log.v(LOG_TAG, "First TITLE: " + srted.get(0).Title);
-                viewList.clear();
-                viewList.addAll(srted);
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewList.clear();
+                        viewList.addAll(srted);
+                    }
+                });
                 break;
             case Constants.SORT_BYTITLE:
                 Log.v(LOG_TAG, "SORTING BY TITLE");
                 srted = sortSongsByTitle(contentList);
                 Log.v(LOG_TAG, "First TITLE: " + srted.get(0).Title);
-                viewList.clear();
-                viewList.addAll(srted);
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewList.clear();
+                        viewList.addAll(srted);
+                    }
+                });
                 break;
         }
     }
@@ -96,7 +108,7 @@ public class PlayListManager {
     private Context gc;
     private MainActivity mainActivity;
 
-    private int SearchBy;
+    private int searchBy;
     private String searchTerm;
 
     private String LOG_TAG = "PLC";
@@ -236,22 +248,21 @@ public class PlayListManager {
     //Other
     private ItemSong getMetadata(File f) {
         ItemSong ret = new ItemSong();
-        Log.d(LOG_TAG, "Loading file " + f.getAbsolutePath());
+        Log.d(LOG_TAG, "Getting Metadata for File: " + f.getAbsolutePath());
         Uri muri = MediaStore.Audio.Media.getContentUri("external");
-        Log.v(LOG_TAG, "URI: " + muri.toString());
         String[] projection = {MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA};
         Cursor c = gc.getContentResolver().query(muri, projection, MediaStore.Audio.AudioColumns.DATA + " LIKE ?", new String[]{f.getAbsolutePath()}, null);
         c.moveToFirst();
         ret.Title = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE));
-        Log.v(LOG_TAG, "TITLE: " + ret.Title);
+        //Log.v(LOG_TAG, "TITLE: " + ret.Title);
         ret.Artist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-        Log.v(LOG_TAG, "ARTIST: " + ret.Artist);
+        //Log.v(LOG_TAG, "ARTIST: " + ret.Artist);
         ret.Album = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-        Log.v(LOG_TAG, "ALBUM: " + ret.Album);
+        //Log.v(LOG_TAG, "ALBUM: " + ret.Album);
         ret.file = new File(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
-        Log.v(LOG_TAG, "FILEPATH: " + ret.file.getAbsolutePath());
+        //Log.v(LOG_TAG, "FILEPATH: " + ret.file.getAbsolutePath());
         ret.id = GIDC++;
-        Log.v(LOG_TAG, "ID: " + ret.id);
+        //Log.v(LOG_TAG, "ID: " + ret.id);
         c.close();
         return ret;
     }
@@ -282,15 +293,15 @@ public class PlayListManager {
         while (c.moveToNext()) {
             ItemSong t = new ItemSong();
             t.Title = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE));
-            Log.v(LOG_TAG, "TITLE: " + t.Title);
+            //Log.v(LOG_TAG, "TITLE: " + t.Title);
             t.Artist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-            Log.v(LOG_TAG, "ARTIST: " + t.Artist);
+            //Log.v(LOG_TAG, "ARTIST: " + t.Artist);
             t.Album = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-            Log.v(LOG_TAG, "ALBUM: " + t.Album);
+            //Log.v(LOG_TAG, "ALBUM: " + t.Album);
             t.file = new File(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
-            Log.v(LOG_TAG, "FILEPATH: " + t.file.getAbsolutePath());
+            //Log.v(LOG_TAG, "FILEPATH: " + t.file.getAbsolutePath());
             t.id = GIDC++;
-            Log.v(LOG_TAG, "ID: " + t.id);
+            //Log.v(LOG_TAG, "ID: " + t.id);
             ret.add(t);
         }
         return ret;
@@ -402,13 +413,23 @@ public class PlayListManager {
 
     private void updateContent() {
         if (PlayLists.get(pli).audio != null) {
-            viewList.clear();
-            viewList.addAll(PlayLists.get(pli).audio);
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    viewList.clear();
+                    viewList.addAll(PlayLists.get(pli).audio);
+                }
+            });
             contentList.clear();
             contentList.addAll(PlayLists.get(pli).audio);
         } else {
-            viewList.clear();
-            viewList.addAll(PlayLists.get("").audio);
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    viewList.clear();
+                    viewList.addAll(PlayLists.get("").audio);
+                }
+            });
             contentList.clear();
             contentList.addAll(PlayLists.get("").audio);
         }
@@ -420,24 +441,30 @@ public class PlayListManager {
         @Override
         protected String doInBackground(Context... params) {
             List<ItemSong> nw = getSongsfromFiles();
-            Log.v(LOG_TAG, "FOUND FILES: " + nw.size());
+            Log.v(LOG_TAG, "FOUND " + nw.size() + " AUDIO FILES ON DISK");
             List<ItemSong> nnw = mergeLists(PlayLists.get("").audio, nw);
             PlayLists.get("").audio.clear();
             PlayLists.get("").audio.addAll(nnw);
             updateContent();
-            Log.v(LOG_TAG, "NEW SIZE: " + contentList.size());
+            Log.v(LOG_TAG, "CONTENT SIZE AFTER MERGE: " + contentList.size());
             sortContent(mainActivity.sortBy);
             mainActivity.serv.reload();
-            mainActivity.updateContentArrayAdapter();
+            if (filtering) {
+                //Log.v(LOG_TAG,"FILTERING");
+                showFiltered(searchTerm, searchBy);
+            } else {
+                //Log.v(LOG_TAG, "NOT FILTERING, DONE");
+                mainActivity.notifyArrayAdapter();
+            }
             return "COMPLETE!";
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.v(LOG_TAG, "ASYNC START");
+            Log.v(LOG_TAG, "LOAD ASYNC START");
             if (taskIsRunning) {
-                Log.v(LOG_TAG, "ASYNC TASK ALREADY RUNNING, CANCELING");
+                Log.v(LOG_TAG, "LOAD ASYNC TASK ALREADY RUNNING, CANCELING");
                 cancel(false);
             } else
                 taskIsRunning = true;
@@ -446,7 +473,7 @@ public class PlayListManager {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            Log.v(LOG_TAG, "ASYNC END: " + result);
+            Log.v(LOG_TAG, "LOAD ASYNC END: " + result);
             taskIsRunning = false;
         }
     }
@@ -456,7 +483,7 @@ public class PlayListManager {
     protected class SearchFilesTask extends AsyncTask<Context, Integer, String> {
         @Override
         protected String doInBackground(Context... params) {
-            int srb = 0 + SearchBy;
+            int srb = 0 + searchBy;
             String term = "" + searchTerm;
             if (contentList.size() == 0)
                 return "ERROR: CONTENT LIST SIZE EQUALS 0";
@@ -487,25 +514,27 @@ public class PlayListManager {
                     }
                     break;
             }
-            viewList.clear();
-            viewList.addAll(flt);
+            final List<ItemSong> inp = flt;
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mainActivity.serv.reload();
-                    mainActivity.notifyArrayAdapter();
+                    viewList.clear();
+                    viewList.addAll(inp);
                 }
             });
+            mainActivity.serv.reload();
+            mainActivity.notifyArrayAdapter();
             return "COMPLETE!";
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.v(LOG_TAG, "ASYNC START");
+            Log.v(LOG_TAG, "SEARCH ASYNC START");
             if (searchtaskIsRunning) {
                 //TODO#POLISHING: Possible Race Condition
-                Log.v(LOG_TAG, "ASYNC TASK ALREADY RUNNING");
+                Log.v(LOG_TAG, "SEARCH ASYNC TASK ALREADY RUNNING, CANCELING");
+                cancel(false);
             } else
                 searchtaskIsRunning = true;
         }
@@ -513,7 +542,7 @@ public class PlayListManager {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            Log.v(LOG_TAG, "ASYNC END: " + result);
+            Log.v(LOG_TAG, "SEARCH ASYNC END: " + result);
             searchtaskIsRunning = false;
         }
     }

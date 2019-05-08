@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (animator != null) {
             animator.cancel();
         }
-        handleSearch();
     }
 
     @Override
@@ -106,8 +105,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onRestart() {
         super.onRestart();
         Log.v(LOG_TAG, "ONRESTART CALLED");
-        if (serv != null)
+        if (serv != null) {
             loadFiles();
+        }
     }
 
     private Menu menu;
@@ -452,15 +452,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    public void updateContentArrayAdapter() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                arrayAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
     private void setupActionBar() {
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
         getSupportActionBar().setIcon(R.drawable.mainicon);
@@ -470,6 +461,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String t = "<font color='" + hexColor + "'>MusicMan</font>";
         actionbar.setTitle(Html.fromHtml(t));
     }
+
+    private String searchTerm;
 
     private void handleSearch() {
         EditText ed = findViewById(R.id.searchbox);
@@ -481,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             ed.requestFocus();
             ed.addTextChangedListener(new TextChangedListener<EditText>(ed) {
                 public void onTextChanged(EditText target, Editable s) {
-                    String searchTerm = target.getText().toString();
+                    searchTerm = target.getText().toString();
                     Log.v(LOG_TAG, "SEARCHTEXT: " + searchTerm);
                     if (searchTerm != "") {
                         pl.showFiltered(searchTerm, searchBy);
@@ -489,10 +482,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             });
             toggleKeyboardView(this, this.getCurrentFocus(), true);
+            pl.filtering = true;
+            if (searchTerm != null)
+                pl.showFiltered(searchTerm,searchBy);
         } else {
             toggleKeyboardView(this, this.getCurrentFocus(), false);
             ed.setVisibility(View.GONE);
             iv.setVisibility(View.GONE);
+            pl.filtering = false;
+            pl.showFiltered("",searchBy);
         }
     }
 
@@ -639,9 +637,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             Log.v(LOG_TAG, "SWITCHING TO NORMAL MODE");
             ListView v = findViewById(R.id.mainViewport);
             List<ItemSong> p = getSelected();
-            Log.v(LOG_TAG, "NUMSEL: " + p.size());
+            Log.v(LOG_TAG, "NUMBER OF SELECTED ITEMS: " + p.size());
             for (int i = 0; i < p.size(); i++) {
-                Log.v(LOG_TAG, "PATH: " + p.get(i).file.getAbsolutePath());
+                Log.v(LOG_TAG, "ITEM " + i + " PATH: " + p.get(i).file.getAbsolutePath());
             }
             arrayAdapter.state = Constants.ARRAYADAPT_STATE_DEFAULT;
             setOptionsMenu(arrayAdapter.state);
@@ -655,14 +653,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void setOptionsMenu(int state) {
         switch (state) {
             case Constants.ARRAYADAPT_STATE_DEFAULT:
-                Log.v(LOG_TAG, "NORMAL MODE");
+                Log.v(LOG_TAG, "OPTIONS NORMAL MODE");
                 closeOptionsMenu();//TODO#POLISHING: Make Options Menu Transition Invisible
                 menu.findItem(R.id.action_addItemsToPlaylist).setVisible(false);
                 menu.findItem(R.id.action_cancel).setVisible(false);
                 menu.findItem(R.id.action_select).setVisible(true);
                 break;
             case Constants.ARRAYADAPT_STATE_SELECT:
-                Log.v(LOG_TAG, "SELECT MODE");
+                Log.v(LOG_TAG, "OPTIONS SELECT MODE");
                 closeOptionsMenu();
                 menu.findItem(R.id.action_addItemsToPlaylist).setVisible(true);
                 menu.findItem(R.id.action_cancel).setVisible(true);
@@ -683,7 +681,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void notifyArrayAdapter()
     {
-        arrayAdapter.notifyDataSetChanged();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                arrayAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     //Tools
@@ -823,6 +826,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             View listItem = convertView;
             if (listItem == null)
                 listItem = LayoutInflater.from(mContext).inflate(R.layout.list_item_song, parent, false);
+            if (viewList.get(position) == null)
+                return listItem;
             TextView sn = listItem.findViewById(R.id.listsongname);
             TextView in = listItem.findViewById(R.id.listinterpret);
             TextView ln = listItem.findViewById(R.id.songlength);
