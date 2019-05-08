@@ -22,7 +22,6 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.*;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -30,7 +29,6 @@ import android.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
@@ -45,8 +43,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         registerForContextMenu(lv);
         pl = new PlayListManager(getApplicationContext(), this);
         sc = new SettingsManager(getApplicationContext());
-        sortBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY));
-        searchBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SEARCHBY));
         setupActionBar();
         findViewById(R.id.searchbox).setVisibility(View.GONE);
         findViewById(R.id.searchbybtn).setVisibility(View.GONE);
@@ -540,10 +536,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onClick(View v) {
                 ImageButton btn = findViewById(R.id.buttonShuff);
                 if (serv != null) {
-                    if (serv.enableShuffle()) {
-
+                    if (serv.switchShuffle()) {
+                        sc.putSetting(Constants.SETTING_SHUFFLE,"true");
                         btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
                     } else {
+                        sc.putSetting(Constants.SETTING_SHUFFLE,"false");
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
                 }
@@ -554,10 +551,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onClick(View v) {
                 ImageButton btn = findViewById(R.id.buttonRep);
                 if (serv != null) {
-                    if (serv.enableRepeat()) {
-
+                    if (serv.switchRepeat()) {
+                        sc.putSetting(Constants.SETTING_REPEAT,"true");
                         btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
                     } else {
+                        sc.putSetting(Constants.SETTING_REPEAT,"false");
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
                 }
@@ -689,6 +687,36 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
     }
 
+    private void getSettings()
+    {
+        sortBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY));
+        searchBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SEARCHBY));
+        serv.setVolume(Float.parseFloat(sc.getSetting(Constants.SETTING_VOLUME)));
+        serv.switchRepeat(Boolean.parseBoolean(sc.getSetting(Constants.SETTING_REPEAT)));
+        if (Boolean.parseBoolean(sc.getSetting(Constants.SETTING_REPEAT)))
+        {
+            ImageButton btn = findViewById(R.id.buttonRep);
+            btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
+        }
+        else
+        {
+            ImageButton btn = findViewById(R.id.buttonRep);
+            btn.setBackgroundColor(Color.TRANSPARENT);
+        }
+        serv.switchShuffle(Boolean.parseBoolean(sc.getSetting(Constants.SETTING_SHUFFLE)));
+        if (Boolean.parseBoolean(sc.getSetting(Constants.SETTING_SHUFFLE)))
+        {
+
+            ImageButton btn = findViewById(R.id.buttonShuff);
+            btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
+        }
+        else
+        {
+            ImageButton btn = findViewById(R.id.buttonShuff);
+            btn.setBackgroundColor(Color.TRANSPARENT);
+        }
+    }
+
     //Tools
     public static int safeLongToInt(long l) {
         if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
@@ -763,7 +791,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             serv = ((MusicPlayerService.LocalBinder) service).getService();
-            serv.setVolume(Float.parseFloat(sc.getSetting(Constants.SETTING_VOLUME)));
+            getSettings();
             initPlayer();
             loadFiles();
             globT.printStep(LOG_TAG, "Service Initialization");

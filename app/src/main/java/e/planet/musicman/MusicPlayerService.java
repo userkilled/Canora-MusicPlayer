@@ -252,7 +252,13 @@ public class MusicPlayerService extends Service {
         }
     }
 
-    public boolean enableShuffle() {
+    public boolean switchShuffle(boolean state)
+    {
+        shuffle = state;
+        return state;
+    }
+
+    public boolean switchShuffle() {
         if (shuffle) {
             shuffle = false;
             return false;
@@ -262,7 +268,13 @@ public class MusicPlayerService extends Service {
         }
     }
 
-    public boolean enableRepeat() {
+    public boolean switchRepeat(boolean state)
+    {
+        repeatSong = state;
+        return state;
+    }
+
+    public boolean switchRepeat() {
         if (repeatSong) {
             repeatSong = false;
             return false;
