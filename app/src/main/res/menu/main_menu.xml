@@ -11,10 +11,21 @@
           android:title="Search"
           android:icon="@drawable/searchicon"
           app:showAsAction="always"/>
-    <item android:id="@+id/action_addItemsToPlaylist"
-          android:title="Add Selection To Playlist"
+    <item android:id="@+id/action_playlist_select"
+          android:title="Select Playlist"
+          app:showAsAction="never">
+        <menu></menu>
+    </item>
+    <item android:id="@+id/action_addTo"
+          android:title="Add To"
           app:showAsAction="never"
-          android:visible="false"/>
+          android:visible="false">
+        <menu>
+            <item android:id="@+id/action_playlist_create"
+                  android:title="New Playlist"
+                  app:showAsAction="never"/>
+        </menu>
+    </item>
     <item android:id="@+id/action_cancel"
           android:title="Cancel Selection"
           app:showAsAction="never"

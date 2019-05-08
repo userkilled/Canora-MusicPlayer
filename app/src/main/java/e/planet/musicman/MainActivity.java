@@ -106,12 +106,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private Menu menu;
+    public Menu menu;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        pl.updateOptionsMenu(menu);
         return true;
     }
 
@@ -134,12 +135,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.v(LOG_TAG, "Select Pressed");
                 multiSelect();
                 return true;
-            case R.id.action_addItemsToPlaylist:
+            case R.id.action_addTo:
                 Log.v(LOG_TAG, "ADDTOPLAYLIST PRESSED");
-                //Ask Which PlayList / New Playlist
-                /*pl.createPlayList("MYPLAYLIST",pls);
-                    pl.selectPlayList("MYPLAYLIST");
-                    pl.sortContent(sortBy);*/
+                return true;
+            case R.id.action_playlist_create:
+                Log.v(LOG_TAG,"NEW PLAYLIST");
+                displayDialog(Constants.DIALOG_PLAYLIST_CREATE);
                 return true;
             case R.id.action_cancel:
                 Log.v(LOG_TAG, "CANCEL PRESSED");
@@ -445,6 +446,44 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 serdia.setView(e1);
                 serdia.show();
                 break;
+            case Constants.DIALOG_PLAYLIST_CREATE:
+                LayoutInflater lif = LayoutInflater.from(this);
+                View vi = lif.inflate(R.layout.dialog_playlist_create, null);
+                AlertDialog.Builder buil = new AlertDialog.Builder(this);
+                buil.setTitle("Search By:");
+                final EditText ip = vi.findViewById(R.id.plname);
+                buil.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.v(LOG_TAG,"CREATING PLAYLIST");
+                        List<ItemSong> t = getSelected();
+                        for (int i = 0; i < t.size(); i++)
+                        {
+                            Log.v(LOG_TAG,"ITEM: " + t.get(i).file.getAbsolutePath());
+                        }
+                        pl.createPlayList(ip.getText().toString(),getPlayList(ip.getText().toString(),t));
+                        pl.selectPlayList(ip.getText().toString());
+                        pl.sortContent(sortBy);
+                        pl.updateOptionsMenu(menu);
+                    }
+                });
+                buil.setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Do Nothing
+                    }
+                });
+                final AlertDialog plcdia = buil.create();
+                plcdia.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        plcdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        plcdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                    }
+                });
+                plcdia.setView(vi);
+                plcdia.show();
+                break;
         }
     }
 
@@ -653,18 +692,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case Constants.ARRAYADAPT_STATE_DEFAULT:
                 Log.v(LOG_TAG, "OPTIONS NORMAL MODE");
                 closeOptionsMenu();//TODO#POLISHING: Make Options Menu Transition Invisible
-                menu.findItem(R.id.action_addItemsToPlaylist).setVisible(false);
+                menu.findItem(R.id.action_addTo).setVisible(false);
                 menu.findItem(R.id.action_cancel).setVisible(false);
                 menu.findItem(R.id.action_select).setVisible(true);
                 break;
             case Constants.ARRAYADAPT_STATE_SELECT:
                 Log.v(LOG_TAG, "OPTIONS SELECT MODE");
                 closeOptionsMenu();
-                menu.findItem(R.id.action_addItemsToPlaylist).setVisible(true);
+                menu.findItem(R.id.action_addTo).setVisible(true);
                 menu.findItem(R.id.action_cancel).setVisible(true);
                 menu.findItem(R.id.action_select).setVisible(false);
                 break;
         }
+    }
+
+    private ItemPlayList getPlayList(String title,List<ItemSong> audio)
+    {
+        return new ItemPlayList(title,audio);
     }
 
     private List<ItemSong> getSelected() {
