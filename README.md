@@ -20,4 +20,4 @@ Upcoming Features:
 This Project is still in early Development and thus alot of the Code is going to Change.<br>
 Also much of the Code at the Moment is written so it works, but not necessairly so others can easily Read and use it.<br>
 I will do a Rewrite after 1.0 so it is more Clean and Easier to Use as a potential Contributer.<br>
-That said if you already want to Contribute to the Project Great! You can find a Contributers Guide [here](https://github.com/ZoidbergZero/MusicMan/blob/master/Contributing.md).
+That said if you already want to Contribute to the Project Great! You can find a Contributers Guide <a href="https://github.com/ZoidbergZero/MusicMan/blob/master/Contributing.md">here</a>.
