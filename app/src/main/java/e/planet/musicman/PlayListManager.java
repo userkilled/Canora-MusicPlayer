@@ -143,7 +143,6 @@ public class PlayListManager {
     }
 
     public void updateOptionsMenu(Menu m) {
-
         m.findItem(R.id.action_addTo).getSubMenu().clear();
         m.findItem(R.id.action_addTo).getSubMenu().add(0,R.id.action_playlist_create,0,"New Playlist").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
@@ -196,7 +195,7 @@ public class PlayListManager {
                             }
                             else
                             {
-                                updateOptionsMenu(mainActivity.menu);
+                                mainActivity.invalidateOptionsMenu();
                             }
                             sortContent(sortBy);
                             return true;

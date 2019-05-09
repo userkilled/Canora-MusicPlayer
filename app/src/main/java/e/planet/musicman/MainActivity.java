@@ -107,15 +107,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    public Menu menu;
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.v(LOG_TAG,"ONCREATEOPTIONS");
-        this.menu = menu;
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        pl.updateOptionsMenu(menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        //TODO#POLISHING: Options Menu Changes are still Visible
+        pl.updateOptionsMenu(menu);
+        switch (arrayAdapter.state) {
+            case Constants.ARRAYADAPT_STATE_DEFAULT:
+                Log.v(LOG_TAG, "OPTIONS NORMAL MODE");
+                menu.findItem(R.id.action_addTo).setVisible(false);
+                menu.findItem(R.id.action_cancel).setVisible(false);
+                menu.findItem(R.id.action_select).setVisible(true);
+                break;
+            case Constants.ARRAYADAPT_STATE_SELECT:
+                Log.v(LOG_TAG, "OPTIONS SELECT MODE");
+                closeOptionsMenu();
+                menu.findItem(R.id.action_addTo).setVisible(true);
+                menu.findItem(R.id.action_cancel).setVisible(true);
+                menu.findItem(R.id.action_select).setVisible(false);
+                break;
+        }
+        return  super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -143,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 return true;
             case R.id.action_cancel:
                 Log.v(LOG_TAG, "CANCEL PRESSED");
+                invalidateOptionsMenu();
                 multiSelect();
                 return true;
             default:
@@ -206,11 +225,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             default:
                 return super.onContextItemSelected(item);
         }
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return super.onPrepareOptionsMenu(menu);
     }
 
     //Globals
@@ -471,7 +485,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             pl.createPlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
                         }
                         pl.sortContent(sortBy);
-                        pl.updateOptionsMenu(menu);
+                        invalidateOptionsMenu();
                         showSnackMessage("Created PlayList " + ip.getText().toString());
                     }
                 });
@@ -677,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (arrayAdapter.state == Constants.ARRAYADAPT_STATE_DEFAULT) {
             Log.v(LOG_TAG, "SWITCHING TO SELECT MODE");
             arrayAdapter.state = Constants.ARRAYADAPT_STATE_SELECT;
-            setOptionsMenu(arrayAdapter.state);
+            invalidateOptionsMenu();
         } else {
             Log.v(LOG_TAG, "SWITCHING TO NORMAL MODE");
             ListView v = findViewById(R.id.mainViewport);
@@ -687,31 +701,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.v(LOG_TAG, "ITEM " + i + " PATH: " + p.get(i).file.getAbsolutePath());
             }
             arrayAdapter.state = Constants.ARRAYADAPT_STATE_DEFAULT;
-            setOptionsMenu(arrayAdapter.state);
+            invalidateOptionsMenu();
             for (int i = 0; i < pl.contentList.size(); i++) {
                 pl.contentList.get(i).selected = false;
             }
         }
         arrayAdapter.notifyDataSetChanged();
-    }
-
-    private void setOptionsMenu(int state) {
-        switch (state) {
-            case Constants.ARRAYADAPT_STATE_DEFAULT:
-                Log.v(LOG_TAG, "OPTIONS NORMAL MODE");
-                closeOptionsMenu();//TODO#POLISHING: Make Options Menu Transition Invisible
-                menu.findItem(R.id.action_addTo).setVisible(false);
-                menu.findItem(R.id.action_cancel).setVisible(false);
-                menu.findItem(R.id.action_select).setVisible(true);
-                break;
-            case Constants.ARRAYADAPT_STATE_SELECT:
-                Log.v(LOG_TAG, "OPTIONS SELECT MODE");
-                closeOptionsMenu();
-                menu.findItem(R.id.action_addTo).setVisible(true);
-                menu.findItem(R.id.action_cancel).setVisible(true);
-                menu.findItem(R.id.action_select).setVisible(false);
-                break;
-        }
     }
 
     private ItemPlayList getPlayList(String title, List<ItemSong> audio) {
