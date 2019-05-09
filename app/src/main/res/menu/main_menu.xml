@@ -33,4 +33,8 @@
     <item android:id="@+id/action_select"
           android:title="Select"
           app:showAsAction="never"/>
+    <item android:id="@+id/action_playlist_del"
+          android:title="Delete Playlist"
+          app:showAsAction="never"
+          android:visible="false"/><!--TODO:Trashcan Icon-->
 </menu>

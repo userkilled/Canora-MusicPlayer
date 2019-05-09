@@ -252,8 +252,7 @@ public class MusicPlayerService extends Service {
         }
     }
 
-    public boolean switchShuffle(boolean state)
-    {
+    public boolean switchShuffle(boolean state) {
         shuffle = state;
         return state;
     }
@@ -268,8 +267,7 @@ public class MusicPlayerService extends Service {
         }
     }
 
-    public boolean switchRepeat(boolean state)
-    {
+    public boolean switchRepeat(boolean state) {
         repeatSong = state;
         return state;
     }

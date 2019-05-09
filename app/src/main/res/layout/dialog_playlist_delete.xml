@@ -1,0 +1,16 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+    <TextView android:id="@+id/ayss"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Do you Really want to delete:"
+              android:layout_centerHorizontal="true"
+              android:layout_marginTop="20dp"/>
+    <TextView android:id="@+id/playlisttext"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_below="@+id/ayss"
+              android:layout_centerHorizontal="true"/>
+</RelativeLayout>

@@ -30,9 +30,9 @@ public final class Constants {
             settList.add(SETTING_SORTBY);
             settings.put("SETTING_VOLUME", SETTING_VOLUME);
             settList.add(SETTING_VOLUME);
-            settings.put("SETTING_REPEAT",SETTING_REPEAT);
+            settings.put("SETTING_REPEAT", SETTING_REPEAT);
             settList.add(SETTING_REPEAT);
-            settings.put("SETTING_SHUFFLE",SETTING_SHUFFLE);
+            settings.put("SETTING_SHUFFLE", SETTING_SHUFFLE);
             settList.add(SETTING_SHUFFLE);
         }
 
@@ -61,7 +61,11 @@ public final class Constants {
     public static final int DIALOG_SORT = 1;
     public static final int DIALOG_SETTINGS = 2;
     public static final int DIALOG_SEARCHBY = 3;
-    public static final int DIALOG_PLAYLIST_CREATE = 4;
+    public static final int DIALOG_FILE_DELETE_FROMPLAYLIST = 4;
+    public static final int DIALOG_FILE_INFO = 5;
+    public static final int DIALOG_PLAYLIST_CREATE = 6;
+    public static final int DIALOG_PLAYLIST_DELETE = 7;
+    public static final int DIALOG_PLAYLIST_EDIT = 8;
 
     public static final int ARRAYADAPT_STATE_DEFAULT = 0;
     public static final int ARRAYADAPT_STATE_SELECT = 1;

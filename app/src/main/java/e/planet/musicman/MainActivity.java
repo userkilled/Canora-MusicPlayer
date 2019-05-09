@@ -27,7 +27,6 @@ import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         registerForContextMenu(lv);
         pl = new PlayListManager(getApplicationContext(), this);
         sc = new SettingsManager(getApplicationContext());
+        setListAdapter();
         setupActionBar();
         findViewById(R.id.searchbox).setVisibility(View.GONE);
         findViewById(R.id.searchbybtn).setVisibility(View.GONE);
@@ -205,9 +205,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
         if (v.getId() == R.id.mainViewport) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.list_menu, menu);
+            arrayAdapter.setClicked(info.position);
         }
     }
 
@@ -215,14 +217,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
-            case R.id.add:
-                // add stuff here
+            case R.id.sel:
+                multiSelect();
+                pl.viewList.get(info.position).selected = true;
+                arrayAdapter.notifyDataSetChanged();
                 return true;
             case R.id.info:
-                // edit stuff here
+                displayDialog(Constants.DIALOG_FILE_INFO);
                 return true;
             case R.id.del:
-                // remove stuff here
+                displayDialog(Constants.DIALOG_FILE_DELETE_FROMPLAYLIST);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -265,7 +269,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void initPlayer() {
         /* Callback when Player Service is Ready */
         Log.v(LOG_TAG, "INIT PLAYER");
-        setListAdapter();
         serv.init(pl);
         updateSongDisplay();
     }
@@ -481,16 +484,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         for (int i = 0; i < t.size(); i++) {
                             Log.v(LOG_TAG, "ITEM: " + t.get(i).file.getAbsolutePath());
                         }
-                        if (ip.getText().toString().length() == 0)
-                        {
+                        if (ip.getText().toString().length() == 0) {
                             showSnackMessage("Invalid PlayList Name, Please Enter at Least 1 Character");
-                        }
-                        else if (pl.checkPlayList(ip.getText().toString())) {
+                        } else if (pl.checkPlayList(ip.getText().toString())) {
                             pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
                             showSnackMessage("Added " + t.size() + " Items to " + ip.getText().toString());
                         } else {
                             pl.createPlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
-                            showSnackMessage("Created PlayList " + ip.getText().toString());
+                            showSnackMessage("Created PlayList: " + ip.getText().toString() + " Item Count: " + t.size());
                         }
                         pl.sortContent(sortBy);
                         invalidateOptionsMenu();
@@ -512,6 +513,107 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 });
                 plcdia.setView(vi);
                 plcdia.show();
+                break;
+            case Constants.DIALOG_FILE_DELETE_FROMPLAYLIST:
+                Log.v(LOG_TAG, "SHOWING FILE DELETE FROM PL DIALOG");
+                LayoutInflater liff = LayoutInflater.from(this);
+                View viv = liff.inflate(R.layout.dialog_file_delete, null);
+                AlertDialog.Builder build = new AlertDialog.Builder(this);
+                TextView tv = viv.findViewById(R.id.fpath);
+                tv.setText(pl.viewList.get(arrayAdapter.clicked).Title);
+                build.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String fpath = pl.viewList.get(arrayAdapter.clicked).file.getAbsolutePath();
+                        if (!pl.getIndex().equals("")) {
+                            for (int i = 0; i < pl.contentList.size(); i++) {
+                                if (pl.contentList.get(i).file.getAbsolutePath().equals(fpath)) {
+                                    List<ItemSong> nw = new ArrayList<>(pl.contentList);
+                                    nw.remove(i);
+                                    ItemPlayList ip = new ItemPlayList(pl.getIndex(), nw);
+                                    pl.createPlayList(pl.getIndex(), ip);
+                                    pl.selectPlayList(pl.getIndex());
+                                    break;
+                                }
+                            }
+                        } else {
+                            showSnackMessage("Cannot Remove Items from Default PlayList");
+                        }
+                    }
+                });
+                build.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Do Nothing
+                    }
+                });
+                final AlertDialog eddia = build.create();
+                eddia.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        eddia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        eddia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                    }
+                });
+                eddia.setView(viv);
+                eddia.show();
+                break;
+            case Constants.DIALOG_FILE_INFO:
+                //TODO:POPULATE FILE INFO DIALOGE
+                Log.v(LOG_TAG, "SHOWING FILE INFO DIALOG");
+                LayoutInflater lifff = LayoutInflater.from(this);
+                View vive = lifff.inflate(R.layout.dialog_file_info, null);
+                TextView fp = vive.findViewById(R.id.filepathtext);
+                fp.setText(pl.viewList.get(arrayAdapter.clicked).file.getAbsolutePath());
+                AlertDialog.Builder builde = new AlertDialog.Builder(this);
+                builde.setTitle("File Info");
+                builde.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                final AlertDialog eddiae = builde.create();
+                eddiae.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        eddiae.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        eddiae.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                    }
+                });
+                eddiae.setView(vive);
+                eddiae.show();
+                break;
+            case Constants.DIALOG_PLAYLIST_DELETE:
+                Log.v(LOG_TAG, "SHOWING DELETE PLAYLIST DIALOG");
+                LayoutInflater laf = LayoutInflater.from(this);
+                View vivef = laf.inflate(R.layout.dialog_playlist_delete, null);
+                TextView fpf = vivef.findViewById(R.id.playlisttext);
+                fpf.setText(pl.getIndex());
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Delete PlayList");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        pl.deletePlayList(pl.getIndex());
+                        pl.selectPlayList("");
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                final AlertDialog eddiaet = builder.create();
+                eddiaet.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        eddiaet.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        eddiaet.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                    }
+                });
+                eddiaet.setView(vivef);
+                eddiaet.show();
                 break;
         }
     }
@@ -937,6 +1039,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     break;
             }
             return listItem;
+        }
+
+        public int clicked;
+
+        public void setClicked(int pos) {
+            clicked = pos;
         }
     }
 }

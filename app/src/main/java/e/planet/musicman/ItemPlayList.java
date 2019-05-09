@@ -10,8 +10,8 @@ public class ItemPlayList {
     public List<ItemSong> audio = new ArrayList<>();
     public int resid; //RESOURCE ID OF ADD TO ITEM
     public int resid2; //RESOURCE ID OF SELECT ITEM
-    public ItemPlayList(String title,List<ItemSong> in)
-    {
+
+    public ItemPlayList(String title, List<ItemSong> in) {
         audio.clear();
         audio.addAll(in);
         Title = "" + title;

@@ -26,8 +26,8 @@ public class SettingsManager {
             data.put(Constants.SETTING_SEARCHBY, "" + Constants.SEARCH_BYTITLE);
             data.put(Constants.SETTING_SORTBY, "" + Constants.SORT_BYTITLE);
             data.put(Constants.SETTING_VOLUME, "0.7");
-            data.put(Constants.SETTING_REPEAT,"false");
-            data.put(Constants.SETTING_SHUFFLE,"false");
+            data.put(Constants.SETTING_REPEAT, "false");
+            data.put(Constants.SETTING_SHUFFLE, "false");
             writeDataAsXML(settingsFile.getAbsolutePath(), data);
         }
     }
@@ -143,8 +143,7 @@ public class SettingsManager {
             return false;
         }
         List<String> sett = Constants.Settings.theSettings.getSettingsList();
-        for (int i = 0; i < sett.size(); i++)
-        {
+        for (int i = 0; i < sett.size(); i++) {
             boolean etemp = false;
             for (Map.Entry<String, String> entry : dat.entrySet()) {
                 if (entry.getKey().equals(sett.get(i)) && entry.getValue().length() > 0) {
@@ -152,8 +151,7 @@ public class SettingsManager {
                     break;
                 }
             }
-            if (!etemp)
-            {
+            if (!etemp) {
                 return false;
             }
         }

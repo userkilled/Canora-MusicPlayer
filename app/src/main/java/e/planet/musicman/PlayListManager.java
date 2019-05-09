@@ -28,8 +28,6 @@ import java.util.regex.Pattern;
 
 import static java.security.AccessController.getContext;
 
-//TODO:Load Titles / Artist / Album in separate Playlists
-
 public class PlayListManager {
     //Reference For ListView, Used to Manipulate the Shown Items, Always a Subset of contentList
     public List<ItemSong> viewList = new ArrayList<>();
@@ -49,7 +47,7 @@ public class PlayListManager {
     public void loadContent() {
         List<ItemSong> ml = getSongsfromMediaStore();
         ItemPlayList t = new ItemPlayList("", ml);
-        Map<String, ItemPlayList> tmp = getLocalPlayLists();
+        Map<String, ItemPlayList> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
         tmp.put("", t);
         PlayLists.clear();
         PlayLists.putAll(tmp);
@@ -103,57 +101,59 @@ public class PlayListManager {
     public int selectPlayList(String name) {
         pli = "" + name;
         if (pli.equals(""))
-            Log.v(LOG_TAG,"SELECTING DEFAULT PLAYLIST");
+            Log.v(LOG_TAG, "SELECTING DEFAULT PLAYLIST");
         else
             Log.v(LOG_TAG, "SELECTING PLAYLIST: " + name);
         if (PlayLists.get(pli) == null) {
-            Log.e(LOG_TAG,"ERROR PLAYLIST NOT FOUND");
+            Log.e(LOG_TAG, "ERROR PLAYLIST NOT FOUND");
             return 1;
         }
         Log.v(LOG_TAG, "UPDATE CONTENT PLI: " + pli);
         updateContent();
+        sortContent(sortBy);
         mainActivity.serv.reload();
         mainActivity.notifyArrayAdapter();
         return 0;
     }
 
     public int createPlayList(String name, ItemPlayList in) {
-        Log.v(LOG_TAG,"CREATE PLAYLIST: " + name);
+        Log.v(LOG_TAG, "CREATE PLAYLIST: " + name);
         PlayLists.put(name, in);
         putLocalPlayLists(PlayLists);
         return 0;
     }
 
-    public int deletePlayList(String name)
-    {
-        Log.v(LOG_TAG,"DELETING PLAYLIST: " + name);
-        PlayLists.remove(name);
-        putLocalPlayLists(PlayLists);
-        return 0;
-    }
-
-    public int updatePlayList(String name, ItemPlayList in)
-    {
-        Log.v(LOG_TAG,"UPDATE PLAYLIST: " + name);
-        ItemPlayList n = mergePlayLists(PlayLists.get(name),in);
-        PlayLists.put(name,n);
-        putLocalPlayLists(PlayLists);
-        return 0;
-    }
-
-    public boolean checkPlayList(String name)
-    {
-        if (PlayLists.get(name) != null)
-        {
-            return true;
+    public int deletePlayList(String name) {
+        Log.v(LOG_TAG, "DELETING PLAYLIST: " + name);
+        if (name.length() > 0) {
+            PlayLists.remove(name);
+            putLocalPlayLists(PlayLists);
         }
-        else
+        return 0;
+    }
+
+    public int updatePlayList(String name, ItemPlayList in) {
+        Log.v(LOG_TAG, "UPDATE PLAYLIST: " + name);
+        ItemPlayList n = mergePlayLists(PlayLists.get(name), in);
+        PlayLists.put(name, n);
+        putLocalPlayLists(PlayLists);
+        return 0;
+    }
+
+    public boolean checkPlayList(String name) {
+        if (PlayLists.get(name) != null) {
+            return true;
+        } else
             return false;
+    }
+
+    public String getIndex() {
+        return pli;
     }
 
     public void updateOptionsMenu(Menu m) {
         m.findItem(R.id.action_addTo).getSubMenu().clear();
-        m.findItem(R.id.action_addTo).getSubMenu().add(0,R.id.action_playlist_create,0,"New Playlist").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        m.findItem(R.id.action_addTo).getSubMenu().add(0, R.id.action_playlist_create, 0, "New Playlist").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 mainActivity.displayDialog(Constants.DIALOG_PLAYLIST_CREATE);
@@ -166,15 +166,15 @@ public class PlayListManager {
         for (Map.Entry<String, ItemPlayList> entry : PlayLists.entrySet()) {
             SubMenu sub = m.findItem(R.id.action_addTo).getSubMenu();
             if (entry.getValue().Title.length() != 0) {
-                Log.v(LOG_TAG,"ADDING " + entry.getValue().Title + " to action addto");
+                Log.v(LOG_TAG, "ADDING " + entry.getValue().Title + " to action addto");
                 sub.add(0, plc, 1, entry.getValue().Title);
                 sub.findItem(plc).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        Log.v(LOG_TAG,"CLICKED ITEM "+ item.getTitle());
-                        ItemPlayList t = new ItemPlayList(item.getTitle().toString(),mainActivity.getSelected());
+                        Log.v(LOG_TAG, "CLICKED ITEM " + item.getTitle());
+                        ItemPlayList t = new ItemPlayList(item.getTitle().toString(), mainActivity.getSelected());
                         mainActivity.multiSelect();
-                        updatePlayList(item.getTitle().toString(),t);
+                        updatePlayList(item.getTitle().toString(), t);
                         mainActivity.showSnackMessage("Added " + t.audio.size() + " Items to " + t.Title);
                         return false;
                     }
@@ -185,10 +185,10 @@ public class PlayListManager {
             plc++;
             sub = m.findItem(R.id.action_playlist_select).getSubMenu();
             if (entry.getValue().Title.length() == 0) {
-                Log.v(LOG_TAG,"ADDING DEFAULT to action select");
+                Log.v(LOG_TAG, "ADDING DEFAULT to action select");
                 sub.add(0, plc, 0, "DEFAULT");//DEFAULT PLAYLIST
             } else {
-                Log.v(LOG_TAG,"ADDING " + entry.getValue().Title + " TO SELECT");
+                Log.v(LOG_TAG, "ADDING " + entry.getValue().Title + " TO SELECT");
                 sub.add(0, plc, 1, entry.getValue().Title);
             }
             entry.getValue().resid2 = plc;
@@ -199,9 +199,7 @@ public class PlayListManager {
                         if (item.getItemId() == entry.getValue().resid2) {
                             if (selectPlayList(entry.getValue().Title) > 0) {
                                 Log.v(LOG_TAG, "ERROR SELECTING PLAYLIST");
-                            }
-                            else
-                            {
+                            } else {
                                 mainActivity.invalidateOptionsMenu();
                             }
                             sortContent(sortBy);
@@ -212,21 +210,26 @@ public class PlayListManager {
                 }
             });
             //HIGHLIGHT
-            if (entry.getKey().equals(pli))
-            {
-                Log.v(LOG_TAG,"HIGHTLIGHTING ITEM: " + entry.getKey());
+            if (entry.getKey().equals(pli)) {
+                Log.v(LOG_TAG, "HIGHTLIGHTING ITEM: " + entry.getKey());
                 sub.findItem(plc).setCheckable(true).setChecked(true);
-            }
-            else
-            {
-                Log.v(LOG_TAG,"HIDING ITEM: " + entry.getKey());
+            } else {
+                Log.v(LOG_TAG, "HIDING ITEM: " + entry.getKey());
                 sub.findItem(plc).setCheckable(false).setChecked(false);
             }
-            if (!pli.equals(""))
-            {
-
-            }
             plc++;
+            if (!pli.equals("")) {
+                m.findItem(R.id.action_playlist_del).setVisible(true);
+                m.findItem(R.id.action_playlist_del).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        mainActivity.displayDialog(Constants.DIALOG_PLAYLIST_DELETE);
+                        return false;
+                    }
+                });
+            } else {
+                m.findItem(R.id.action_playlist_del).setVisible(false);
+            }
         }
     }
 
@@ -456,25 +459,21 @@ public class PlayListManager {
         return ret;
     }
 
-    private ItemPlayList mergePlayLists(ItemPlayList orig, ItemPlayList adding)
-    {
-        Log.v(LOG_TAG,"MERGING PLAYLIST " + orig.Title + " WITH " + adding.Title);
+    private ItemPlayList mergePlayLists(ItemPlayList orig, ItemPlayList adding) {
+        Log.v(LOG_TAG, "MERGING PLAYLIST " + orig.Title + " WITH " + adding.Title);
         List<ItemSong> lst = new ArrayList<>();
         List<ItemSong> ax = orig.audio;
         List<ItemSong> bx = adding.audio;
         lst.addAll(ax);
-        for (int i = 0; i < bx.size(); i++)
-        {
-            if (!lst.contains(bx.get(i)))
-            {
+        for (int i = 0; i < bx.size(); i++) {
+            if (!lst.contains(bx.get(i))) {
                 lst.add(bx.get(i));
             }
         }
-        for (int i = 0; i < lst.size(); i++)
-        {
-            Log.v(LOG_TAG,"MERGED LIST ITEM: " + lst.get(i).file.getAbsolutePath());
+        for (int i = 0; i < lst.size(); i++) {
+            Log.v(LOG_TAG, "MERGED LIST ITEM: " + lst.get(i).file.getAbsolutePath());
         }
-        ItemPlayList ret = new ItemPlayList(orig.Title,lst);
+        ItemPlayList ret = new ItemPlayList(orig.Title, lst);
         ret.resid = orig.resid;
         ret.resid2 = orig.resid2;
         return ret;
@@ -611,13 +610,10 @@ public class PlayListManager {
             Log.v(LOG_TAG, "CONTENT SIZE AFTER MERGE: " + contentList.size());
             sortContent(mainActivity.sortBy);
             try {
-                while (mainActivity.serv == null)
-                {
+                while (mainActivity.serv == null) {
                     Thread.sleep(100);
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             mainActivity.serv.reload();
