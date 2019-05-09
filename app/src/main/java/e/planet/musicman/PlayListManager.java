@@ -181,7 +181,6 @@ public class PlayListManager {
                 });
             }
             entry.getValue().resid = plc;
-
             //SELECT
             plc++;
             sub = m.findItem(R.id.action_playlist_select).getSubMenu();

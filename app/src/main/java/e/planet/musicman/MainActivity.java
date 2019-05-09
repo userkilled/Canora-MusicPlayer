@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 menu.findItem(R.id.action_addTo).setVisible(false);
                 menu.findItem(R.id.action_cancel).setVisible(false);
                 menu.findItem(R.id.action_select).setVisible(true);
+                menu.findItem(R.id.action_playlist_select).setVisible(true);
                 break;
             case Constants.ARRAYADAPT_STATE_SELECT:
                 Log.v(LOG_TAG, "OPTIONS SELECT MODE");
@@ -131,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 menu.findItem(R.id.action_addTo).setVisible(true);
                 menu.findItem(R.id.action_cancel).setVisible(true);
                 menu.findItem(R.id.action_select).setVisible(false);
+                menu.findItem(R.id.action_playlist_select).setVisible(false);
                 break;
         }
         return super.onPrepareOptionsMenu(menu);
