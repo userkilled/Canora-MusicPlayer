@@ -27,6 +27,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -110,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.v(LOG_TAG,"ONCREATEOPTIONS");
         this.menu = menu;
         getMenuInflater().inflate(R.menu.main_menu, menu);
         pl.updateOptionsMenu(menu);
@@ -133,14 +135,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 return true;
             case R.id.action_select:
                 Log.v(LOG_TAG, "Select Pressed");
+                invalidateOptionsMenu();
                 multiSelect();
                 return true;
             case R.id.action_addTo:
                 Log.v(LOG_TAG, "ADDTOPLAYLIST PRESSED");
-                return true;
-            case R.id.action_playlist_create:
-                Log.v(LOG_TAG,"NEW PLAYLIST");
-                displayDialog(Constants.DIALOG_PLAYLIST_CREATE);
                 return true;
             case R.id.action_cancel:
                 Log.v(LOG_TAG, "CANCEL PRESSED");
@@ -207,6 +206,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return super.onPrepareOptionsMenu(menu);
     }
 
     //Globals
@@ -355,7 +359,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 sortdia.setView(e);
                 sortdia.show();
                 break;
-
             case Constants.DIALOG_SETTINGS:
                 AlertDialog.Builder d = new AlertDialog.Builder(this);
                 d.setTitle("Settings");
@@ -447,24 +450,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 serdia.show();
                 break;
             case Constants.DIALOG_PLAYLIST_CREATE:
+                Log.v(LOG_TAG,"SHOWING PL CREATE DIALOG");
                 LayoutInflater lif = LayoutInflater.from(this);
                 View vi = lif.inflate(R.layout.dialog_playlist_create, null);
                 AlertDialog.Builder buil = new AlertDialog.Builder(this);
-                buil.setTitle("Search By:");
+                buil.setTitle("Create Playlist:");
                 final EditText ip = vi.findViewById(R.id.plname);
                 buil.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Log.v(LOG_TAG,"CREATING PLAYLIST");
+                        Log.v(LOG_TAG, "CREATING PLAYLIST");
                         List<ItemSong> t = getSelected();
-                        for (int i = 0; i < t.size(); i++)
-                        {
-                            Log.v(LOG_TAG,"ITEM: " + t.get(i).file.getAbsolutePath());
+                        multiSelect();
+                        for (int i = 0; i < t.size(); i++) {
+                            Log.v(LOG_TAG, "ITEM: " + t.get(i).file.getAbsolutePath());
                         }
-                        pl.createPlayList(ip.getText().toString(),getPlayList(ip.getText().toString(),t));
-                        pl.selectPlayList(ip.getText().toString());
+                        if (pl.checkPlayList(ip.getText().toString())) {
+                            pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
+                        } else {
+                            pl.createPlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
+                        }
                         pl.sortContent(sortBy);
                         pl.updateOptionsMenu(menu);
+                        showSnackMessage("Created PlayList " + ip.getText().toString());
                     }
                 });
                 buil.setNegativeButton("Back", new DialogInterface.OnClickListener() {
@@ -519,13 +527,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             toggleKeyboardView(this, this.getCurrentFocus(), true);
             pl.filtering = true;
             if (searchTerm != null)
-                pl.showFiltered(searchTerm,searchBy);
+                pl.showFiltered(searchTerm, searchBy);
         } else {
             toggleKeyboardView(this, this.getCurrentFocus(), false);
             ed.setVisibility(View.GONE);
             iv.setVisibility(View.GONE);
             pl.filtering = false;
-            pl.showFiltered("",searchBy);
+            pl.showFiltered("", searchBy);
         }
     }
 
@@ -576,10 +584,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 ImageButton btn = findViewById(R.id.buttonShuff);
                 if (serv != null) {
                     if (serv.switchShuffle()) {
-                        sc.putSetting(Constants.SETTING_SHUFFLE,"true");
+                        sc.putSetting(Constants.SETTING_SHUFFLE, "true");
                         btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
                     } else {
-                        sc.putSetting(Constants.SETTING_SHUFFLE,"false");
+                        sc.putSetting(Constants.SETTING_SHUFFLE, "false");
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
                 }
@@ -591,10 +599,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 ImageButton btn = findViewById(R.id.buttonRep);
                 if (serv != null) {
                     if (serv.switchRepeat()) {
-                        sc.putSetting(Constants.SETTING_REPEAT,"true");
+                        sc.putSetting(Constants.SETTING_REPEAT, "true");
                         btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
                     } else {
-                        sc.putSetting(Constants.SETTING_REPEAT,"false");
+                        sc.putSetting(Constants.SETTING_REPEAT, "false");
                         btn.setBackgroundColor(Color.TRANSPARENT);
                     }
                 }
@@ -665,7 +673,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private void multiSelect() {
+    public void multiSelect() {
         if (arrayAdapter.state == Constants.ARRAYADAPT_STATE_DEFAULT) {
             Log.v(LOG_TAG, "SWITCHING TO SELECT MODE");
             arrayAdapter.state = Constants.ARRAYADAPT_STATE_SELECT;
@@ -706,12 +714,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private ItemPlayList getPlayList(String title,List<ItemSong> audio)
-    {
-        return new ItemPlayList(title,audio);
+    private ItemPlayList getPlayList(String title, List<ItemSong> audio) {
+        return new ItemPlayList(title, audio);
     }
 
-    private List<ItemSong> getSelected() {
+    public List<ItemSong> getSelected() {
         List<ItemSong> ret = new ArrayList<>();
         for (int i = 0; i < pl.contentList.size(); i++) {
             if (pl.contentList.get(i).selected) {
@@ -721,8 +728,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return ret;
     }
 
-    public void notifyArrayAdapter()
-    {
+    public void notifyArrayAdapter() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -731,34 +737,32 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
     }
 
-    private void getSettings()
-    {
+    private void getSettings() {
         sortBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY));
         searchBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SEARCHBY));
         serv.setVolume(Float.parseFloat(sc.getSetting(Constants.SETTING_VOLUME)));
         serv.switchRepeat(Boolean.parseBoolean(sc.getSetting(Constants.SETTING_REPEAT)));
-        if (Boolean.parseBoolean(sc.getSetting(Constants.SETTING_REPEAT)))
-        {
+        if (Boolean.parseBoolean(sc.getSetting(Constants.SETTING_REPEAT))) {
             ImageButton btn = findViewById(R.id.buttonRep);
             btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
-        }
-        else
-        {
+        } else {
             ImageButton btn = findViewById(R.id.buttonRep);
             btn.setBackgroundColor(Color.TRANSPARENT);
         }
         serv.switchShuffle(Boolean.parseBoolean(sc.getSetting(Constants.SETTING_SHUFFLE)));
-        if (Boolean.parseBoolean(sc.getSetting(Constants.SETTING_SHUFFLE)))
-        {
+        if (Boolean.parseBoolean(sc.getSetting(Constants.SETTING_SHUFFLE))) {
 
             ImageButton btn = findViewById(R.id.buttonShuff);
             btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
-        }
-        else
-        {
+        } else {
             ImageButton btn = findViewById(R.id.buttonShuff);
             btn.setBackgroundColor(Color.TRANSPARENT);
         }
+    }
+
+    public void showSnackMessage(String msg)
+    {
+        Snackbar.make(findViewById(android.R.id.content), msg, Snackbar.LENGTH_LONG).show();
     }
 
     //Tools
@@ -840,7 +844,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             loadFiles();
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
-            Snackbar.make(findViewById(android.R.id.content), "Initialization Time: " + l + " ms.", Snackbar.LENGTH_LONG).show();
+            showSnackMessage("Initialization Time: " + l + " ms.");
         }
 
         public void onServiceDisconnected(ComponentName className) {
