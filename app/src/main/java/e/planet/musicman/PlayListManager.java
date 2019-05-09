@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
+import android.view.View;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -123,6 +124,14 @@ public class PlayListManager {
         return 0;
     }
 
+    public int deletePlayList(String name)
+    {
+        Log.v(LOG_TAG,"DELETING PLAYLIST: " + name);
+        PlayLists.remove(name);
+        putLocalPlayLists(PlayLists);
+        return 0;
+    }
+
     public int updatePlayList(String name, ItemPlayList in)
     {
         Log.v(LOG_TAG,"UPDATE PLAYLIST: " + name);
@@ -152,7 +161,6 @@ public class PlayListManager {
             }
         });
         m.findItem(R.id.action_playlist_select).getSubMenu().clear();
-
         //ADDTO
         int plc = 0;
         for (Map.Entry<String, ItemPlayList> entry : PlayLists.entrySet()) {
@@ -215,6 +223,10 @@ public class PlayListManager {
                 Log.v(LOG_TAG,"HIDING ITEM: " + entry.getKey());
                 sub.findItem(plc).setCheckable(false).setChecked(false);
             }
+            if (!pli.equals(""))
+            {
+
+            }
             plc++;
         }
     }
@@ -246,7 +258,7 @@ public class PlayListManager {
     private Map<String, ItemPlayList> getLocalPlayLists() {
         Map<String, ItemPlayList> ret = getDataAsMap(plPath);
         if (ret.size() < 1) {
-            Log.v(LOG_TAG, "NO LOCAL PLAYLIST FOUND");
+            Log.v(LOG_TAG, "NONE/CORRUPT PLAYLISTS FOUND");
         } else {
             for (Map.Entry<String, ItemPlayList> entry : ret.entrySet()) {
                 Log.v(LOG_TAG, "FOUND PLAYLIST : " + entry.getKey() + " SIZE: " + entry.getValue().audio.size());

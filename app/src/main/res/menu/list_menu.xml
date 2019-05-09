@@ -2,8 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/sel"
           android:title="Select"/>
-    <item android:id="@+id/add"
-          android:title="Add to Playlist"/>
     <item android:id="@+id/info"
           android:title="Show Info"/>
     <item android:id="@+id/del"

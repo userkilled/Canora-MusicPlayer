@@ -12,7 +12,7 @@
           android:icon="@drawable/searchicon"
           app:showAsAction="always"/>
     <item android:id="@+id/action_playlist_select"
-          android:title="Select Playlist"
+          android:title="Playlists"
           app:showAsAction="never">
         <menu></menu>
     </item>

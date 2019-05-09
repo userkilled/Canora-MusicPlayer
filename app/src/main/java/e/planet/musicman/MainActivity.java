@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Log.v(LOG_TAG,"ONCREATEOPTIONS");
+        Log.v(LOG_TAG, "ONCREATEOPTIONS");
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 menu.findItem(R.id.action_select).setVisible(false);
                 break;
         }
-        return  super.onPrepareOptionsMenu(menu);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -464,7 +464,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 serdia.show();
                 break;
             case Constants.DIALOG_PLAYLIST_CREATE:
-                Log.v(LOG_TAG,"SHOWING PL CREATE DIALOG");
+                Log.v(LOG_TAG, "SHOWING PL CREATE DIALOG");
                 LayoutInflater lif = LayoutInflater.from(this);
                 View vi = lif.inflate(R.layout.dialog_playlist_create, null);
                 AlertDialog.Builder buil = new AlertDialog.Builder(this);
@@ -479,14 +479,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         for (int i = 0; i < t.size(); i++) {
                             Log.v(LOG_TAG, "ITEM: " + t.get(i).file.getAbsolutePath());
                         }
-                        if (pl.checkPlayList(ip.getText().toString())) {
+                        if (ip.getText().toString().length() == 0)
+                        {
+                            showSnackMessage("Invalid PlayList Name, Please Enter at Least 1 Character");
+                        }
+                        else if (pl.checkPlayList(ip.getText().toString())) {
                             pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
+                            showSnackMessage("Added " + t.size() + " Items to " + ip.getText().toString());
                         } else {
                             pl.createPlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
+                            showSnackMessage("Created PlayList " + ip.getText().toString());
                         }
                         pl.sortContent(sortBy);
                         invalidateOptionsMenu();
-                        showSnackMessage("Created PlayList " + ip.getText().toString());
                     }
                 });
                 buil.setNegativeButton("Back", new DialogInterface.OnClickListener() {
@@ -755,8 +760,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    public void showSnackMessage(String msg)
-    {
+    public void showSnackMessage(String msg) {
         Snackbar.make(findViewById(android.R.id.content), msg, Snackbar.LENGTH_LONG).show();
     }
 
