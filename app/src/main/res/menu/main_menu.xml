@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <!-- Settings, should always be in the overflow -->
+    <!-- Actions -->
+    <item android:id="@+id/action_playlist_del"
+          android:title="Delete Playlist"
+          app:showAsAction="always"
+          android:visible="false"
+          android:icon="@drawable/trashicon"/>
+    <item android:id="@+id/action_search"
+          android:title="Search"
+          app:showAsAction="always"
+          android:icon="@drawable/searchicon"/>
+
+    <!-- Other -->
     <item android:id="@+id/action_settings"
           android:title="Settings"
           app:showAsAction="never"/>
     <item android:id="@+id/action_sortby"
           android:title="Sort"
           app:showAsAction="never"/>
-    <item android:id="@+id/action_search"
-          android:title="Search"
-          android:icon="@drawable/searchicon"
-          app:showAsAction="always"/>
     <item android:id="@+id/action_playlist_select"
           android:title="Playlists"
           app:showAsAction="never">
@@ -33,8 +40,4 @@
     <item android:id="@+id/action_select"
           android:title="Select"
           app:showAsAction="never"/>
-    <item android:id="@+id/action_playlist_del"
-          android:title="Delete Playlist"
-          app:showAsAction="never"
-          android:visible="false"/><!--TODO:Trashcan Icon-->
 </menu>
