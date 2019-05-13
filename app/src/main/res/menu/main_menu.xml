@@ -2,42 +2,42 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
     <!-- Actions -->
     <item android:id="@+id/action_playlist_del"
-          android:title="Delete Playlist"
+          android:title="@string/menu_options_delpl"
           app:showAsAction="always"
           android:visible="false"
           android:icon="@drawable/trashicon"/>
     <item android:id="@+id/action_search"
-          android:title="Search"
+          android:title="@string/menu_options_search"
           app:showAsAction="always"
           android:icon="@drawable/searchicon"/>
 
     <!-- Other -->
     <item android:id="@+id/action_settings"
-          android:title="Settings"
+          android:title="@string/menu_options_settings"
           app:showAsAction="never"/>
     <item android:id="@+id/action_sortby"
-          android:title="Sort"
+          android:title="@string/menu_options_sort"
           app:showAsAction="never"/>
     <item android:id="@+id/action_playlist_select"
-          android:title="Playlists"
+          android:title="@string/menu_options_playlists"
           app:showAsAction="never">
         <menu></menu>
     </item>
     <item android:id="@+id/action_addTo"
-          android:title="Add to"
+          android:title="@string/menu_options_addtoplaylist"
           app:showAsAction="never"
           android:visible="false">
         <menu>
             <item android:id="@+id/action_playlist_create"
-                  android:title="New Playlist"
+                  android:title="@string/menu_options_newplaylist"
                   app:showAsAction="never"/>
         </menu>
     </item>
     <item android:id="@+id/action_cancel"
-          android:title="Cancel Selection"
+          android:title="@string/menu_options_cancelselect"
           app:showAsAction="never"
           android:visible="false"/>
     <item android:id="@+id/action_select"
-          android:title="Select"
+          android:title="@string/menu_options_select"
           app:showAsAction="never"/>
 </menu>

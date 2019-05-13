@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String text = "";
         ItemSong s = serv.getCurrentSong();
         if (s != null) {
-            text = s.Title + " by " + s.Artist;
+            text = s.Title + " " + R.string.controls_by + " " + s.Artist;
         }
         TextView txt = findViewById(R.id.songDisplay);
         txt.setText(text);
@@ -333,8 +333,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         switch (m) {
             case Constants.DIALOG_SORT:
                 AlertDialog.Builder b = new AlertDialog.Builder(this);
-                b.setTitle("Sort by");
-                b.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                b.setTitle(R.string.dialog_sortby_title);
+                b.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Sort By Selection
@@ -343,13 +343,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         arrayAdapter.notifyDataSetChanged();
                     }
                 });
-                b.setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                b.setNegativeButton(R.string.misc_back, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Do Nothing
                     }
                 });
-                CharSequence[] arr = {"Title", "Artist"};
+                CharSequence[] arr = {getString(R.string.misc_title),getString(R.string.misc_artist)};
                 b.setSingleChoiceItems(arr, sortBy, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -381,8 +381,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case Constants.DIALOG_SETTINGS:
                 AlertDialog.Builder d = new AlertDialog.Builder(this);
-                d.setTitle("Settings");
-                d.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                d.setTitle(R.string.dialog_settings_title);
+                d.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
@@ -424,19 +424,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case Constants.DIALOG_SEARCHBY:
                 AlertDialog.Builder b1 = new AlertDialog.Builder(this);
-                b1.setTitle("Search by");
-                b1.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                b1.setTitle(R.string.dialog_searchby_title);
+                b1.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 });
-                b1.setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                b1.setNegativeButton(R.string.misc_back, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Do Nothing
                     }
                 });
-                CharSequence[] arr1 = {"Title", "Artist", "Both"};
+                CharSequence[] arr1 = {getString(R.string.misc_title), getString(R.string.misc_artist), getString(R.string.misc_both)};
                 b1.setSingleChoiceItems(arr1, searchBy, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -474,9 +474,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 LayoutInflater lif = LayoutInflater.from(this);
                 View vi = lif.inflate(R.layout.dialog_playlist_create, null);
                 AlertDialog.Builder buil = new AlertDialog.Builder(this);
-                buil.setTitle("Create Playlist");
+                buil.setTitle(R.string.dialog_playlist_create_title);
                 final EditText ip = vi.findViewById(R.id.plname);
-                buil.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                buil.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Log.v(LOG_TAG, "CREATING PLAYLIST");
@@ -486,23 +486,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             Log.v(LOG_TAG, "ITEM: " + t.get(i).file.getAbsolutePath());
                         }
                         if (ip.getText().toString().length() == 0) {
-                            showSnackMessage("Invalid PlayList name, please enter at least 1 character");
+                            showSnackMessage(getString(R.string.error_emptyplname));
                         } else if (pl.checkPlayList(ip.getText().toString())) {
                             pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
-                            showSnackMessage("Added " + t.size() + " Items to " + ip.getText().toString());
+                            showSnackMessage(t.size() + getString(R.string.misc_added));
                         } else {
                             if (t.size() <= 0) {
-                                showSnackMessage("Please select at least one item to create PlayList");
+                                showSnackMessage(getString(R.string.error_createempty));
                             } else {
                                 pl.createPlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
-                                showSnackMessage("Created PlayList: " + ip.getText().toString() + " Item Count: " + t.size());
+                                showSnackMessage(getString(R.string.misc_createpl) + ": " + ip.getText().toString());
                             }
                         }
                         pl.sortContent(sortBy);
                         invalidateOptionsMenu();
                     }
                 });
-                buil.setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                buil.setNegativeButton(R.string.misc_back, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Do Nothing
@@ -526,14 +526,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 AlertDialog.Builder build = new AlertDialog.Builder(this);
                 TextView tv = viv.findViewById(R.id.fpath);
                 tv.setText(pl.viewList.get(arrayAdapter.clicked).Title);
-                build.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                build.setPositiveButton(R.string.misc_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String fpath = pl.viewList.get(arrayAdapter.clicked).file.getAbsolutePath();
                         if (pl.getIndex().equals("")) {
-                            showSnackMessage("Cannot remove items from default PlayList");
+                            showSnackMessage(getString(R.string.error_delfromdef));
                         } else if (pl.contentList.size() <= 1) {
-                            showSnackMessage("PlayList must at least contain 1 item");
+                            showSnackMessage(getString(R.string.error_delfromempty));
                         } else {
                             for (int i = 0; i < pl.contentList.size(); i++) {
                                 if (pl.contentList.get(i).file.getAbsolutePath().equals(fpath)) {
@@ -548,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         }
                     }
                 });
-                build.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                build.setNegativeButton(R.string.misc_no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Do Nothing
@@ -573,8 +573,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 TextView fp = vive.findViewById(R.id.filepathtext);
                 fp.setText(pl.viewList.get(arrayAdapter.clicked).file.getAbsolutePath());
                 AlertDialog.Builder builde = new AlertDialog.Builder(this);
-                builde.setTitle("File Info");
-                builde.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                builde.setTitle(R.string.dialog_file_info_title);
+                builde.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
@@ -597,7 +597,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 TextView fpf = vivef.findViewById(R.id.playlisttext);
                 fpf.setText(pl.getIndex());
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(R.string.misc_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         pl.deletePlayList(pl.getIndex());
@@ -605,7 +605,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         invalidateOptionsMenu();
                     }
                 });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(R.string.misc_no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -631,7 +631,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         getSupportActionBar().setLogo(R.drawable.mainicon);
         ActionBar actionbar = getSupportActionBar();
         String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent) & 0x00ffffff); //Because ANDROID
-        String t = "<font color='" + hexColor + "'>MusicMan</font>";
+        String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
         actionbar.setTitle(Html.fromHtml(t));
     }
 
@@ -953,7 +953,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             initPlayer();
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
-            showSnackMessage("Initialization Time: " + l + " ms.");
+            showSnackMessage(getString(R.string.misc_init) + ": " + l + " ms.");
         }
 
         public void onServiceDisconnected(ComponentName className) {

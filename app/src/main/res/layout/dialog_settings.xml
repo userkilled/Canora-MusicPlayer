@@ -6,7 +6,7 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Internal Volume"
+            android:text="@string/dialog_settings_t1"
             android:textColor="@color/colorDialogText"
             android:includeFontPadding="false"
             android:paddingLeft="10dp"

@@ -5,7 +5,7 @@
     <TextView android:id="@+id/ayss"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="Do you really want to delete:"
+              android:text="@string/dialog_playlist_delete_t1"
               android:layout_centerHorizontal="true"
               android:layout_marginTop="20dp"/>
     <TextView android:id="@+id/playlisttext"

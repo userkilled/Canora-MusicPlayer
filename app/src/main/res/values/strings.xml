@@ -1,3 +1,52 @@
 <resources>
     <string name="app_name">MusicMan</string>
+    <!-- Dialogues -->
+    <string name="dialog_file_delete_t1">Do you really want to delete:</string>
+    <string name="dialog_file_info_title">File Info</string>
+    <string name="dialog_file_info_t1">Filepath</string>
+    <string name="dialog_playlist_delete_t1">Do you really want to delete:</string>
+    <string name="dialog_playlist_create_title">Create Playlist</string>
+    <string name="dialog_settings_title">Settings</string>
+    <string name="dialog_settings_t1">Internal Volume</string>
+    <string name="dialog_sortby_title">Sort by</string>
+    <string name="dialog_searchby_title">Search by</string>
+
+    <!-- Menus -->
+    <string name="menu_listitem_select">Select</string>
+    <string name="menu_listitem_info">Show info</string>
+    <string name="menu_listitem_delfrompl">Delete from Playlist</string>
+
+    <string name="menu_options_delpl">Delete Playlist</string>
+    <string name="menu_options_search">Search</string>
+    <string name="menu_options_settings">Settings</string>
+    <string name="menu_options_sort">Sort</string>
+    <string name="menu_options_playlists">Playlists</string>
+    <string name="menu_options_addtoplaylist">Add to</string>
+    <string name="menu_options_newplaylist">New Playlist</string>
+    <string name="menu_options_select">Select</string>
+    <string name="menu_options_cancelselect">Cancel Selection</string>
+
+    <!-- Snackbars -->
+    <string name="error_emptyplname">Invalid PlayList name, please enter at least 1 character</string>
+    <string name="error_createempty">Please select at least one item to create PlayList</string>
+    <string name="error_delfromdef">Cannot remove items from default PlayList</string>
+    <string name="error_delfromempty">"PlayList must at least contain 1 item"</string>
+
+    <!-- Misc -->
+    <string name="layout_main_searchPH">Search for ...</string>
+
+    <string name="controls_by">by</string>
+
+    <string name="misc_ok">Ok</string>
+    <string name="misc_back">Back</string>
+    <string name="misc_yes">Yes</string>
+    <string name="misc_no">No</string>
+
+    <string name="misc_title">Title</string>
+    <string name="misc_artist">Artist</string>
+    <string name="misc_both">Both</string>
+    <string name="misc_init">Initialization Time</string>
+    <string name="misc_createpl">Created Playlist</string>
+    <string name="misc_added">Items Added</string>
+
 </resources>

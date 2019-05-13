@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/sel"
-          android:title="Select"/>
+          android:title="@string/menu_listitem_select"/>
     <item android:id="@+id/info"
-          android:title="Show info"/>
+          android:title="@string/menu_listitem_info"/>
     <item android:id="@+id/del"
-          android:title="Delete from Playlist"/>
+          android:title="@string/menu_listitem_delfrompl"/>
 </menu>
