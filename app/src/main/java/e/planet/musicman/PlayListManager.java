@@ -153,7 +153,7 @@ public class PlayListManager {
 
     public void updateOptionsMenu(Menu m) {
         m.findItem(R.id.action_addTo).getSubMenu().clear();
-        m.findItem(R.id.action_addTo).getSubMenu().add(0, R.id.action_playlist_create, 0, "New Playlist").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        m.findItem(R.id.action_addTo).getSubMenu().add(0, R.id.action_playlist_create, 0, R.string.menu_options_newplaylist).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 mainActivity.displayDialog(Constants.DIALOG_PLAYLIST_CREATE);
@@ -175,7 +175,7 @@ public class PlayListManager {
                         ItemPlayList t = new ItemPlayList(item.getTitle().toString(), mainActivity.getSelected());
                         mainActivity.multiSelect();
                         updatePlayList(item.getTitle().toString(), t);
-                        mainActivity.showSnackMessage("Added " + t.audio.size() + " Items to " + t.Title);
+                        mainActivity.showSnackMessage(t.audio.size() + " " + mainActivity.getString(R.string.misc_added));
                         return false;
                     }
                 });

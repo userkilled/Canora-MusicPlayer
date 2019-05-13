@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String text = "";
         ItemSong s = serv.getCurrentSong();
         if (s != null) {
-            text = s.Title + " " + R.string.controls_by + " " + s.Artist;
+            text = s.Title + " " + getString(R.string.controls_by) + " " + s.Artist;
         }
         TextView txt = findViewById(R.id.songDisplay);
         txt.setText(text);
@@ -489,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             showSnackMessage(getString(R.string.error_emptyplname));
                         } else if (pl.checkPlayList(ip.getText().toString())) {
                             pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
-                            showSnackMessage(t.size() + getString(R.string.misc_added));
+                            showSnackMessage(t.size() + " " + getString(R.string.misc_added));
                         } else {
                             if (t.size() <= 0) {
                                 showSnackMessage(getString(R.string.error_createempty));

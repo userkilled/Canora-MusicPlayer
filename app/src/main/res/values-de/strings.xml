@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">MusicMan</string>
+    <!-- Dialogues -->
+    <string name="dialog_file_delete_t1">Möchten sie folgende Datei aus der Playlist löschen:</string>
+    <string name="dialog_file_info_title">Datei Info</string>
+    <string name="dialog_file_info_t1">Dateipfad</string>
+    <string name="dialog_playlist_delete_t1">Möchten sie folgende Playlist Löschen:</string>
+    <string name="dialog_playlist_create_title">Playlist Erstellen</string>
+    <string name="dialog_settings_title">Einstellungen</string>
+    <string name="dialog_settings_t1">Interne Lautstärke</string>
+    <string name="dialog_sortby_title">Sortieren nach</string>
+    <string name="dialog_searchby_title">Suchen nach</string>
+
+    <!-- Menus -->
+    <string name="menu_listitem_select">Auswahl</string>
+    <string name="menu_listitem_info">Info Anzeigen</string>
+    <string name="menu_listitem_delfrompl">Von Playlist löschen</string>
+
+    <string name="menu_options_delpl">Playlist löschen</string>
+    <string name="menu_options_search">Suchen</string>
+    <string name="menu_options_settings">Einstellungen</string>
+    <string name="menu_options_sort">Sortieren</string>
+    <string name="menu_options_playlists">Playlisten</string>
+    <string name="menu_options_addtoplaylist">Hinzufügen zu</string>
+    <string name="menu_options_newplaylist">Neue Playlist</string>
+    <string name="menu_options_select">Auswahl</string>
+    <string name="menu_options_cancelselect">Auswahl beenden</string>
+
+    <!-- Snackbars -->
+    <string name="error_emptyplname">Der Playlist Namen darf nicht leer sein</string>
+    <string name="error_createempty">Bitte mindestens eine Audiodatei Auswählen</string>
+    <string name="error_delfromdef">Kann die Default Playlist nicht bearbeiten</string>
+    <string name="error_delfromempty">"Die Playlist muss mindestens eine Audiodatei beeinhalten"</string>
+
+    <!-- Misc -->
+    <string name="layout_main_searchPH">Suchbegriff...</string>
+
+    <string name="controls_by">von</string>
+
+    <string name="misc_ok">Ok</string>
+    <string name="misc_back">Zurück</string>
+    <string name="misc_yes">Ja</string>
+    <string name="misc_no">Nein</string>
+
+    <string name="misc_title">Titel</string>
+    <string name="misc_artist">Interpret</string>
+    <string name="misc_both">Beide</string>
+    <string name="misc_init">Initialisierungs Zeit</string>
+    <string name="misc_createpl">Playlist Erstellt</string>
+    <string name="misc_added">Audiodateien Hinzugefügt</string>
+</resources>
