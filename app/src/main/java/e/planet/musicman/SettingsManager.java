@@ -57,7 +57,7 @@ public class SettingsManager {
     private Map<String, String> getDataAsMap(String path) {
         Log.v(LOG_TAG, "GETDATAASMAP");
         Map<String, String> ret = new HashMap<>();
-        String XMLSTR = readFromDisk(path);//TODO:Compress XML Data
+        String XMLSTR = readFromDisk(path);
         if (XMLSTR.length() > 0) {
             ret = getMapFromXML(XMLSTR);
         }

@@ -279,7 +279,7 @@ public class PlayListManager {
     private Map<String, ItemPlayList> getDataAsMap(String path) {
         Log.v(LOG_TAG, "GETDATA AS MAP");
         Map<String, ItemPlayList> ret = new HashMap<>();
-        String XMLSTR = readFromDisk(path);//TODO:Compress XML Data
+        String XMLSTR = readFromDisk(path);
         if (XMLSTR.length() > 0) {
             ret = getMapFromXML(XMLSTR);
         }
