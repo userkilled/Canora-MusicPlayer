@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } else {
             Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
             startplayer();
+            loadFiles();
             registerReceiver();
             setListeners();
         }
@@ -944,7 +945,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             serv = ((MusicPlayerService.LocalBinder) service).getService();
             getSettings();
             initPlayer();
-            loadFiles();
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
             showSnackMessage("Initialization Time: " + l + " ms.");

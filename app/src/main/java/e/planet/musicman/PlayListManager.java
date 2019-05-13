@@ -39,13 +39,13 @@ public class PlayListManager {
         gc = c;
         mainActivity = b;
         plPath = mainActivity.getExternalFilesDir(null).getAbsolutePath() + "/PlayLists.xml";
-        //Log.v(LOG_TAG, "PLAYLIST PATH: " + plPath);
         setExtensionsAndSearchPaths();
     }
 
     //Public Callbacks
     public void loadContent() {
         List<ItemSong> ml = getSongsfromMediaStore();
+        Log.v(LOG_TAG,"FOUND " + ml.size() + " SONGS IN MEDIASTORE");
         ItemPlayList t = new ItemPlayList("", ml);
         Map<String, ItemPlayList> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
         tmp.put("", t);
@@ -64,8 +64,8 @@ public class PlayListManager {
         new SearchFilesTask().execute(gc);
     }
 
-    public void sortContent(int sortBy) {
-        sortBy = sortBy;
+    public void sortContent(int SortBy) {
+        this.sortBy = SortBy;
         if (contentList.size() == 0)
             return;
         final List<ItemSong> srted;

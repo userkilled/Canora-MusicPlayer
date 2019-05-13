@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import java.io.File;
 import java.util.*;
 
 import static e.planet.musicman.Constants.*;
@@ -23,7 +24,7 @@ public class MusicPlayerService extends Service {
 
     public void onCreate() {
         Log.v(LOG_TAG, "ONCREATE");
-        Arrays.fill(songIDHistory, -1);
+        plm = new PlayBackManager();
         registerReceiver();
         handleMediaController();
     }
@@ -45,8 +46,7 @@ public class MusicPlayerService extends Service {
 
     //Globals
     MediaPlayer player;
-
-    private Random rand = new Random();
+    private int position; //Position of Media Player in Miliseconds
 
     private final IBinder mBinder = new LocalBinder();
     private BroadcastReceiver brcv;
@@ -54,28 +54,19 @@ public class MusicPlayerService extends Service {
     private NotificationManagerCompat nfm;
     private int notificationID = 1;
 
-    /*The Player iterates over this Array of File handles depending on the Settings(Shuffle ,repeat)*/
-    private List<ItemSong> songs; //Reference to pl.viewList
     private PlayListManager pl;
 
-    private int songPos; //Index of currently Playing Song
-    private ItemSong currSong; //Currently Playing Song
-    private int position; //Position of Playing Song in Miliseconds
-    private int songCount; //Number of Songs Added
-
-    private int[] songIDHistory = new int[6]; //Holds The IDS of The Songs
+    private PlayBackManager plm;
 
     private String LOG_TAG = "SERV";
 
     //Settings
-    private boolean shuffle;
     private boolean repeatSong;
     private boolean playing;
 
     private float volume = 0.8f;
 
     public MusicPlayerService() {
-        songPos = -1;
     }
 
     //Binder
@@ -90,8 +81,7 @@ public class MusicPlayerService extends Service {
         Log.v(LOG_TAG, "Init called, ");
         if (plv != null) {
             pl = plv;
-            songs = pl.contentList;
-            songCount = songs.size();
+            plm.setContent(pl.contentList);
             return 0;
         } else {
             Log.v(LOG_TAG, "Files are Null");
@@ -101,41 +91,21 @@ public class MusicPlayerService extends Service {
 
     public int reload() {
         Log.v(LOG_TAG, "Reload Called");
-        if (currSong != null) {
-            for (int i = 0; i < songs.size(); i++) {
-                if (songs.get(i).id == currSong.id) {
-                    songPos = i;
-                    break;
-                } else
-                    songPos = 0;
-            }
-        }
-        songCount = songs.size();
+        //Called when Content Changes
         return 0;
     }
 
     public boolean play(int id) {
-        position = 0;
-        int index = getIndexOfSongID(id);
-        if (songs.get(index) != null) {
-            Log.v(LOG_TAG, "Setting up Song: " + songs.get(index).Title);
-            songPos = index;
-            if (player != null) {
-                player.stop();
-                player.reset();
-                player.release();
-            }
-            currSong = new ItemSong(songs.get(index));
-            createPlayer(songs.get(index).file.getAbsolutePath());
-            showNotification();
-            handleHistory(true);
-            return true;
-        } else {
-            if (!player.isPlaying())
-                return false;
-            else
-                return true;
+        ItemSong play = plm.setNext(id);
+        Log.v(LOG_TAG, "Setting up Song: " + play.Title);
+        if (player != null) {
+            player.stop();
+            player.reset();
+            player.release();
         }
+        createPlayer(play.file.getAbsolutePath());
+        showNotification();
+        return true;
     }
 
     public boolean pauseResume() {
@@ -184,85 +154,41 @@ public class MusicPlayerService extends Service {
 
     public void next() {
         Log.v(LOG_TAG, "Next");
+        ItemSong n= plm.getNext();
         if (player != null) {
-            position = 0;
-            if (shuffle) {
-                Log.v(LOG_TAG, "SHUFFLING");
-                player.stop();
-                player.reset();
-                player.release();
-                List<Integer> tmp = new ArrayList<Integer>();
-                for (int i : songIDHistory) {
-                    tmp.add(i);
-                }
-                songPos = rand.nextInt(songCount - 1);
-                while (tmp.contains(songs.get(songPos).id) && songCount > 5)
-                    songPos = rand.nextInt(songCount - 1);
-                currSong = new ItemSong(songs.get(songPos));
-                createPlayer(songs.get(songPos).file.getAbsolutePath());
-                showNotification();
-                handleHistory(true);
-                Log.v(LOG_TAG, "Playing: " + songs.get(songPos).Title);
-            } else {
-                Log.v(LOG_TAG, "NOT SHUFFLING");
-                player.stop();
-                player.reset();
-                player.release();
-                if (songPos < songCount - 1) {
-                    songPos++;
-                } else {
-                    songPos = 0;
-                }
-                currSong = new ItemSong(songs.get(songPos));
-                createPlayer(songs.get(songPos).file.getAbsolutePath());
-                showNotification();
-                handleHistory(true);
-                Log.v(LOG_TAG, "Playing: " + songs.get(songPos).Title);
-            }
+            player.stop();
+            player.reset();
+            player.release();
         }
+        createPlayer(n.file.getAbsolutePath());
+        showNotification();
+        Log.v(LOG_TAG, "Playing: " + n.Title);
     }
 
     public void previous() {
+        Log.v(LOG_TAG, "Previous");
+        ItemSong n = plm.getPrev();
         if (player != null) {
-            position = 0;
-            if (songIDHistory[1] != -1) {
-                player.stop();
-                player.reset();
-                player.release();
-                handleHistory(false);
-                currSong = new ItemSong(songs.get(getIndexOfSongID(songIDHistory[0])));
-                createPlayer(songs.get(getIndexOfSongID(songIDHistory[0])).file.getAbsolutePath());
-                songPos = getIndexOfSongID(songIDHistory[0]);
-                showNotification();
-                Log.v(LOG_TAG, "Playing: " + songs.get(songPos).Title);
-            } else {
-                player.stop();
-                player.reset();
-                player.release();
-                if (songPos > 0) {
-                    songPos--;
-                } else {
-                    songPos = songCount - 1;
-                }
-                currSong = new ItemSong(songs.get(songPos));
-                createPlayer(songs.get(songPos).file.getAbsolutePath());
-                showNotification();
-                Log.v(LOG_TAG, "Playing: " + songs.get(songPos).Title);
-            }
+            player.stop();
+            player.reset();
+            player.release();
         }
+        createPlayer(n.file.getAbsolutePath());
+        showNotification();
+        Log.v(LOG_TAG, "Playing: " + n.Title);
     }
 
     public boolean switchShuffle(boolean state) {
-        shuffle = state;
+        plm.shuffle = state;
         return state;
     }
 
     public boolean switchShuffle() {
-        if (shuffle) {
-            shuffle = false;
+        if (plm.shuffle) {
+            plm.shuffle = false;
             return false;
         } else {
-            shuffle = true;
+            plm.shuffle = true;
             return true;
         }
     }
@@ -301,7 +227,7 @@ public class MusicPlayerService extends Service {
     }
 
     public ItemSong getCurrentSong() {
-        return currSong;
+        return plm.currentSong;
     }
 
     //Private Functions
@@ -312,9 +238,9 @@ public class MusicPlayerService extends Service {
 
     private void showNotification() {
         Map<String, String> md = new HashMap<>();
-        if (songs != null) {
-            md.put("TITLE", songs.get(songPos).Title);
-            md.put("ARTIST", songs.get(songPos).Artist);
+        if (plm.currentSong != null) {
+            md.put("TITLE", plm.currentSong.Title);
+            md.put("ARTIST", plm.currentSong.Artist);
         } else {
             md.put("TITLE", "");
             md.put("ARTIST", "");
@@ -408,28 +334,9 @@ public class MusicPlayerService extends Service {
         }
     }
 
-    private void handleHistory(boolean add) {
-        //TODO#POLISHING: Improve History
-        Log.v(LOG_TAG, "Handle History Called. SongPos: " + songPos);
-        if (add) {
-            songIDHistory[5] = songIDHistory[4];
-            songIDHistory[4] = songIDHistory[3];
-            songIDHistory[3] = songIDHistory[2];
-            songIDHistory[2] = songIDHistory[1];
-            songIDHistory[1] = songIDHistory[0];
-            songIDHistory[0] = songs.get(songPos).id;
-        } else {
-            songIDHistory[0] = songIDHistory[1];
-            songIDHistory[1] = songIDHistory[2];
-            songIDHistory[2] = songIDHistory[3];
-            songIDHistory[3] = songIDHistory[4];
-            songIDHistory[4] = songIDHistory[5];
-            songIDHistory[5] = -1;
-        }
-        Log.v(LOG_TAG, "Song History: " + songIDHistory[0] + " " + songIDHistory[1] + " " + songIDHistory[2] + " " + songIDHistory[3] + " " + songIDHistory[4] + " " + songIDHistory[5]);
-    }
-
     private void createPlayer(String songP) {
+        songP = "file://" + songP;
+        Log.v(LOG_TAG,"CREATING PLAYER: " + songP);
         player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
         player.start();
         playing = true;
@@ -456,14 +363,6 @@ public class MusicPlayerService extends Service {
                 }
             }
         });
-    }
-
-    private int getIndexOfSongID(int id) {
-        for (int i = 0; i < songs.size(); i++) {
-            if (songs.get(i).id == id)
-                return i;
-        }
-        return -1;
     }
 
     private void registerReceiver() {
@@ -501,5 +400,90 @@ public class MusicPlayerService extends Service {
         flt.addAction(ACTION_QUIT);
         flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         registerReceiver(brcv, flt);
+    }
+
+    private class PlayBackManager {
+        /*
+        Provides ItemSong
+         */
+        public ItemSong currentSong;
+
+        public boolean shuffle;
+
+        public PlayBackManager() {
+            shuffle = false;
+            history = new Stack<>();
+            currentIndex = 0;
+        }
+
+        public ItemSong setNext(int id) {
+            if (currentSong != null)
+                history.push(currentSong);
+            currentIndex = getIndexOfID(id);
+            currentSong = content.get(currentIndex);
+            return currentSong;
+        }
+
+        public ItemSong getNext() {
+            if (currentSong != null)
+                history.push(currentSong);
+            if (shuffle) {
+                Random rand = new Random();
+                int t = rand.nextInt(content.size());
+                //TODO: Shuffle Memory
+                currentIndex = t;
+                currentSong = content.get(currentIndex);
+                return currentSong;
+            } else {
+                if (content.size() > 1 && currentIndex < content.size() - 1) {
+                    currentIndex = currentIndex + 1;
+                } else {
+                    currentIndex = 0;
+                }
+                currentSong = content.get(currentIndex);
+                return currentSong;
+            }
+        }
+
+        public ItemSong getPrev() {
+            if (history.size() > 0) {
+                String p = history.pop().file.getAbsolutePath();
+                for (int i = 0; i < content.size(); i++) {
+                    if (content.get(i).file.getAbsolutePath().equals(p)) {
+                        currentIndex = i;
+                        currentSong = content.get(i);
+                        return content.get(i);
+                    }
+                }
+                currentIndex = 0;
+                currentSong = content.get(currentIndex);
+                return content.get(currentIndex);
+            } else {
+                if (content.size() > 1 && currentIndex > 0)
+                    currentIndex--;
+                else
+                    currentIndex = content.size() - 1;
+                currentSong = content.get(currentIndex);
+                return content.get(currentIndex);
+            }
+        }
+
+        public void setContent(List<ItemSong> c) {
+            content = c;
+        }
+
+        private Stack<ItemSong> history;
+
+        private List<ItemSong> content;
+        private int currentIndex;
+
+        private int getIndexOfID(int id) {
+            for (int i = 0; i < content.size(); i++) {
+                if (content.get(i).id == id)
+                    return i;
+            }
+            return 0;
+        }
+
     }
 }
