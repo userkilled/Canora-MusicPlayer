@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         //Do Nothing
                     }
                 });
-                CharSequence[] arr = {getString(R.string.misc_title),getString(R.string.misc_artist)};
+                CharSequence[] arr = {getString(R.string.misc_title), getString(R.string.misc_artist)};
                 b.setSingleChoiceItems(arr, sortBy, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

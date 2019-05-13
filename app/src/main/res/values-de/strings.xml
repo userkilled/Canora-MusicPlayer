@@ -6,6 +6,7 @@
     <string name="dialog_file_info_t1">Dateipfad</string>
     <string name="dialog_playlist_delete_t1">Möchten sie folgende Playlist Löschen:</string>
     <string name="dialog_playlist_create_title">Playlist Erstellen</string>
+    <string name="dialog_createpl_nameph">Name</string>
     <string name="dialog_settings_title">Einstellungen</string>
     <string name="dialog_settings_t1">Interne Lautstärke</string>
     <string name="dialog_sortby_title">Sortieren nach</string>
@@ -45,6 +46,8 @@
     <string name="misc_title">Titel</string>
     <string name="misc_artist">Interpret</string>
     <string name="misc_both">Beide</string>
+
+    <string name="misc_allfiles">Alle Dateien</string>
     <string name="misc_init">Initialisierungs Zeit</string>
     <string name="misc_createpl">Playlist Erstellt</string>
     <string name="misc_added">Audiodateien Hinzugefügt</string>

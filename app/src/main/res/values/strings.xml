@@ -6,6 +6,7 @@
     <string name="dialog_file_info_t1">Filepath</string>
     <string name="dialog_playlist_delete_t1">Do you really want to delete:</string>
     <string name="dialog_playlist_create_title">Create Playlist</string>
+    <string name="dialog_createpl_nameph">Name</string>
     <string name="dialog_settings_title">Settings</string>
     <string name="dialog_settings_t1">Internal Volume</string>
     <string name="dialog_sortby_title">Sort by</string>
@@ -45,6 +46,8 @@
     <string name="misc_title">Title</string>
     <string name="misc_artist">Artist</string>
     <string name="misc_both">Both</string>
+
+    <string name="misc_allfiles">All Files</string>
     <string name="misc_init">Initialization Time</string>
     <string name="misc_createpl">Created Playlist</string>
     <string name="misc_added">Items Added</string>

@@ -9,10 +9,14 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class SettingsManager {
     public SettingsManager(Context mA) {
@@ -73,18 +77,14 @@ public class SettingsManager {
         File rf = new File(path);
         if (!rf.exists())
             return "";
-        BufferedReader br;
+        byte[] bFile = new byte[(int) rf.length()];
         String ret = "";
         try {
-            br = new BufferedReader(new FileReader(path));
-            try {
-                String tm;
-                while ((tm = br.readLine()) != null) {
-                    ret += tm;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            //convert file into array of bytes
+            FileInputStream fileInputStream = new FileInputStream(rf);
+            fileInputStream.read(bFile);
+            fileInputStream.close();
+            ret = decompress(bFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,16 +93,43 @@ public class SettingsManager {
     }
 
     private void writeToDisk(String path, String data) {
+        Log.v(LOG_TAG, "WRITING: " + data);
         try {
-            File tmp = new File(path);
-            FileWriter fw = new FileWriter(tmp);
-            Log.v(LOG_TAG, "WRITING: " + data);
-            fw.write(data);
-            fw.flush();
-            fw.close();
+            FileOutputStream fos = new FileOutputStream(new File(path));
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            byte[] tdat = compress(data);
+            bos.write(tdat);
+            bos.flush();
+            bos.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    //Compression
+    public static byte[] compress(String string) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
+        GZIPOutputStream gos = new GZIPOutputStream(os);
+        gos.write(string.getBytes());
+        gos.close();
+        byte[] compressed = os.toByteArray();
+        os.close();
+        return compressed;
+    }
+
+    public static String decompress(byte[] compressed) throws IOException {
+        final int BUFFER_SIZE = 32;
+        ByteArrayInputStream is = new ByteArrayInputStream(compressed);
+        GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
+        StringBuilder string = new StringBuilder();
+        byte[] data = new byte[BUFFER_SIZE];
+        int bytesRead;
+        while ((bytesRead = gis.read(data)) != -1) {
+            string.append(new String(data, 0, bytesRead));
+        }
+        gis.close();
+        is.close();
+        return string.toString();
     }
 
     //XML Conversion Methods

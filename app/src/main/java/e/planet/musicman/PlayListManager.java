@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static java.security.AccessController.getContext;
 
@@ -186,7 +188,7 @@ public class PlayListManager {
             sub = m.findItem(R.id.action_playlist_select).getSubMenu();
             if (entry.getValue().Title.length() == 0) {
                 Log.v(LOG_TAG, "ADDING DEFAULT to action select");
-                sub.add(0, plc, 0, "DEFAULT");//DEFAULT PLAYLIST
+                sub.add(0, plc, 0, R.string.misc_allfiles);//DEFAULT PLAYLIST
             } else {
                 Log.v(LOG_TAG, "ADDING " + entry.getValue().Title + " TO SELECT");
                 sub.add(0, plc, 1, entry.getValue().Title);
@@ -297,18 +299,14 @@ public class PlayListManager {
         File rf = new File(path);
         if (!rf.exists())
             return "";
-        BufferedReader br;
+        byte[] bFile = new byte[(int) rf.length()];
         String ret = "";
         try {
-            br = new BufferedReader(new FileReader(path));
-            try {
-                String tm;
-                while ((tm = br.readLine()) != null) {
-                    ret += tm;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            //convert file into array of bytes
+            FileInputStream fileInputStream = new FileInputStream(rf);
+            fileInputStream.read(bFile);
+            fileInputStream.close();
+            ret = decompress(bFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -317,16 +315,43 @@ public class PlayListManager {
     }
 
     private void writeToDisk(String path, String data) {
+        Log.v(LOG_TAG, "WRITING: " + data);
         try {
-            File tmp = new File(path);
-            FileWriter fw = new FileWriter(tmp);
-            Log.v(LOG_TAG, "WRITING: " + data);
-            fw.write(data);
-            fw.flush();
-            fw.close();
+            FileOutputStream fos = new FileOutputStream(new File(path));
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            byte[] tdat = compress(data);
+            bos.write(tdat);
+            bos.flush();
+            bos.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    //Compression
+    public static byte[] compress(String string) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
+        GZIPOutputStream gos = new GZIPOutputStream(os);
+        gos.write(string.getBytes());
+        gos.close();
+        byte[] compressed = os.toByteArray();
+        os.close();
+        return compressed;
+    }
+
+    public static String decompress(byte[] compressed) throws IOException {
+        final int BUFFER_SIZE = 32;
+        ByteArrayInputStream is = new ByteArrayInputStream(compressed);
+        GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
+        StringBuilder string = new StringBuilder();
+        byte[] data = new byte[BUFFER_SIZE];
+        int bytesRead;
+        while ((bytesRead = gis.read(data)) != -1) {
+            string.append(new String(data, 0, bytesRead));
+        }
+        gis.close();
+        is.close();
+        return string.toString();
     }
 
     //Conversion
