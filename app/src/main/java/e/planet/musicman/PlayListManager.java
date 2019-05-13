@@ -45,7 +45,7 @@ public class PlayListManager {
     //Public Callbacks
     public void loadContent() {
         List<ItemSong> ml = getSongsfromMediaStore();
-        Log.v(LOG_TAG,"FOUND " + ml.size() + " SONGS IN MEDIASTORE");
+        Log.v(LOG_TAG, "FOUND " + ml.size() + " SONGS IN MEDIASTORE");
         ItemPlayList t = new ItemPlayList("", ml);
         Map<String, ItemPlayList> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
         tmp.put("", t);
@@ -74,7 +74,7 @@ public class PlayListManager {
             case Constants.SORT_BYARTIST:
                 Log.v(LOG_TAG, "SORTING BY ARTIST");
                 srted = sortSongsByArtist(contentList);
-                Log.v(LOG_TAG, "First TITLE: " + srted.get(0).Title);
+                //Log.v(LOG_TAG, "First TITLE: " + srted.get(0).Title);
                 mainActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -86,7 +86,7 @@ public class PlayListManager {
             case Constants.SORT_BYTITLE:
                 Log.v(LOG_TAG, "SORTING BY TITLE");
                 srted = sortSongsByTitle(contentList);
-                Log.v(LOG_TAG, "First TITLE: " + srted.get(0).Title);
+                //Log.v(LOG_TAG, "First TITLE: " + srted.get(0).Title);
                 mainActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -161,9 +161,9 @@ public class PlayListManager {
             }
         });
         m.findItem(R.id.action_playlist_select).getSubMenu().clear();
-        //ADDTO
         int plc = 0;
         for (Map.Entry<String, ItemPlayList> entry : PlayLists.entrySet()) {
+            //ADDTO
             SubMenu sub = m.findItem(R.id.action_addTo).getSubMenu();
             if (entry.getValue().Title.length() != 0) {
                 Log.v(LOG_TAG, "ADDING " + entry.getValue().Title + " to action addto");

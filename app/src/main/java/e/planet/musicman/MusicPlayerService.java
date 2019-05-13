@@ -10,7 +10,6 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
-import java.io.File;
 import java.util.*;
 
 import static e.planet.musicman.Constants.*;
@@ -154,7 +153,7 @@ public class MusicPlayerService extends Service {
 
     public void next() {
         Log.v(LOG_TAG, "Next");
-        ItemSong n= plm.getNext();
+        ItemSong n = plm.getNext();
         if (player != null) {
             player.stop();
             player.reset();
@@ -253,13 +252,13 @@ public class MusicPlayerService extends Service {
                 .setSmallIcon(R.drawable.notification_mainicon)
                 .setContentTitle(md.get("TITLE"))
                 .setContentText(md.get("ARTIST"))
-                .addAction(R.drawable.main_btnprev, "prev", retreivePlaybackAction(3));
+                .addAction(R.drawable.main_btnprev, "prev", retrievePlaybackAction(3));
 
         if (player != null && player.isPlaying())
-            nb.addAction(R.drawable.main_btnpause, "pause", retreivePlaybackAction(1));
+            nb.addAction(R.drawable.main_btnpause, "pause", retrievePlaybackAction(1));
         else
-            nb.addAction(R.drawable.main_btnplay, "play", retreivePlaybackAction(1));
-        nb.addAction(R.drawable.main_btnnext, "next", retreivePlaybackAction(2));
+            nb.addAction(R.drawable.main_btnplay, "play", retrievePlaybackAction(1));
+        nb.addAction(R.drawable.main_btnnext, "next", retrievePlaybackAction(2));
 
         Intent resultIntent = new Intent(this, MainActivity.class);
         resultIntent.setAction("android.intent.action.MAIN");
@@ -287,7 +286,7 @@ public class MusicPlayerService extends Service {
         nfm.notify(notificationID, noti);
     }
 
-    private PendingIntent retreivePlaybackAction(int which) {
+    private PendingIntent retrievePlaybackAction(int which) {
         Intent action;
         PendingIntent pendingIntent;
         switch (which) {
@@ -336,7 +335,7 @@ public class MusicPlayerService extends Service {
 
     private void createPlayer(String songP) {
         songP = "file://" + songP;
-        Log.v(LOG_TAG,"CREATING PLAYER: " + songP);
+        Log.v(LOG_TAG, "CREATING PLAYER: " + songP);
         player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
         player.start();
         playing = true;
