@@ -12,9 +12,9 @@ Features:
 * Notification Bar Widget
 * Search
 * Persistent Settings
+* Playlists
 
 Upcoming Features:
-* Playlists
 * Costumization/Themes
 
 <h1>Contributing:</h1>
