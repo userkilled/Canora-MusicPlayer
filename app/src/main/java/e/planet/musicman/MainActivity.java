@@ -1012,7 +1012,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             TextView ln = listItem.findViewById(R.id.songlength);
             sn.setText(viewList.get(position).Title);
             in.setText(viewList.get(position).Artist);
-            String lstr = "" + TimeUnit.MILLISECONDS.toMinutes(viewList.get(position).length) + ":" + TimeUnit.MILLISECONDS.toSeconds(viewList.get(position).length - TimeUnit.MILLISECONDS.toMinutes(viewList.get(position).length) * 60000);
+            String lstr = "" + leftpadZero(safeLongToInt(TimeUnit.MILLISECONDS.toMinutes(viewList.get(position).length))) + ":" + leftpadZero(safeLongToInt(TimeUnit.MILLISECONDS.toSeconds(viewList.get(position).length - TimeUnit.MILLISECONDS.toMinutes(viewList.get(position).length) * 60000)));
             ln.setText(lstr);
             final CheckBox mcb = listItem.findViewById(R.id.checkbox);
             final View exp = listItem.findViewById(R.id.hitbox);
