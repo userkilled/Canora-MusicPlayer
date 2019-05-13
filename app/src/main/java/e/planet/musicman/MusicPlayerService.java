@@ -94,17 +94,42 @@ public class MusicPlayerService extends Service {
         return 0;
     }
 
-    public boolean play(int id) {
-        ItemSong play = plm.setNext(id);
-        Log.v(LOG_TAG, "Setting up Song: " + play.Title);
-        if (player != null) {
-            player.stop();
-            player.reset();
-            player.release();
+    public int play(int id) {
+        ItemSong n = plm.setNext(id);
+        if (n != null) {
+            Log.v(LOG_TAG, "Setting up Song: " + n.Title);
+            createPlayer(n.file.getAbsolutePath());
+            showNotification();
+            return 0;
         }
-        createPlayer(play.file.getAbsolutePath());
-        showNotification();
-        return true;
+        Log.v(LOG_TAG, "ERROR");
+        return 1;
+    }
+
+    public int next() {
+        Log.v(LOG_TAG, "Next");
+        ItemSong n = plm.getNext();
+        if (n != null) {
+            Log.v(LOG_TAG, "Setting up Song: " + n.Title);
+            createPlayer(n.file.getAbsolutePath());
+            showNotification();
+            return 0;
+        }
+        Log.v(LOG_TAG, "ERROR");
+        return 1;
+    }
+
+    public int previous() {
+        Log.v(LOG_TAG, "Previous");
+        ItemSong n = plm.getPrev();
+        if (n != null) {
+            Log.v(LOG_TAG, "Setting up Song: " + n.Title);
+            createPlayer(n.file.getAbsolutePath());
+            showNotification();
+            return 0;
+        }
+        Log.v(LOG_TAG, "ERROR");
+        return 1;
     }
 
     public boolean pauseResume() {
@@ -151,30 +176,14 @@ public class MusicPlayerService extends Service {
         return false;
     }
 
-    public void next() {
-        Log.v(LOG_TAG, "Next");
-        ItemSong n = plm.getNext();
-        if (player != null) {
+    public void stop()
+    {
+        Log.v(LOG_TAG,"Stop");
+        if (player != null)
+        {
             player.stop();
-            player.reset();
-            player.release();
         }
-        createPlayer(n.file.getAbsolutePath());
-        showNotification();
-        Log.v(LOG_TAG, "Playing: " + n.Title);
-    }
-
-    public void previous() {
-        Log.v(LOG_TAG, "Previous");
-        ItemSong n = plm.getPrev();
-        if (player != null) {
-            player.stop();
-            player.reset();
-            player.release();
-        }
-        createPlayer(n.file.getAbsolutePath());
-        showNotification();
-        Log.v(LOG_TAG, "Playing: " + n.Title);
+        plm.currentSong = null;
     }
 
     public boolean switchShuffle(boolean state) {
@@ -334,6 +343,12 @@ public class MusicPlayerService extends Service {
     }
 
     private void createPlayer(String songP) {
+        if (player != null && player.isPlaying()) {
+            Log.v(LOG_TAG, "Resetting Player");
+            player.stop();
+            player.reset();
+            player.release();
+        }
         songP = "file://" + songP;
         Log.v(LOG_TAG, "CREATING PLAYER: " + songP);
         player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
@@ -416,6 +431,8 @@ public class MusicPlayerService extends Service {
         }
 
         public ItemSong setNext(int id) {
+            if (content.size() == 0)
+                return null;
             if (currentSong != null)
                 history.push(currentSong);
             currentIndex = getIndexOfID(id);
@@ -424,6 +441,8 @@ public class MusicPlayerService extends Service {
         }
 
         public ItemSong getNext() {
+            if (content.size() == 0)
+                return null;
             if (currentSong != null)
                 history.push(currentSong);
             if (shuffle) {
@@ -445,6 +464,8 @@ public class MusicPlayerService extends Service {
         }
 
         public ItemSong getPrev() {
+            if (content.size() == 0)
+                return null;
             if (history.size() > 0) {
                 String p = history.pop().file.getAbsolutePath();
                 for (int i = 0; i < content.size(); i++) {

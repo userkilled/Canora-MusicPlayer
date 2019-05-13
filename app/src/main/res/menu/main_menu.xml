@@ -24,7 +24,7 @@
         <menu></menu>
     </item>
     <item android:id="@+id/action_addTo"
-          android:title="Add To"
+          android:title="Add to"
           app:showAsAction="never"
           android:visible="false">
         <menu>

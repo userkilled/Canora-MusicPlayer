@@ -16,7 +16,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="COOL SONG"
+                android:text="Con"
                 android:textSize="20dp"
                 android:includeFontPadding="false"
                 android:textColor="@color/colorAccent"
@@ -36,6 +36,7 @@
                 android:maxLines="1"
                 android:paddingBottom="10dp"
                 android:layout_toRightOf="@+id/checkbox"
+                android:layout_toLeftOf="@+id/songlength"
         />
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"

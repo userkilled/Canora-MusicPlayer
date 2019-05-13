@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "You clicked Item: " + id + " at position:" + position);
         ImageButton btn = findViewById(R.id.buttonPlay);
         if (serv != null) {
-            if (serv.play(pl.viewList.get(position).id))
+            if (serv.play(pl.viewList.get(position).id) == 0)
                 setPlayButton(btn, true);
             else
                 setPlayButton(btn, false);
@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         switch (m) {
             case Constants.DIALOG_SORT:
                 AlertDialog.Builder b = new AlertDialog.Builder(this);
-                b.setTitle("Sort By");
+                b.setTitle("Sort by");
                 b.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case Constants.DIALOG_SEARCHBY:
                 AlertDialog.Builder b1 = new AlertDialog.Builder(this);
-                b1.setTitle("Search By:");
+                b1.setTitle("Search by");
                 b1.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -474,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 LayoutInflater lif = LayoutInflater.from(this);
                 View vi = lif.inflate(R.layout.dialog_playlist_create, null);
                 AlertDialog.Builder buil = new AlertDialog.Builder(this);
-                buil.setTitle("Create Playlist:");
+                buil.setTitle("Create Playlist");
                 final EditText ip = vi.findViewById(R.id.plname);
                 buil.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
@@ -486,13 +486,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             Log.v(LOG_TAG, "ITEM: " + t.get(i).file.getAbsolutePath());
                         }
                         if (ip.getText().toString().length() == 0) {
-                            showSnackMessage("Invalid PlayList Name, Please Enter at Least 1 Character");
+                            showSnackMessage("Invalid PlayList name, please enter at least 1 character");
                         } else if (pl.checkPlayList(ip.getText().toString())) {
                             pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
                             showSnackMessage("Added " + t.size() + " Items to " + ip.getText().toString());
                         } else {
-                            pl.createPlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
-                            showSnackMessage("Created PlayList: " + ip.getText().toString() + " Item Count: " + t.size());
+                            if (t.size() <= 0) {
+                                showSnackMessage("Please select at least one item to create PlayList");
+                            } else {
+                                pl.createPlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
+                                showSnackMessage("Created PlayList: " + ip.getText().toString() + " Item Count: " + t.size());
+                            }
                         }
                         pl.sortContent(sortBy);
                         invalidateOptionsMenu();
@@ -526,7 +530,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String fpath = pl.viewList.get(arrayAdapter.clicked).file.getAbsolutePath();
-                        if (!pl.getIndex().equals("")) {
+                        if (pl.getIndex().equals("")) {
+                            showSnackMessage("Cannot remove items from default PlayList");
+                        } else if (pl.contentList.size() <= 1) {
+                            showSnackMessage("PlayList must at least contain 1 item");
+                        } else {
                             for (int i = 0; i < pl.contentList.size(); i++) {
                                 if (pl.contentList.get(i).file.getAbsolutePath().equals(fpath)) {
                                     List<ItemSong> nw = new ArrayList<>(pl.contentList);
@@ -537,8 +545,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                     break;
                                 }
                             }
-                        } else {
-                            showSnackMessage("Cannot Remove Items from Default PlayList");
                         }
                     }
                 });
@@ -591,12 +597,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 TextView fpf = vivef.findViewById(R.id.playlisttext);
                 fpf.setText(pl.getIndex());
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Delete PlayList");
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         pl.deletePlayList(pl.getIndex());
                         pl.selectPlayList("");
+                        invalidateOptionsMenu();
                     }
                 });
                 builder.setNegativeButton("No", new DialogInterface.OnClickListener() {

@@ -3,7 +3,7 @@
     <item android:id="@+id/sel"
           android:title="Select"/>
     <item android:id="@+id/info"
-          android:title="Show Info"/>
+          android:title="Show info"/>
     <item android:id="@+id/del"
-          android:title="Delete From PlayList"/>
+          android:title="Delete from Playlist"/>
 </menu>
