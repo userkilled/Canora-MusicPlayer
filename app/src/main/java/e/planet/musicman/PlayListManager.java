@@ -429,7 +429,7 @@ public class PlayListManager {
     private List<ItemSong> getSongsfromMediaStore() {
         List<ItemSong> ret = new ArrayList<>();
         Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
-                MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA
+                MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION
         }, null, null, null);
         while (c.moveToNext()) {
             ItemSong t = new ItemSong();
@@ -441,6 +441,7 @@ public class PlayListManager {
             //Log.v(LOG_TAG, "ALBUM: " + t.Album);
             t.file = new File(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
             //Log.v(LOG_TAG, "FILEPATH: " + t.file.getAbsolutePath());
+            t.length = Long.parseLong(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DURATION)));
             t.id = GIDC++;
             //Log.v(LOG_TAG, "ID: " + t.id);
             ret.add(t);
