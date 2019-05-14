@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -22,11 +23,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.*;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -43,6 +44,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "ONCREATE CALLED");
         super.onCreate(savedInstanceState);
         globT.start();
+        currentTheme = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("current_theme","blue");
+        if (currentTheme.equals("mint")) {
+            setTheme(R.style.AppTheme_Mint);
+        } else if (currentTheme.equals("blue")){
+            setTheme(R.style.AppTheme_Blue);
+        }
         setContentView(R.layout.layout_main);
         ListView lv = findViewById(R.id.mainViewport);
         registerForContextMenu(lv);
@@ -118,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.v(LOG_TAG, "ONCREATEOPTIONS");
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        menu.getItem(0).getIcon().mutate().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        menu.getItem(0).getIcon().mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         return true;
     }
 
@@ -143,8 +150,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 menu.findItem(R.id.action_playlist_select).setVisible(false);
                 break;
         }
-        menu.findItem(R.id.action_playlist_del).getIcon().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
-        menu.findItem(R.id.action_search).getIcon().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        menu.findItem(R.id.action_playlist_del).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+        menu.findItem(R.id.action_search).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -252,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+        String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
         String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
         getSupportActionBar().setTitle(Html.fromHtml(t));
 
@@ -281,6 +288,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     PerformanceTimer globT = new PerformanceTimer();
 
     String LOG_TAG = "main";
+
+    String currentTheme;
 
     View.OnClickListener playbutton_click;
     View.OnClickListener prevbutton_click;
@@ -401,13 +410,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 sortdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
-                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
                     }
                 });
 
                 sortdia.setView(e);
-                sortdia.getWindow().setBackgroundDrawableResource(R.color.colorDialogBackground);
+                sortdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 sortdia.show();
                 break;
             case Constants.DIALOG_SETTINGS:
@@ -445,12 +454,39 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
                     }
                 });
 
+                Spinner spinner = v.findViewById(R.id.spinner);
+                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.Themes, android.R.layout.simple_spinner_item);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner.setAdapter(adapter);
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                        if (arg2 == 0 && currentTheme.equals("mint")) {
+                            //blue
+                            Log.v(LOG_TAG,"CURRENT THEME: " + currentTheme);
+                                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("current_theme", "blue").apply();
+                                recreate();
+                        } else if (arg2 == 1 && currentTheme.equals("blue")) {
+                            //mint
+                            Log.v(LOG_TAG,"CURRENT THEME: " + currentTheme);
+                            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("current_theme","mint").apply();
+                            recreate();
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> arg0) {
+
+                    }
+
+                });
+
                 setdia.setView(v);
-                setdia.getWindow().setBackgroundDrawableResource(R.color.colorDialogBackground);
+                setdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 setdia.show();
                 break;
             case Constants.DIALOG_SEARCHBY:
@@ -493,12 +529,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 serdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        serdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
-                        serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        serdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                        serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
                     }
                 });
                 serdia.setView(e1);
-                serdia.getWindow().setBackgroundDrawableResource(R.color.colorDialogBackground);
+                serdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 serdia.show();
                 break;
             case Constants.DIALOG_PLAYLIST_CREATE:
@@ -544,12 +580,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 plcdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        plcdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
-                        plcdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        plcdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                        plcdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
                     }
                 });
                 plcdia.setView(vi);
-                plcdia.getWindow().setBackgroundDrawableResource(R.color.colorDialogBackground);
+                plcdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 plcdia.show();
                 break;
             case Constants.DIALOG_FILE_DELETE_FROMPLAYLIST:
@@ -591,12 +627,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 eddia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        eddia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
-                        eddia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        eddia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                        eddia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
                     }
                 });
                 eddia.setView(viv);
-                eddia.getWindow().setBackgroundDrawableResource(R.color.colorDialogBackground);
+                eddia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 eddia.show();
                 break;
             case Constants.DIALOG_FILE_INFO:
@@ -617,12 +653,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 eddiae.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        eddiae.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
-                        eddiae.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        eddiae.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                        eddiae.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
                     }
                 });
                 eddiae.setView(vive);
-                eddiae.getWindow().setBackgroundDrawableResource(R.color.colorDialogBackground);
+                eddiae.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 eddiae.show();
                 break;
             case Constants.DIALOG_PLAYLIST_DELETE:
@@ -641,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         getSupportActionBar().setDisplayShowHomeEnabled(true);
                         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-                        String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+                        String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
                         String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
                         getSupportActionBar().setTitle(Html.fromHtml(t));
 
@@ -658,12 +694,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 eddiaet.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
-                        eddiaet.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
-                        eddiaet.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorDialogText));
+                        eddiaet.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                        eddiaet.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
                     }
                 });
                 eddiaet.setView(vivef);
-                eddiaet.getWindow().setBackgroundDrawableResource(R.color.colorDialogBackground);
+                eddiaet.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 eddiaet.show();
                 break;
         }
@@ -674,12 +710,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         actionbar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
         actionbar.setIcon(R.drawable.mainicon);
         actionbar.setLogo(R.drawable.mainicon);
-        actionbar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorToolbar)));
-        String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+        actionbar.setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
+        String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
         String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
         actionbar.setTitle(Html.fromHtml(t));
         Drawable d = getDrawable(R.drawable.icon_back);
-        d.mutate().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         actionbar.setHomeAsUpIndicator(d);
     }
 
@@ -763,7 +799,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.switchShuffle()) {
                         sc.putSetting(Constants.SETTING_SHUFFLE, "true");
-                        btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
+                        btn.setBackgroundColor(getColorFromAtt(R.attr.colorHighlight));
                     } else {
                         sc.putSetting(Constants.SETTING_SHUFFLE, "false");
                         btn.setBackgroundColor(Color.TRANSPARENT);
@@ -778,7 +814,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.switchRepeat()) {
                         sc.putSetting(Constants.SETTING_REPEAT, "true");
-                        btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
+                        btn.setBackgroundColor(getColorFromAtt(R.attr.colorHighlight));
                     } else {
                         sc.putSetting(Constants.SETTING_REPEAT, "false");
                         btn.setBackgroundColor(Color.TRANSPARENT);
@@ -838,21 +874,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
         });
+        sb.getProgressDrawable().setColorFilter(getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
+        sb.getThumb().setColorFilter(getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
     }
 
     private void colorControlWidgets() {
         ImageButton btn = findViewById(R.id.buttonPlay);
-        btn.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         btn = findViewById(R.id.buttonPrev);
-        btn.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         btn = findViewById(R.id.buttonNex);
-        btn.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         btn = findViewById(R.id.buttonShuff);
-        btn.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         btn = findViewById(R.id.buttonRep);
-        btn.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         btn = findViewById(R.id.searchbybtn);
-        btn.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.MULTIPLY);
+        btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
     }
 
     private void setListAdapter() {
@@ -956,7 +994,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         serv.switchRepeat(Boolean.parseBoolean(sc.getSetting(Constants.SETTING_REPEAT)));
         if (Boolean.parseBoolean(sc.getSetting(Constants.SETTING_REPEAT))) {
             ImageButton btn = findViewById(R.id.buttonRep);
-            btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
+            btn.setBackgroundColor(getColorFromAtt(R.attr.colorHighlight));
         } else {
             ImageButton btn = findViewById(R.id.buttonRep);
             btn.setBackgroundColor(Color.TRANSPARENT);
@@ -965,7 +1003,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (Boolean.parseBoolean(sc.getSetting(Constants.SETTING_SHUFFLE))) {
 
             ImageButton btn = findViewById(R.id.buttonShuff);
-            btn.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorhighlight));
+            btn.setBackgroundColor(getColorFromAtt(R.attr.colorHighlight));
         } else {
             ImageButton btn = findViewById(R.id.buttonShuff);
             btn.setBackgroundColor(Color.TRANSPARENT);
@@ -975,9 +1013,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void showSnackMessage(String msg) {
         Snackbar b = Snackbar.make(findViewById(android.R.id.content), msg, Snackbar.LENGTH_LONG);
         TextView tv = b.getView().findViewById(android.support.design.R.id.snackbar_text);
-        tv.setTextColor(getResources().getColor(R.color.colorSnackbarText));
-        b.getView().setBackgroundColor(getResources().getColor(R.color.colorSnackbarBackground));
+        tv.setTextColor(getColorFromAtt(R.attr.colorSnackbarText));
+        b.getView().setBackgroundColor(getColorFromAtt(R.attr.colorSnackbarBackground));
         b.show();
+    }
+
+    public int getColorFromAtt(int v) {
+        TypedValue tv = new TypedValue();
+        Resources.Theme theme = getTheme();
+        theme.resolveAttribute(v, tv, true);
+        return tv.data;
     }
 
     //Tools

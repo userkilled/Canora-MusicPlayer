@@ -4,17 +4,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.PopupMenu;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
-import android.view.View;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -29,8 +25,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import static java.security.AccessController.getContext;
 
 public class PlayListManager {
     //Reference For ListView, Used to Manipulate the Shown Items, Always a Subset of contentList
@@ -207,13 +201,13 @@ public class PlayListManager {
                             if (entry.getValue().Title.equals("")) {
                                 mainActivity.getSupportActionBar().setDisplayShowHomeEnabled(true);
                                 mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                                String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(mainActivity.getApplicationContext(), R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+                                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
                                 String t = "<font color='" + hexColor + "'>" + mainActivity.getString(R.string.app_name) + "</font>";
                                 mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
                             } else {
                                 mainActivity.getSupportActionBar().setDisplayShowHomeEnabled(false);
                                 mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                                String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(mainActivity.getApplicationContext(), R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+                                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
                                 String t = "<font color='" + hexColor + "'>" + entry.getValue().Title + "</font>";
                                 mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
                             }

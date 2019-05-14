@@ -51,4 +51,10 @@
     <string name="misc_init">Initialization Time</string>
     <string name="misc_createpl">Created Playlist</string>
     <string name="misc_added">Items Added</string>
+
+    <string-array name="Themes">
+        <item>Blue</item>
+        <item>Mint</item>
+    </string-array>
+
 </resources>

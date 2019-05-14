@@ -1,18 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#00994d</color>
-    <color name="colorPrimaryDark">#006633</color>
-    <color name="colorAccent">#000000</color>
-    <color name="colorhighlight">#e68a00</color>
-
-    <color name="colorDialogBackground">#00994d</color>
-    <color name="colorDialogText">#000000</color>
-    <color name="colorDialogHighlight">#e68a00</color>
-
-    <color name="colorToolbar">@color/colorPrimaryDark</color>
-
-    <color name="colorSnackbarText">#ffffff</color>
-    <color name="colorSnackbarBackground">#262626</color>
-
-    <color name="colorGreyed">#e68a00</color>
+    <color name="red">#ffffff</color>
 </resources>

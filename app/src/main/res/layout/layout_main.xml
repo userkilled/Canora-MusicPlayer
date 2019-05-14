@@ -3,7 +3,7 @@
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:background="@color/colorPrimaryDark"
+              android:background="?attr/colorFrame"
               app:layout_behavior="@string/appbar_scrolling_view_behavior"
               android:orientation="vertical">
     <RelativeLayout android:id="@+id/searchcontainer"
@@ -13,10 +13,10 @@
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:hint="@string/layout_main_searchPH"
-                  android:textColorHint="@color/colorGreyed"
+                  android:textColorHint="?colorGreyed"
                   android:textSize="20dp"
-                  android:textColor="@color/colorAccent"
-                  android:backgroundTint="@color/colorAccent"
+                  android:textColor="?attr/colorText"
+                  android:backgroundTint="?attr/colorText"
                   android:textCursorDrawable="@null"
                   android:paddingLeft="10dp"
                   android:paddingRight="10dp"
@@ -64,7 +64,7 @@
     <RelativeLayout android:id="@+id/songdisplay"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorPrimaryDark"
+                    android:background="?attr/colorFrame"
                     android:layout_weight="1">
         <ListView android:id="@+id/mainViewport"
                   android:layout_width="match_parent"
@@ -73,13 +73,13 @@
                   android:layout_marginTop="5dp"
                   android:layout_marginLeft="5dp"
                   android:layout_marginRight="5dp"
-                  android:background="@color/colorPrimary">
+                  android:background="?attr/colorViewPort">
         </ListView>
     </RelativeLayout>
     <RelativeLayout android:id="@+id/PlayerControls"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorPrimaryDark">
+                    android:background="?attr/colorFrame">
         <RelativeLayout android:id="@+id/part1"
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
@@ -89,7 +89,7 @@
                       android:layout_width="match_parent"
                       android:layout_height="25dp"
                       android:text="Placeholder"
-                      android:textColor="@color/colorAccent"
+                      android:textColor="?attr/colorText"
                       android:textSize="20dp"
                       android:paddingLeft="10dp"
                       android:includeFontPadding="false"
@@ -105,8 +105,6 @@
                      android:layout_height="wrap_content"
                      android:max="1000"
                      android:progress="1000"
-                     android:indeterminateTint="@color/colorhighlight"
-                     android:indeterminateTintMode="src_in"
                      style="?android:attr/progressBarStyleHorizontal"
                      android:layout_below="@id/songDisplay"
             />
@@ -118,7 +116,7 @@
             <TextView android:id="@+id/digitDisp"
                       android:layout_width="100dp"
                       android:layout_height="wrap_content"
-                      android:textColor="@color/colorAccent"
+                      android:textColor="?attr/colorText"
                       android:textSize="15dp"
                       android:text="00:00 - 00:00"
                       android:paddingLeft="10dp"
@@ -158,7 +156,7 @@
             <ImageButton android:id="@+id/buttonShuff"
                          android:layout_width="50dp"
                          android:layout_height="50dp"
-                         android:textColor="@color/colorAccent"
+                         android:textColor="?attr/colorText"
                          android:background="@null"
                          android:src="@drawable/main_shuffle"
                          android:layout_toRightOf="@+id/buttonNex"
@@ -166,7 +164,7 @@
             <ImageButton android:id="@+id/buttonRep"
                          android:layout_width="50dp"
                          android:layout_height="50dp"
-                         android:textColor="@color/colorAccent"
+                         android:textColor="?attr/colorText"
                          android:background="@null"
                          android:src="@drawable/main_repeat"
                          android:layout_toRightOf="@id/buttonShuff"

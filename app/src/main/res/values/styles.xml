@@ -1,20 +1,60 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Base.Theme.AppCompat.Light">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorhighlight</item>
-        <item name="android:colorEdgeEffect">@color/colorAccent</item>
-        <item name="colorControlHighlight">@color/colorAccent</item>
-        <item name="android:itemBackground">@color/colorDialogBackground</item>
-        <item name="android:textColor">@color/colorDialogText</item>
+    <style name="AppTheme.Mint" parent="Base.Theme.AppCompat.Light">
+        <item name="colorViewPort">#00994d</item>
+        <item name="colorFrame">#006633</item>
+        <item name="colorText">#000000</item>
+        <item name="colorHighlight">#e68a00</item>
+
+        <item name="colorDialogBackground">#00994d</item>
+        <item name="colorDialogText">#000000</item>
+        <item name="colorDialogHighlight">#e68a00</item>
+
+        <item name="colorToolbar">?attr/colorFrame</item>
+
+        <item name="colorSnackbarText">#ffffff</item>
+        <item name="colorSnackbarBackground">#262626</item>
+
+        <item name="colorGreyed">#e68a00</item>
+
+        <item name="android:colorEdgeEffect">?attr/colorText</item>
+        <item name="colorControlHighlight">?attr/colorText</item>
+        <item name="android:itemBackground">?colorDialogBackground</item>
+        <item name="android:panelFullBackground">?colorDialogBackground</item>
+        <item name="android:textColor">?colorDialogText</item>
+
+        <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
+    </style>
+
+    <!-- Themes -->
+    <style name="AppTheme.Blue" parent="Base.Theme.AppCompat.Light">
+        <item name="colorViewPort">#001a33</item>
+        <item name="colorFrame">#00172E</item>
+        <item name="colorText">#ffffff</item>
+        <item name="colorHighlight">#CC42f486</item>
+
+        <item name="colorDialogBackground">#00172E</item>
+        <item name="colorDialogText">#ffffff</item>
+        <item name="colorDialogHighlight">#CC42f486</item>
+
+        <item name="colorToolbar">?attr/colorFrame</item>
+
+        <item name="colorSnackbarText">#ffffff</item>
+        <item name="colorSnackbarBackground">#262626</item>
+
+        <item name="colorGreyed">#999a9d</item>
+
+        <item name="android:colorEdgeEffect">?attr/colorText</item>
+        <item name="colorControlHighlight">?attr/colorText</item>
+        <item name="android:itemBackground">?colorDialogBackground</item>
+        <item name="android:textColor">?colorDialogText</item>
+
         <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
     </style>
 
     <style name="SelectableItemTheme">
-        <item name="colorControlHighlight">@color/colorPrimaryDark</item>
+        <item name="colorControlHighlight">?attr/colorFrame</item>
     </style>
 
     <style name="SelectableItemBackground">
@@ -23,12 +63,12 @@
     </style>
 
     <style name="DialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:textColor">@color/colorDialogText</item>
-        <item name="textColorAlertDialogListItem">@color/colorDialogText</item>
-        <item name="colorAccent">@color/colorDialogHighlight</item>
+        <item name="android:textColor">?colorDialogText</item>
+        <item name="textColorAlertDialogListItem">?colorDialogText</item>
+        <item name="colorAccent">?colorDialogHighlight</item>
     </style>
 
     <style name="MyOverflowButtonStyle" parent="Widget.AppCompat.ActionButton.Overflow">
-        <item name="android:tint">@color/colorAccent</item>
+        <item name="android:tint">?attr/colorText</item>
     </style>
 </resources>

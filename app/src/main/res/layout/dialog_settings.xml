@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
@@ -7,7 +7,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dialog_settings_t1"
-            android:textColor="@color/colorDialogText"
+            android:textColor="?colorDialogText"
             android:includeFontPadding="false"
             android:paddingLeft="10dp"
             android:layout_centerHorizontal="true"
@@ -16,11 +16,16 @@
             android:id="@+id/seekBar1"
             android:layout_width="match_parent"
             android:layout_height="28dp"
-            android:indeterminateTint="@color/colorhighlight"
+            android:indeterminateTint="?attr/colorHighlight"
             android:indeterminateTintMode="src_in"
             android:max="100"
             android:progress="0"
-            android:layout_below="@+id/textView"
-            android:progressTint="@color/colorDialogHighlight"
+            android:progressTint="?colorDialogHighlight"
     />
-</RelativeLayout>
+    <Spinner android:id="@+id/spinner"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:background="?colorDialogBackground"
+             android:popupBackground="?colorDialogBackground"
+    />
+</LinearLayout>

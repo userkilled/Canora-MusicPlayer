@@ -6,9 +6,9 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:hint="@string/dialog_createpl_nameph"
-              android:textColorHint="@color/colorGreyed"
+              android:textColorHint="?colorGreyed"
               android:textSize="20dp"
-              android:textColor="@color/colorDialogText"
-              android:backgroundTint="@color/colorDialogHighlight"
+              android:textColor="?colorDialogText"
+              android:backgroundTint="?colorDialogHighlight"
               android:textCursorDrawable="@null"/>
 </RelativeLayout>

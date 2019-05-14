@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <attr name="colorViewPort" format="reference|color"/>
+    <attr name="colorFrame" format="reference|color"/>
+    <attr name="colorText" format="reference|color"/>
+    <attr name="colorHighlight" format="reference|color"/>
+
+    <attr name="colorDialogBackground" format="reference|color"/>
+    <attr name="colorDialogText" format="reference|color"/>
+    <attr name="colorDialogHighlight" format="reference|color"/>
+
+    <attr name="colorToolbar" format="reference|color"/>
+
+    <attr name="colorSnackbarText" format="reference|color"/>
+    <attr name="colorSnackbarBackground" format="reference|color"/>
+
+    <attr name="colorGreyed" format="reference|color"/>
+</resources>

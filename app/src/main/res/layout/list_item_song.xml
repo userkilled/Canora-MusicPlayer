@@ -10,7 +10,7 @@
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_centerVertical="true"
-                  android:buttonTint="@color/colorhighlight"/>
+                  android:buttonTint="?attr/colorHighlight"/>
         <TextView
                 android:id="@+id/listsongname"
                 android:layout_width="match_parent"
@@ -19,7 +19,7 @@
                 android:text="PLACEHOLDER"
                 android:textSize="20dp"
                 android:includeFontPadding="false"
-                android:textColor="@color/colorAccent"
+                android:textColor="?attr/colorText"
                 android:maxLines="1"
                 android:paddingTop="10dp"
                 android:layout_toRightOf="@+id/checkbox"
@@ -32,7 +32,7 @@
                 android:text="PLACEHOLDER"
                 android:textSize="15dp"
                 android:includeFontPadding="false"
-                android:textColor="@color/colorAccent"
+                android:textColor="?attr/colorText"
                 android:maxLines="1"
                 android:paddingBottom="10dp"
                 android:layout_toRightOf="@+id/checkbox"
@@ -42,7 +42,7 @@
                   android:layout_height="wrap_content"
                   android:text="00:00"
                   android:id="@+id/songlength"
-                  android:textColor="@color/colorAccent"
+                  android:textColor="?attr/colorText"
                   android:layout_alignParentRight="true"
                   android:layout_alignTop="@id/listinterpret"
         />
