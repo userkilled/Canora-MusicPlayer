@@ -183,7 +183,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             else
                 setPlayButton(btn, false);
             updateSongDisplay();
-            handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
+            if (serv.player != null)
+                handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
         }
     }
 
@@ -997,7 +998,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
             showSnackMessage(getString(R.string.misc_init) + ": " + l + " ms.");
-        }
+}
 
         public void onServiceDisconnected(ComponentName className) {
             serv = null;

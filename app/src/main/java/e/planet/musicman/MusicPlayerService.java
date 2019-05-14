@@ -349,19 +349,24 @@ public class MusicPlayerService extends Service {
     }
 
     private void createPlayer(String songP) {
-        if (player != null && player.isPlaying()) {
+        if (player != null) {
             Log.v(LOG_TAG, "Resetting Player");
-            player.stop();
+
+            if (player.isPlaying())
+                player.stop();
+
             player.reset();
             player.release();
         }
         songP = "file://" + songP;
         Log.v(LOG_TAG, "CREATING PLAYER: " + songP);
         player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
-        player.start();
-        playing = true;
-        setVolume(volume);
-        setListener();
+        if (player != null) {
+            player.start();
+            playing = true;
+            setVolume(volume);
+            setListener();
+        }
     }
 
     private void setListener() {

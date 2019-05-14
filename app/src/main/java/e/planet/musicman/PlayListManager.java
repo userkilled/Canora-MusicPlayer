@@ -328,16 +328,19 @@ public class PlayListManager {
 
     //Compression
     public static byte[] compress(String string) throws IOException {
+        Log.v("PLC","PLAYLISTS UNCOMPRESSED SIZE: " + string.getBytes().length + " BYTES");
         ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
         GZIPOutputStream gos = new GZIPOutputStream(os);
         gos.write(string.getBytes());
         gos.close();
         byte[] compressed = os.toByteArray();
         os.close();
+        Log.v("PLC","PLAYLISTS COMPRESSED SIZE: " + compressed.length + " BYTES");
         return compressed;
     }
 
     public static String decompress(byte[] compressed) throws IOException {
+        Log.v("PLC","PLAYLISTS COMPRESSED SIZE: " + compressed.length + " BYTES");
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);
         GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
@@ -349,6 +352,7 @@ public class PlayListManager {
         }
         gis.close();
         is.close();
+        Log.v("PLC","PLAYLISTS UNCOMPRESSED SIZE: " + string.toString().getBytes().length + " BYTES");
         return string.toString();
     }
 
@@ -360,7 +364,9 @@ public class PlayListManager {
                 continue;
             ret += "<playlist title=\"" + entry.getKey() + "\">";
             for (int i = 0; i < entry.getValue().audio.size(); i++) {
-                ret += "<song>" + entry.getValue().audio.get(i).file.getAbsolutePath() + "</song>";
+                File f = entry.getValue().audio.get(i).file;
+                if (f != null && f.exists())
+                    ret += "<song>" + f.getAbsolutePath() + "</song>";
             }
             ret += "</playlist>";
         }
