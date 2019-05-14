@@ -27,6 +27,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -304,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 int minutesP = ((int) pos / 1000) / 60;
                 int secondsP = ((int) pos / 1000) % 60;
                 String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + " - " + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
-                if (pos > 0)
+                if (pos > 0 && dur > 0)
                     proc = (pos / dur) * 1000;
                 pb.setProgress(safeDoubleToInt(proc));
                 tv.setText(dspt);
@@ -996,6 +997,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
             showSnackMessage(getString(R.string.misc_init) + ": " + l + " ms.");
+            //DEBUG
+            /*
+            for (int i = 0; i < 30; i ++)
+            {
+                List<ItemSong> te = new ArrayList<>();
+                ItemSong t = new ItemSong();
+                t.Title = "FUU";
+                t.length = 500;
+                t.file = new File("");
+                te.add(t);
+                ItemPlayList p = new ItemPlayList("PL" + i,te);
+                pl.createPlayList(p.Title,p);
+            }
+            invalidateOptionsMenu();
+             */
         }
 
         public void onServiceDisconnected(ComponentName className) {
