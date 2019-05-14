@@ -33,7 +33,7 @@
         <item name="colorViewPort">#001a33</item>
         <item name="colorFrame">#00172E</item>
         <item name="colorText">#ffffff</item>
-        <item name="colorHighlight">#CC42f486</item>
+        <item name="colorHighlight">#42f486</item>
 
         <item name="colorDialogBackground">#00172E</item>
         <item name="colorDialogText">#ffffff</item>
@@ -75,9 +75,11 @@
     </style>
     <style name="MyActionBar" parent="Base.Widget.AppCompat.Light.ActionBar">
         <item name="popupTheme">@style/CustomPopupTheme</item>
+
     </style>
     <style name="CustomPopupTheme" parent="ThemeOverlay.AppCompat.Dark">
         <item name="android:colorControlActivated">?colorHighlight</item>
         <item name="android:textColorSecondary">?colorText</item>
+        <item name="android:colorBackground">?colorHighlight</item>
     </style>
 </resources>

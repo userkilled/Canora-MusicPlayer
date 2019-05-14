@@ -108,19 +108,19 @@ public class SettingsManager {
 
     //Compression
     public static byte[] compress(String string) throws IOException {
-        Log.v("PLC","SETTINGS UNCOMPRESSED SIZE: " + string.getBytes().length + " BYTES");
+        Log.v("PLC", "SETTINGS UNCOMPRESSED SIZE: " + string.getBytes().length + " BYTES");
         ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
         GZIPOutputStream gos = new GZIPOutputStream(os);
         gos.write(string.getBytes());
         gos.close();
         byte[] compressed = os.toByteArray();
         os.close();
-        Log.v("PLC","SETTINGS COMPRESSED SIZE: " + compressed.length + " BYTES");
+        Log.v("PLC", "SETTINGS COMPRESSED SIZE: " + compressed.length + " BYTES");
         return compressed;
     }
 
     public static String decompress(byte[] compressed) throws IOException {
-        Log.v("PLC","SETTINGS COMPRESSED SIZE: " + compressed.length + " BYTES");
+        Log.v("PLC", "SETTINGS COMPRESSED SIZE: " + compressed.length + " BYTES");
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);
         GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
@@ -132,7 +132,7 @@ public class SettingsManager {
         }
         gis.close();
         is.close();
-        Log.v("PLC","SETTINGS UNCOMPRESSED SIZE: " + string.toString().getBytes().length + " BYTES");
+        Log.v("PLC", "SETTINGS UNCOMPRESSED SIZE: " + string.toString().getBytes().length + " BYTES");
         return string.toString();
     }
 
