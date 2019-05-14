@@ -33,6 +33,8 @@ public class ThemeManager {
     {
         mainActivity = ma;
         selectedTheme = mainActivity.sc.getSetting(Constants.SETTING_THEME);
+        if (selectedTheme.equals(""))
+            selectedTheme = Constants.THEME_BLUE;
         Log.v(LOG_TAG,"INIT SELECTED: " + selectedTheme);
     }
     private String selectedTheme;
