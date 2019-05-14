@@ -7,7 +7,9 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.PopupMenu;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -202,6 +204,19 @@ public class PlayListManager {
                             } else {
                                 mainActivity.invalidateOptionsMenu();
                             }
+                            if (entry.getValue().Title.equals("")) {
+                                mainActivity.getSupportActionBar().setDisplayShowHomeEnabled(true);
+                                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                                String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(mainActivity.getApplicationContext(), R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+                                String t = "<font color='" + hexColor + "'>" + mainActivity.getString(R.string.app_name) + "</font>";
+                                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
+                            } else {
+                                mainActivity.getSupportActionBar().setDisplayShowHomeEnabled(false);
+                                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                                String hexColor = "#" + Integer.toHexString(ContextCompat.getColor(mainActivity.getApplicationContext(), R.color.colorAccent) & 0x00ffffff); //Because ANDROID
+                                String t = "<font color='" + hexColor + "'>" + entry.getValue().Title + "</font>";
+                                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
+                            }
                             sortContent(sortBy);
                             return true;
                         }
@@ -328,19 +343,19 @@ public class PlayListManager {
 
     //Compression
     public static byte[] compress(String string) throws IOException {
-        Log.v("PLC","PLAYLISTS UNCOMPRESSED SIZE: " + string.getBytes().length + " BYTES");
+        Log.v("PLC", "PLAYLISTS UNCOMPRESSED SIZE: " + string.getBytes().length + " BYTES");
         ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
         GZIPOutputStream gos = new GZIPOutputStream(os);
         gos.write(string.getBytes());
         gos.close();
         byte[] compressed = os.toByteArray();
         os.close();
-        Log.v("PLC","PLAYLISTS COMPRESSED SIZE: " + compressed.length + " BYTES");
+        Log.v("PLC", "PLAYLISTS COMPRESSED SIZE: " + compressed.length + " BYTES");
         return compressed;
     }
 
     public static String decompress(byte[] compressed) throws IOException {
-        Log.v("PLC","PLAYLISTS COMPRESSED SIZE: " + compressed.length + " BYTES");
+        Log.v("PLC", "PLAYLISTS COMPRESSED SIZE: " + compressed.length + " BYTES");
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);
         GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
@@ -352,7 +367,7 @@ public class PlayListManager {
         }
         gis.close();
         is.close();
-        Log.v("PLC","PLAYLISTS UNCOMPRESSED SIZE: " + string.toString().getBytes().length + " BYTES");
+        Log.v("PLC", "PLAYLISTS UNCOMPRESSED SIZE: " + string.toString().getBytes().length + " BYTES");
         return string.toString();
     }
 

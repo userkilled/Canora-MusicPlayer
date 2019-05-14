@@ -20,5 +20,7 @@
             android:indeterminateTintMode="src_in"
             android:max="100"
             android:progress="0"
-            android:layout_below="@+id/textView"/>
+            android:layout_below="@+id/textView"
+            android:progressTint="@color/colorDialogHighlight"
+    />
 </RelativeLayout>

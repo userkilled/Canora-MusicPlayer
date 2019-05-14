@@ -119,7 +119,7 @@
                       android:layout_width="100dp"
                       android:layout_height="wrap_content"
                       android:textColor="@color/colorAccent"
-                      android:textSize="12dp"
+                      android:textSize="15dp"
                       android:text="00:00 - 00:00"
                       android:paddingLeft="10dp"
                       android:includeFontPadding="false"
