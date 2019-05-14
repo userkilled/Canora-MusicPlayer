@@ -34,6 +34,8 @@ public final class Constants {
             settList.add(SETTING_REPEAT);
             settings.put("SETTING_SHUFFLE", SETTING_SHUFFLE);
             settList.add(SETTING_SHUFFLE);
+            settings.put("SETTING_THEME",SETTING_THEME);
+            settList.add(SETTING_THEME);
         }
 
         public Map<String, String> getSettings() {
@@ -50,6 +52,10 @@ public final class Constants {
     public static final String SETTING_VOLUME = "VOLUME";
     public static final String SETTING_SHUFFLE = "SHUFFLE";
     public static final String SETTING_REPEAT = "REPEAT";
+    public static final String SETTING_THEME = "THEME";
+
+    public static final String THEME_BLUE = "Blue";
+    public static final String THEME_MINT = "Mint";
 
     public static final int SORT_BYTITLE = 0;
     public static final int SORT_BYARTIST = 1;

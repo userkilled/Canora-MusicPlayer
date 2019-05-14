@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
@@ -9,7 +9,7 @@
             android:text="@string/dialog_settings_t1"
             android:textColor="?colorDialogText"
             android:includeFontPadding="false"
-            android:paddingLeft="10dp"
+            android:layout_marginTop="20dp"
             android:layout_centerHorizontal="true"
             />
     <SeekBar
@@ -21,11 +21,26 @@
             android:max="100"
             android:progress="0"
             android:progressTint="?colorDialogHighlight"
+            android:layout_margin="5dp"
+            android:layout_below="@id/textView"
+    />
+    <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/misc_themes"
+            android:textColor="?colorDialogText"
+            android:includeFontPadding="false"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/seekBar1"
     />
     <Spinner android:id="@+id/spinner"
              android:layout_width="match_parent"
              android:layout_height="wrap_content"
              android:background="?colorDialogBackground"
              android:popupBackground="?colorDialogBackground"
+             android:layout_margin="5dp"
+             android:layout_below="@id/textView1"
     />
-</LinearLayout>
+</RelativeLayout>

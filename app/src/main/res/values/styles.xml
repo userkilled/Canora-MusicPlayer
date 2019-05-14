@@ -25,6 +25,7 @@
         <item name="android:textColor">?colorDialogText</item>
 
         <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
+        <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
 
     <!-- Themes -->
@@ -51,6 +52,7 @@
         <item name="android:textColor">?colorDialogText</item>
 
         <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
+        <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
 
     <style name="SelectableItemTheme">
@@ -70,5 +72,12 @@
 
     <style name="MyOverflowButtonStyle" parent="Widget.AppCompat.ActionButton.Overflow">
         <item name="android:tint">?attr/colorText</item>
+    </style>
+    <style name="MyActionBar" parent="Base.Widget.AppCompat.Light.ActionBar">
+        <item name="popupTheme">@style/CustomPopupTheme</item>
+    </style>
+    <style name="CustomPopupTheme" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:colorControlActivated">?colorHighlight</item>
+        <item name="android:textColorSecondary">?colorText</item>
     </style>
 </resources>

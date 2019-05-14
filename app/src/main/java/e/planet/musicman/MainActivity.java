@@ -44,17 +44,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "ONCREATE CALLED");
         super.onCreate(savedInstanceState);
         globT.start();
-        currentTheme = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("current_theme","blue");
-        if (currentTheme.equals("mint")) {
-            setTheme(R.style.AppTheme_Mint);
-        } else if (currentTheme.equals("blue")){
-            setTheme(R.style.AppTheme_Blue);
-        }
+        sc = new SettingsManager(getApplicationContext());
+        pl = new PlayListManager(getApplicationContext(), this);
+        thm = new ThemeManager(sc.getSetting(Constants.SETTING_THEME), this);
+        setTheme(thm.getThemeResourceID());
         setContentView(R.layout.layout_main);
         ListView lv = findViewById(R.id.mainViewport);
         registerForContextMenu(lv);
-        pl = new PlayListManager(getApplicationContext(), this);
-        sc = new SettingsManager(getApplicationContext());
         setListAdapter();
         setupActionBar();
         findViewById(R.id.searchbox).setVisibility(View.GONE);
@@ -126,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "ONCREATEOPTIONS");
         getMenuInflater().inflate(R.menu.main_menu, menu);
         menu.getItem(0).getIcon().mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+        closeOptionsMenu();
         return true;
     }
 
@@ -282,6 +279,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     /* Settings Manager */
     SettingsManager sc;
 
+    /* Theme Manager */
+    ThemeManager thm;
+
     int sortBy;
     int searchBy;
 
@@ -289,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     String LOG_TAG = "main";
 
-    String currentTheme;
+    private String searchTerm;
 
     View.OnClickListener playbutton_click;
     View.OnClickListener prevbutton_click;
@@ -451,6 +451,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         sc.putSetting(Constants.SETTING_VOLUME, "" + c);
                     }
                 });
+                pb.getProgressDrawable().setColorFilter(getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
+                pb.getThumb().setColorFilter(getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
+
                 setdia.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog) {
@@ -462,19 +465,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.Themes, android.R.layout.simple_spinner_item);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinner.setAdapter(adapter);
+                if (thm.getThemeResourceID() == R.style.AppTheme_Blue) {
+                    spinner.setSelection(0);
+                } else if (thm.getThemeResourceID() == R.style.AppTheme_Mint) {
+                    spinner.setSelection(1);
+                }
                 spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        if (arg2 == 0 && currentTheme.equals("mint")) {
+                        if (arg2 == 0) {
                             //blue
-                            Log.v(LOG_TAG,"CURRENT THEME: " + currentTheme);
-                                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("current_theme", "blue").apply();
+                            if (thm.request(Constants.THEME_BLUE)) {
+                                setdia.dismiss();
                                 recreate();
-                        } else if (arg2 == 1 && currentTheme.equals("blue")) {
+                            }
+                        } else if (arg2 == 1) {
                             //mint
-                            Log.v(LOG_TAG,"CURRENT THEME: " + currentTheme);
-                            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("current_theme","mint").apply();
-                            recreate();
+                            if (thm.request(Constants.THEME_MINT)) {
+                                setdia.dismiss();
+                                recreate();
+                            }
                         }
                     }
 
@@ -718,8 +728,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         actionbar.setHomeAsUpIndicator(d);
     }
-
-    private String searchTerm;
 
     private void handleSearch() {
         EditText ed = findViewById(R.id.searchbox);
