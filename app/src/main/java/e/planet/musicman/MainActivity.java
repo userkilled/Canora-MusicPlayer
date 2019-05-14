@@ -282,8 +282,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void handleProgressAnimation(int dur, int pos) {
         /* Creates a new ValueAnimator for the Duration Bar and the Digits, And Calls Update Song Display*/
-        Log.v(LOG_TAG, "UPDATE UI, DUR: " + dur + " POS: " + pos + " ISPLAYING: " + serv.player.isPlaying());
-        final ProgressBar pb = findViewById(R.id.songDurBar);
+        Log.v(LOG_TAG, "UPDATE UI, DUR: " + dur + " POS: " + pos);
+        final SeekBar pb = findViewById(R.id.songDurBar);
         final TextView tv = findViewById(R.id.digitDisp);
         if (animator != null)
             animator.cancel();
@@ -305,13 +305,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 int secondsP = ((int) pos / 1000) % 60;
                 String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + " - " + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
                 if (pos > 0)
-                    proc = (pos / dur) * 100;
-                if (serv.player.isPlaying()) {
-                    pb.setProgress(safeDoubleToInt(proc));
-                    tv.setText(dspt);
-                }
+                    proc = (pos / dur) * 1000;
+                pb.setProgress(safeDoubleToInt(proc));
+                tv.setText(dspt);
             }
         });
+        int minutesT = (dur / 1000) / 60;
+        int secondsT = (dur / 1000) % 60;
+        int minutesP = (pos / 1000) / 60;
+        int secondsP = (pos / 1000) % 60;
+        String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + " - " + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
+        tv.setText(dspt);
         if (serv.getPlaybackStatus())
             animator.start();
         updateSongDisplay();
@@ -752,6 +756,44 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         sbbtn.setOnClickListener(sortbybtn_click);
         ListView listview = (ListView) findViewById(R.id.mainViewport);
         listview.setOnItemClickListener(this);
+
+        SeekBar sb = findViewById(R.id.songDurBar);
+        sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int dur = 0;
+            int pos = 0;
+            boolean playing = false;
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (playing) {
+                    serv.resume();
+                    handleProgressAnimation(dur, pos);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                if (serv.getPlaybackStatus()) {
+                    serv.pause();
+                    playing = true;
+                } else {
+                    playing = false;
+                }
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser && serv.getCurrentSong() != null) {
+                    float c = (float) progress / 1000;
+                    int ms = safeLongToInt(Math.round(serv.getCurrentSong().length * c));
+                    Log.v(LOG_TAG, "SEEKING TO " + ms + " ms");
+                    serv.seek(ms);
+                    pos = ms;
+                    dur = safeLongToInt(serv.getCurrentSong().length);
+                    handleProgressAnimation(dur, pos);
+                }
+            }
+        });
     }
 
     private void setListAdapter() {

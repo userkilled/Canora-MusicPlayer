@@ -176,11 +176,17 @@ public class MusicPlayerService extends Service {
         return false;
     }
 
-    public void stop()
-    {
-        Log.v(LOG_TAG,"Stop");
-        if (player != null)
-        {
+    public int seek(int ms) {
+        if (player != null) {
+            position = ms;
+            player.seekTo(ms);
+        }
+        return 0;
+    }
+
+    public void stop() {
+        Log.v(LOG_TAG, "Stop");
+        if (player != null) {
             player.stop();
         }
         plm.currentSong = null;

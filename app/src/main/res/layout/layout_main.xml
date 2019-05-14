@@ -81,8 +81,10 @@
                     android:layout_height="wrap_content"
                     android:background="@color/colorPrimaryDark">
         <RelativeLayout android:id="@+id/part1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical"
+                    android:clipChildren="false">
             <TextView android:id="@+id/songDisplay"
                       android:layout_width="match_parent"
                       android:layout_height="25dp"
@@ -95,19 +97,18 @@
                       android:layout_marginBottom="0dp"
                       android:layout_marginLeft="5dp"
                       android:layout_marginRight="5dp"
-                      android:background="@color/colorPrimary"
+                      android:background="@null"
                       android:maxLines="1"
-                      android:layout_alignParentTop="true"
             />
-            <ProgressBar android:id="@+id/songDurBar"
-                         android:layout_width="match_parent"
-                         android:layout_height="wrap_content"
-                         android:max="100"
-                         android:progress="100"
-                         android:indeterminateTint="@color/colorhighlight"
-                         android:indeterminateTintMode="src_in"
-                         style="?android:attr/progressBarStyleHorizontal"
-                         android:layout_below="@id/songDisplay"
+            <SeekBar android:id="@+id/songDurBar"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:max="1000"
+                     android:progress="1000"
+                     android:indeterminateTint="@color/colorhighlight"
+                     android:indeterminateTintMode="src_in"
+                     style="?android:attr/progressBarStyleHorizontal"
+                     android:layout_below="@id/songDisplay"
             />
         </RelativeLayout>
         <RelativeLayout
@@ -126,14 +127,15 @@
                       android:layout_centerVertical="true"
                       android:layout_alignParentLeft="true"
                       android:layout_toLeftOf="@+id/buttonPrev"
-
-                      android:maxLines="1"/>
+                      android:background="@null"
+                      android:maxLines="1"
+            />
             <ImageButton android:id="@+id/buttonPrev"
                          android:layout_width="50dp"
                          android:layout_height="50dp"
                          android:src="@drawable/main_btnprev"
                          style="@style/SelectableItemBackground"
-                         android:background="@color/colorPrimaryDark"
+                         android:background="@null"
                          android:layout_toLeftOf="@+id/buttonPlay"
                          android:layout_alignTop="@+id/buttonPlay"
             />
@@ -142,7 +144,7 @@
                          android:layout_height="50dp"
                          android:src="@drawable/main_btnplay"
                          style="@style/SelectableItemBackground"
-                         android:background="@color/colorPrimaryDark"
+                         android:background="@null"
                          android:layout_centerHorizontal="true"
             />
             <ImageButton android:id="@+id/buttonNex"
@@ -150,7 +152,7 @@
                          android:layout_height="50dp"
                          android:src="@drawable/main_btnnext"
                          style="@style/SelectableItemBackground"
-                         android:background="@color/colorPrimaryDark"
+                         android:background="@null"
                          android:layout_toRightOf="@id/buttonPlay"
             />
             <ImageButton android:id="@+id/buttonShuff"
@@ -173,4 +175,5 @@
             />
         </RelativeLayout>
     </RelativeLayout>
+    <View android:layout_width="match_parent" android:layout_height="5dp"></View>
 </LinearLayout>
