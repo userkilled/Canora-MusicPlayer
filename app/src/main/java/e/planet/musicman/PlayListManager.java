@@ -76,7 +76,6 @@ public class PlayListManager {
             case Constants.SORT_BYARTIST:
                 Log.v(LOG_TAG, "SORTING BY ARTIST");
                 srted = sortSongsByArtist(contentList);
-                //Log.v(LOG_TAG, "First TITLE: " + srted.get(0).Title);
                 mainActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -88,7 +87,6 @@ public class PlayListManager {
             case Constants.SORT_BYTITLE:
                 Log.v(LOG_TAG, "SORTING BY TITLE");
                 srted = sortSongsByTitle(contentList);
-                //Log.v(LOG_TAG, "First TITLE: " + srted.get(0).Title);
                 mainActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -406,31 +404,17 @@ public class PlayListManager {
         //TODO:Get Metadata from mediastore
         ItemSong t = new ItemSong();
         Log.d(LOG_TAG, "Getting Metadata for File: " + f.getAbsolutePath());
-        //WorkAround
-        /*
-        t.Title = f.getName();
-        t.Artist = "unkown";
-        t.file = new File(f.getAbsolutePath());
-        t.length = 0;
-        t.id = GIDC++;
-        */
         Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
                 MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION
         }, null, null, null);
         while (c.moveToNext()) {
-            //Log.v(LOG_TAG,"MEDIASTORE PATH:" + c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
             if (c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)).equals(f.getAbsolutePath())) {
                 t.Title = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                //Log.v(LOG_TAG, "TITLE: " + t.Title);
                 t.Artist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                //Log.v(LOG_TAG, "ARTIST: " + t.Artist);
                 t.Album = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-                //Log.v(LOG_TAG, "ALBUM: " + t.Album);
                 t.file = new File(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
-                //Log.v(LOG_TAG, "FILEPATH: " + t.file.getAbsolutePath());
                 t.length = Long.parseLong(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DURATION)));
                 t.id = GIDC++;
-                //Log.v(LOG_TAG, "ID: " + t.id);
             }
         }
         c.close();
@@ -463,16 +447,11 @@ public class PlayListManager {
         while (c.moveToNext()) {
             ItemSong t = new ItemSong();
             t.Title = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE));
-            //Log.v(LOG_TAG, "TITLE: " + t.Title);
             t.Artist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-            //Log.v(LOG_TAG, "ARTIST: " + t.Artist);
             t.Album = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-            //Log.v(LOG_TAG, "ALBUM: " + t.Album);
             t.file = new File(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
-            //Log.v(LOG_TAG, "FILEPATH: " + t.file.getAbsolutePath());
             t.length = Long.parseLong(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DURATION)));
             t.id = GIDC++;
-            //Log.v(LOG_TAG, "ID: " + t.id);
             ret.add(t);
         }
         return ret;
@@ -648,10 +627,8 @@ public class PlayListManager {
             }
             mainActivity.serv.reload();
             if (filtering) {
-                //Log.v(LOG_TAG,"FILTERING");
                 showFiltered(searchTerm, searchBy);
             } else {
-                //Log.v(LOG_TAG, "NOT FILTERING, DONE");
                 mainActivity.notifyArrayAdapter();
             }
             return "COMPLETE!";
