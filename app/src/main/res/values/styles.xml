@@ -18,9 +18,11 @@
 
         <item name="colorGreyed">#33ffffff</item>
 
+        <!--Options Context Menu Background-->
+        <item name="android:itemBackground">?colorViewPort</item>
+
         <item name="android:colorEdgeEffect">?attr/colorText</item>
         <item name="colorControlHighlight">?attr/colorText</item>
-        <item name="android:itemBackground">?colorDialogBackground</item>
         <item name="android:textColor">?colorDialogText</item>
 
         <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
@@ -45,9 +47,11 @@
 
         <item name="colorGreyed">#33000000</item>
 
+        <!--Options Context Menu Background-->
+        <item name="android:itemBackground">?colorViewPort</item>
+
         <item name="android:colorEdgeEffect">?attr/colorText</item>
         <item name="colorControlHighlight">?attr/colorText</item>
-        <item name="android:itemBackground">?colorDialogBackground</item>
         <item name="android:panelFullBackground">?colorDialogBackground</item>
         <item name="android:textColor">?colorDialogText</item>
 
@@ -72,9 +76,11 @@
 
         <item name="colorGreyed">#33ffffff</item>
 
+        <!--Options Context Menu Background-->
+        <item name="android:itemBackground">?colorViewPort</item>
+
         <item name="android:colorEdgeEffect">?attr/colorText</item>
         <item name="colorControlHighlight">?attr/colorText</item>
-        <item name="android:itemBackground">?colorDialogBackground</item>
         <item name="android:panelFullBackground">?colorDialogBackground</item>
         <item name="android:textColor">?colorDialogText</item>
 
@@ -102,13 +108,15 @@
     <style name="MyOverflowButtonStyle" parent="Widget.AppCompat.ActionButton.Overflow">
         <item name="android:tint">?attr/colorText</item>
     </style>
+
     <style name="MyActionBar" parent="Base.Widget.AppCompat.Light.ActionBar">
         <item name="popupTheme">@style/CustomPopupTheme</item>
-
     </style>
+
     <style name="CustomPopupTheme" parent="ThemeOverlay.AppCompat.Dark">
         <item name="android:colorControlActivated">?colorHighlight</item>
         <item name="android:textColorSecondary">?colorText</item>
-        <item name="android:colorBackground">?colorViewPort</item>
+        <!--Options Context SubMenu Heading-->
+        <item name="android:colorBackground">?colorFrame</item>
     </style>
 </resources>

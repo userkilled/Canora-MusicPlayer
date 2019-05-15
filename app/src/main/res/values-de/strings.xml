@@ -47,6 +47,8 @@
     <string name="misc_artist">Interpret</string>
     <string name="misc_both">Beide</string>
 
+    <string name="misc_themes">Themen</string>
+
     <string name="misc_allfiles">Alle Dateien</string>
     <string name="misc_init">Initialisierungs Zeit</string>
     <string name="misc_createpl">Playlist Erstellt</string>

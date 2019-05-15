@@ -469,8 +469,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        if (thm.request(arg2))
-                        {
+                        if (thm.request(arg2)) {
                             setdia.dismiss();
                             recreate();
                         }
@@ -638,8 +637,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.v(LOG_TAG, "SHOWING FILE INFO DIALOG");
                 LayoutInflater lifff = LayoutInflater.from(this);
                 View vive = lifff.inflate(R.layout.dialog_file_info, null);
-                TextView fp = vive.findViewById(R.id.filepathtext);
+                TextView fp = vive.findViewById(R.id.filepathtitle);
+                fp.setText(getString(R.string.dialog_file_info_t1) + ":");
+
+                fp = vive.findViewById(R.id.filepathtext);
                 fp.setText(pl.viewList.get(arrayAdapter.clicked).file.getAbsolutePath());
+
                 AlertDialog.Builder builde = new AlertDialog.Builder(this, R.style.DialogStyle);
                 builde.setTitle(R.string.dialog_file_info_title);
                 builde.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {

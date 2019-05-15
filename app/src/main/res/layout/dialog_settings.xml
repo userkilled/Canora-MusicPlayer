@@ -38,9 +38,10 @@
     <Spinner android:id="@+id/spinner"
              android:layout_width="match_parent"
              android:layout_height="wrap_content"
-             android:background="?colorDialogBackground"
+             android:backgroundTint="?colorDialogText"
              android:popupBackground="?colorDialogBackground"
              android:layout_margin="5dp"
              android:layout_below="@id/textView1"
+             android:layout_centerHorizontal="true"
     />
 </RelativeLayout>
