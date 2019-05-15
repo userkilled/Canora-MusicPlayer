@@ -57,6 +57,7 @@
     <string-array name="Themes">
         <item>Blue</item>
         <item>Mint</item>
+        <item>Dark</item>
     </string-array>
 
 </resources>

@@ -16,7 +16,7 @@
         <item name="colorSnackbarText">#ffffff</item>
         <item name="colorSnackbarBackground">#262626</item>
 
-        <item name="colorGreyed">#999a9d</item>
+        <item name="colorGreyed">#33ffffff</item>
 
         <item name="android:colorEdgeEffect">?attr/colorText</item>
         <item name="colorControlHighlight">?attr/colorText</item>
@@ -27,7 +27,7 @@
         <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
 
-    <!-- Additional Themes -->
+    <!-- Additional Themes, Set Color Values Here -->
     <style name="AppTheme.Mint" parent="Base.Theme.AppCompat.Light">
         <item name="colorViewPort">#00994d</item>
         <item name="colorFrame">#006633</item>
@@ -43,7 +43,7 @@
         <item name="colorSnackbarText">#ffffff</item>
         <item name="colorSnackbarBackground">#262626</item>
 
-        <item name="colorGreyed">#e68a00</item>
+        <item name="colorGreyed">#33000000</item>
 
         <item name="android:colorEdgeEffect">?attr/colorText</item>
         <item name="colorControlHighlight">?attr/colorText</item>
@@ -56,21 +56,21 @@
     </style>
 
     <style name="AppTheme.Dark" parent="Base.Theme.AppCompat.Light">
-        <item name="colorViewPort">#00994d</item>
-        <item name="colorFrame">#006633</item>
-        <item name="colorText">#000000</item>
-        <item name="colorHighlight">#e68a00</item>
+        <item name="colorViewPort">#1a1a1a</item>
+        <item name="colorFrame">#0d0d0d</item>
+        <item name="colorText">#ffffff</item>
+        <item name="colorHighlight">#00ffff</item>
 
-        <item name="colorDialogBackground">#00994d</item>
-        <item name="colorDialogText">#000000</item>
-        <item name="colorDialogHighlight">#e68a00</item>
+        <item name="colorDialogBackground">?colorFrame</item>
+        <item name="colorDialogText">?colorText</item>
+        <item name="colorDialogHighlight">?colorHighlight</item>
 
         <item name="colorToolbar">?attr/colorFrame</item>
 
         <item name="colorSnackbarText">#ffffff</item>
         <item name="colorSnackbarBackground">#262626</item>
 
-        <item name="colorGreyed">#e68a00</item>
+        <item name="colorGreyed">#33ffffff</item>
 
         <item name="android:colorEdgeEffect">?attr/colorText</item>
         <item name="colorControlHighlight">?attr/colorText</item>
@@ -82,7 +82,7 @@
         <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
 
-    <!-- Other Styles -->
+    <!-- Other Styles, Not Customized -->
     <style name="SelectableItemTheme">
         <item name="colorControlHighlight">?attr/colorFrame</item>
     </style>
@@ -96,6 +96,7 @@
         <item name="android:textColor">?colorDialogText</item>
         <item name="textColorAlertDialogListItem">?colorDialogText</item>
         <item name="colorAccent">?colorDialogHighlight</item>
+        <item name="colorControlNormal">?colorDialogText</item>
     </style>
 
     <style name="MyOverflowButtonStyle" parent="Widget.AppCompat.ActionButton.Overflow">
@@ -108,6 +109,6 @@
     <style name="CustomPopupTheme" parent="ThemeOverlay.AppCompat.Dark">
         <item name="android:colorControlActivated">?colorHighlight</item>
         <item name="android:textColorSecondary">?colorText</item>
-        <item name="android:colorBackground">?colorHighlight</item>
+        <item name="android:colorBackground">?colorViewPort</item>
     </style>
 </resources>

@@ -5,9 +5,10 @@ import android.util.Log;
 public class ThemeManager {
     /*
     How to add a Theme:
-    1. In the strings.xml add a Theme Title String and Spinnerpos Integer.
-    2. Create a Copy of one of the Existing Theme Styles in the styles.xml, Here you can set the Colors of your Theme.
-    3. Add Conditional Checks in Below Functions, "getThemeResourceID , getSpinnerPosition and request"
+    1. In the strings.xml add your Theme Title to the Themes String Array.
+    2. In the Constants.java File add your Theme Title String and Spinnerpos Integer.
+    3. Create a Copy of one of the Existing Theme Styles in the styles.xml, Here you can set the Colors of your Theme.
+    4. Add Conditional Checks in Below Functions, "getThemeResourceID , getSpinnerPosition and request"
      */
     public int getThemeResourceID()
     {
@@ -21,6 +22,10 @@ public class ThemeManager {
             Log.v(LOG_TAG,"RETURNING MINT THEME");
             return R.style.AppTheme_Mint;
         }
+        else if (currentTheme.equals(Constants.THEME_DARK))
+        {
+            return R.style.AppTheme_Dark;
+        }
         return -1;
     }
     public int getSpinnerPosition(int resid)
@@ -32,6 +37,10 @@ public class ThemeManager {
         else if (resid == R.style.AppTheme_Mint)
         {
             return Constants.SPINNERPOS_THEME_MINT;
+        }
+        else if (resid == R.style.AppTheme_Dark)
+        {
+            return Constants.SPINNERPOS_THEME_DARK;
         }
         return -1;
     }
@@ -46,6 +55,11 @@ public class ThemeManager {
         else if (spinnerpos == Constants.SPINNERPOS_THEME_MINT && !currentTheme.equals(Constants.THEME_MINT))
         {
             selectTheme(Constants.THEME_MINT);
+            return true;
+        }
+        else if (spinnerpos == Constants.SPINNERPOS_THEME_DARK && !currentTheme.equals(Constants.THEME_DARK))
+        {
+            selectTheme(Constants.THEME_DARK);
             return true;
         }
         return false;
