@@ -708,9 +708,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setupActionBar() {
         ActionBar actionbar = getSupportActionBar();
-        actionbar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
-        actionbar.setIcon(R.drawable.mainicon);
-        actionbar.setLogo(R.drawable.mainicon);
+        actionbar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         actionbar.setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
         String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
         String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
