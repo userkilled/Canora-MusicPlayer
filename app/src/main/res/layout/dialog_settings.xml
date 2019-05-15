@@ -1,7 +1,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="20dp">
     <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
@@ -9,19 +12,15 @@
             android:text="@string/dialog_settings_t1"
             android:textColor="?colorDialogText"
             android:includeFontPadding="false"
-            android:layout_marginTop="20dp"
             android:layout_centerHorizontal="true"
-            />
+    />
     <SeekBar
             android:id="@+id/seekBar1"
             android:layout_width="match_parent"
             android:layout_height="28dp"
-            android:indeterminateTint="?attr/colorHighlight"
-            android:indeterminateTintMode="src_in"
             android:max="100"
             android:progress="0"
-            android:progressTint="?colorDialogHighlight"
-            android:layout_margin="5dp"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_below="@id/textView"
     />
     <TextView

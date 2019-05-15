@@ -718,6 +718,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Drawable d = getDrawable(R.drawable.icon_back);
         d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         actionbar.setHomeAsUpIndicator(d);
+        getSupportActionBar().setElevation(0);
     }
 
     private void handleSearch() {
@@ -1102,7 +1103,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             initPlayer();
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
-            showSnackMessage(getString(R.string.misc_init) + ": " + l + " ms.\n" + getString(R.string.misc_founditems) + ": " + pl.contentList.size());
+            showSnackMessage(getString(R.string.misc_init) + ": " + l + " ms.");
         }
 
         public void onServiceDisconnected(ComponentName className) {
