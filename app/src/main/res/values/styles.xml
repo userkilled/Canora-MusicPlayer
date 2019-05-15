@@ -61,7 +61,7 @@
         <item name="colorText">#ffffff</item>
         <item name="colorHighlight">#00ffff</item>
 
-        <item name="colorDialogBackground">?colorFrame</item>
+        <item name="colorDialogBackground">?colorViewPort</item>
         <item name="colorDialogText">?colorText</item>
         <item name="colorDialogHighlight">?colorHighlight</item>
 
