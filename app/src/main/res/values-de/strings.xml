@@ -51,6 +51,7 @@
 
     <string name="misc_allfiles">Alle Dateien</string>
     <string name="misc_init">Initialisierungs Zeit</string>
+    <string name="misc_founditems">Anzahl Gefundener Dateien</string>
     <string name="misc_createpl">Playlist Erstellt</string>
     <string name="misc_added">Audiodateien Hinzugefügt</string>
 </resources>

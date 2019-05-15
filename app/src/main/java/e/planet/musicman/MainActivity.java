@@ -1102,7 +1102,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             initPlayer();
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
-            showSnackMessage(getString(R.string.misc_init) + ": " + l + " ms.");
+            showSnackMessage(getString(R.string.misc_init) + ": " + l + " ms.\n" + getString(R.string.misc_founditems) + ": " + pl.contentList.size());
         }
 
         public void onServiceDisconnected(ComponentName className) {

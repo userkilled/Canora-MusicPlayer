@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.text.Html;
@@ -418,7 +419,7 @@ public class PlayListManager {
     private ItemSong getMetadata(File f) {
         //TODO:Get Metadata from mediastore
         ItemSong t = new ItemSong();
-        Log.d(LOG_TAG, "Getting Metadata for File: " + f.getAbsolutePath());
+        Log.v(LOG_TAG, "Getting Metadata for File: " + f.getAbsolutePath());
         Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
                 MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION
         }, null, null, null);
@@ -433,6 +434,16 @@ public class PlayListManager {
             }
         }
         c.close();
+        if (t.file == null)
+        {
+            Log.e(LOG_TAG,"FILE " + f.getAbsolutePath() + " NOT FOUND IN MEDIASTORE, FALLING BACK TO MEDIA-METADATA-RETRIEVER (SLOW PERFORMANCE)");
+            t.file = f;
+            MediaMetadataRetriever m = new MediaMetadataRetriever();
+            m.setDataSource(f.getAbsolutePath());
+            t.Title = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            t.Artist = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            t.length = Long.parseLong(m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        }
         return t;
     }
 
@@ -552,7 +563,7 @@ public class PlayListManager {
         List<File> t = getPlayListFiles(rootPath);
         List<ItemSong> ret = new ArrayList<>();
         for (int i = 0; i < t.size(); i++) {
-            ItemSong s = new ItemSong(gc, t.get(i), GIDC++, dicon);
+            ItemSong s = getMetadata(t.get(i));
             ret.add(s);
         }
         return ret;
@@ -574,10 +585,10 @@ public class PlayListManager {
                     fileList.add(file);
                 }
             }
-            return fileList;
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
         }
+        return fileList;
     }
 
     private static String getFileExtension(File file) {
