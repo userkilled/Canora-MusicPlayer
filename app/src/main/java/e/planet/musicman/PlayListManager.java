@@ -149,6 +149,7 @@ public class PlayListManager {
     }
 
     public void updateOptionsMenu(Menu m) {
+        //TODO#REWRITE: Bad Practice to Modify the View from PLC
         m.findItem(R.id.action_addTo).getSubMenu().clear();
         m.findItem(R.id.action_addTo).getSubMenu().add(0, R.id.action_playlist_create, 0, R.string.menu_options_newplaylist).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
@@ -294,6 +295,7 @@ public class PlayListManager {
         return ret;
     }
 
+    //TODO#REWRITE: Single Data Modification Factory
     private void writeDataAsXML(String path, Map<String, ItemPlayList> data) {
         if (data.size() > 0) {
             String writeStr = getXmlFromMap(data);
@@ -417,7 +419,6 @@ public class PlayListManager {
     //END Local Playlists
     //Other
     private ItemSong getMetadata(File f) {
-        //TODO:Get Metadata from mediastore
         ItemSong t = new ItemSong();
         Log.v(LOG_TAG, "Getting Metadata for File: " + f.getAbsolutePath());
         Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
@@ -434,9 +435,8 @@ public class PlayListManager {
             }
         }
         c.close();
-        if (t.file == null)
-        {
-            Log.e(LOG_TAG,"FILE " + f.getAbsolutePath() + " NOT FOUND IN MEDIASTORE, FALLING BACK TO MEDIA-METADATA-RETRIEVER (SLOW PERFORMANCE)");
+        if (t.file == null) {
+            Log.e(LOG_TAG, "FILE " + f.getAbsolutePath() + " NOT FOUND IN MEDIASTORE, FALLING BACK TO MEDIA-METADATA-RETRIEVER (SLOW PERFORMANCE)");
             t.file = f;
             MediaMetadataRetriever m = new MediaMetadataRetriever();
             m.setDataSource(f.getAbsolutePath());
@@ -574,15 +574,17 @@ public class PlayListManager {
         try {
             File rootFolder = new File(rootPath);
             File[] files = rootFolder.listFiles();
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    if (getPlayListFiles(file.getAbsolutePath()) != null) {
-                        fileList.addAll(getPlayListFiles(file.getAbsolutePath()));
-                    } else {
-                        break;
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        if (getPlayListFiles(file.getAbsolutePath()) != null) {
+                            fileList.addAll(getPlayListFiles(file.getAbsolutePath()));
+                        } else {
+                            break;
+                        }
+                    } else if (validExtensions.contains(getFileExtension(file))) {
+                        fileList.add(file);
                     }
-                } else if (validExtensions.contains(getFileExtension(file))) {
-                    fileList.add(file);
                 }
             }
         } catch (Exception e) {
@@ -642,7 +644,10 @@ public class PlayListManager {
             PlayLists.get("").audio.clear();
             PlayLists.get("").audio.addAll(nnw);
             updateContent();
-            Log.v(LOG_TAG, "CONTENT SIZE AFTER MERGE: " + contentList.size());
+            if (contentList.size() == 0)
+            {
+                Log.e(LOG_TAG,"NO FILES FOUND");
+            }
             sortContent(mainActivity.sortBy);
             try {
                 while (mainActivity.serv == null) {
@@ -665,7 +670,7 @@ public class PlayListManager {
             super.onPreExecute();
             Log.v(LOG_TAG, "LOAD ASYNC START");
             if (taskIsRunning) {
-                Log.v(LOG_TAG, "LOAD ASYNC TASK ALREADY RUNNING, CANCELING");
+                Log.e(LOG_TAG, "LOAD ASYNC TASK ALREADY RUNNING, CANCELING");
                 cancel(false);
             } else
                 taskIsRunning = true;
@@ -687,7 +692,7 @@ public class PlayListManager {
             int srb = 0 + searchBy;
             String term = "" + searchTerm;
             if (contentList.size() == 0)
-                return "ERROR: CONTENT LIST SIZE EQUALS 0";
+                return "ERROR: EMPTY CONTENT LIST";
             List<ItemSong> flt = new ArrayList<>();
             switch (srb) {
                 case Constants.SEARCH_BYTITLE:
@@ -734,7 +739,7 @@ public class PlayListManager {
             Log.v(LOG_TAG, "SEARCH ASYNC START");
             if (searchtaskIsRunning) {
                 //TODO#POLISHING: Possible Race Condition
-                Log.v(LOG_TAG, "SEARCH ASYNC TASK ALREADY RUNNING, CANCELING");
+                Log.e(LOG_TAG, "SEARCH ASYNC TASK ALREADY RUNNING, CANCELING");
                 cancel(false);
             } else
                 searchtaskIsRunning = true;
