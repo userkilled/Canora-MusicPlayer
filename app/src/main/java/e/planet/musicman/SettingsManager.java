@@ -21,17 +21,18 @@ import java.util.zip.GZIPOutputStream;
 public class SettingsManager {
     public SettingsManager(Context mA) {
         mainAct = mA;
-        settingsFile = new File(mainAct.getExternalCacheDir().getAbsolutePath() + "/settings.xml");
-        Log.v(LOG_TAG, "SETTINGS PATH: " + settingsFile.getAbsolutePath());
+        settingsFile = new File(mainAct.getExternalCacheDir().getAbsolutePath() + "/settings");
+        Log.v(LOG_TAG, "SETTINGS FILE: " + settingsFile.getAbsolutePath());
         data = getDataAsMap(settingsFile.getAbsolutePath());
         if (!verifyData(data)) {
-            Log.v(LOG_TAG, "NONE/CORRUPT LOCAL DATA FOUND");
+            Log.e(LOG_TAG, "NONE/CORRUPT LOCAL DATA FOUND");
             data.clear();
             data.put(Constants.SETTING_SEARCHBY, "" + Constants.SEARCH_BYTITLE);
             data.put(Constants.SETTING_SORTBY, "" + Constants.SORT_BYTITLE);
             data.put(Constants.SETTING_VOLUME, "0.7");
             data.put(Constants.SETTING_REPEAT, "false");
             data.put(Constants.SETTING_SHUFFLE, "false");
+            data.put(Constants.SETTING_THEME,Constants.THEME_DEFAULT);
             writeDataAsXML(settingsFile.getAbsolutePath(), data);
         }
     }
@@ -55,7 +56,6 @@ public class SettingsManager {
 
     //XML Abstraction Layer
     private Map<String, String> getDataAsMap(String path) {
-        Log.v(LOG_TAG, "GETDATAASMAP");
         Map<String, String> ret = new HashMap<>();
         String XMLSTR = readFromDisk(path);
         if (XMLSTR.length() > 0) {
@@ -73,7 +73,6 @@ public class SettingsManager {
 
     //File System Abstraction Layer
     private String readFromDisk(String path) {
-        Log.v(LOG_TAG, "READFROMDISK");
         File rf = new File(path);
         if (!rf.exists())
             return "";
@@ -88,12 +87,10 @@ public class SettingsManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.v(LOG_TAG, "XML RED FROM DISK: " + ret);
         return ret;
     }
 
     private void writeToDisk(String path, String data) {
-        Log.v(LOG_TAG, "WRITING: " + data);
         try {
             FileOutputStream fos = new FileOutputStream(new File(path));
             BufferedOutputStream bos = new BufferedOutputStream(fos);
@@ -107,20 +104,20 @@ public class SettingsManager {
     }
 
     //Compression
-    public static byte[] compress(String string) throws IOException {
-        Log.v("PLC", "SETTINGS UNCOMPRESSED SIZE: " + string.getBytes().length + " BYTES");
+    public byte[] compress(String string) throws IOException {
+        Log.v(LOG_TAG, "SETTINGS DECOMPRESSED SIZE: " + string.getBytes().length + " BYTES");
         ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
         GZIPOutputStream gos = new GZIPOutputStream(os);
         gos.write(string.getBytes());
         gos.close();
         byte[] compressed = os.toByteArray();
         os.close();
-        Log.v("PLC", "SETTINGS COMPRESSED SIZE: " + compressed.length + " BYTES");
+        Log.v(LOG_TAG, "SETTINGS COMPRESSED SIZE: " + compressed.length + " BYTES");
         return compressed;
     }
 
-    public static String decompress(byte[] compressed) throws IOException {
-        Log.v("PLC", "SETTINGS COMPRESSED SIZE: " + compressed.length + " BYTES");
+    public String decompress(byte[] compressed) throws IOException {
+        Log.v(LOG_TAG, "SETTINGS COMPRESSED SIZE: " + compressed.length + " BYTES");
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);
         GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
@@ -132,7 +129,7 @@ public class SettingsManager {
         }
         gis.close();
         is.close();
-        Log.v("PLC", "SETTINGS UNCOMPRESSED SIZE: " + string.toString().getBytes().length + " BYTES");
+        Log.v(LOG_TAG, "SETTINGS DECOMPRESSED SIZE: " + string.toString().getBytes().length + " BYTES");
         return string.toString();
     }
 
@@ -149,7 +146,6 @@ public class SettingsManager {
             Element root = doc.getDocumentElement();
             NodeList setl = root.getChildNodes();
             for (int i = 0; i < setl.getLength(); i++) {
-                Log.v(LOG_TAG, "KEY: " + setl.item(i).getNodeName() + " VALUE: " + setl.item(i).getTextContent());
                 ret.put(setl.item(i).getNodeName(), setl.item(i).getTextContent());
             }
         } catch (Exception e) {
@@ -164,7 +160,6 @@ public class SettingsManager {
             ret += "<" + entry.getKey() + ">" + entry.getValue() + "</" + entry.getKey() + ">";
         }
         ret += "</settings>";
-        Log.v(LOG_TAG, "BUILT XML STRING: " + ret);
         return ret;
     }
 

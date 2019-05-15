@@ -53,7 +53,7 @@ public class ThemeManager {
         mainActivity = ma;
         currentTheme = mainActivity.sc.getSetting(Constants.SETTING_THEME);
         if (currentTheme.equals(""))
-            currentTheme = Constants.THEME_BLUE;
+            currentTheme = Constants.THEME_DEFAULT;
         Log.v(LOG_TAG, "INIT SELECTED: " + currentTheme);
     }
 

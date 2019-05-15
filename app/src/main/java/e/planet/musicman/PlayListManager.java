@@ -37,7 +37,8 @@ public class PlayListManager {
     public PlayListManager(Context c, MainActivity b) {
         gc = c;
         mainActivity = b;
-        plPath = mainActivity.getExternalFilesDir(null).getAbsolutePath() + "/PlayLists.xml";
+        plPath = mainActivity.getExternalFilesDir(null).getAbsolutePath() + "/PlayLists";
+        Log.v(LOG_TAG, "PLAYLISTS FILE: " + plPath);
         setExtensionsAndSearchPaths();
     }
 
@@ -164,12 +165,10 @@ public class PlayListManager {
             //ADDTO
             SubMenu sub = m.findItem(R.id.action_addTo).getSubMenu();
             if (entry.getValue().Title.length() != 0) {
-                Log.v(LOG_TAG, "ADDING " + entry.getValue().Title + " to action addto");
                 sub.add(0, plc, 1, entry.getValue().Title);
                 sub.findItem(plc).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        Log.v(LOG_TAG, "CLICKED ITEM " + item.getTitle());
                         ItemPlayList t = new ItemPlayList(item.getTitle().toString(), mainActivity.getSelected());
                         mainActivity.multiSelect();
                         updatePlayList(item.getTitle().toString(), t);
@@ -183,10 +182,8 @@ public class PlayListManager {
             plc++;
             sub = m.findItem(R.id.action_playlist_select).getSubMenu();
             if (entry.getValue().Title.length() == 0) {
-                Log.v(LOG_TAG, "ADDING DEFAULT to action select");
                 sub.add(0, plc, 0, R.string.misc_allfiles);//DEFAULT PLAYLIST
             } else {
-                Log.v(LOG_TAG, "ADDING " + entry.getValue().Title + " TO SELECT");
                 sub.add(0, plc, 1, entry.getValue().Title);
             }
             entry.getValue().resid2 = plc;
@@ -196,7 +193,7 @@ public class PlayListManager {
                     for (Map.Entry<String, ItemPlayList> entry : PlayLists.entrySet()) {
                         if (item.getItemId() == entry.getValue().resid2) {
                             if (selectPlayList(entry.getValue().Title) > 0) {
-                                Log.v(LOG_TAG, "ERROR SELECTING PLAYLIST");
+                                Log.e(LOG_TAG, "ERROR SELECTING PLAYLIST");
                             } else {
                                 mainActivity.invalidateOptionsMenu();
                             }
@@ -222,10 +219,8 @@ public class PlayListManager {
             });
             //HIGHLIGHT
             if (entry.getKey().equals(pli)) {
-                Log.v(LOG_TAG, "HIGHTLIGHTING ITEM: " + entry.getKey());
                 sub.findItem(plc).setCheckable(true).setChecked(true);
             } else {
-                Log.v(LOG_TAG, "HIDING ITEM: " + entry.getKey());
                 sub.findItem(plc).setCheckable(false).setChecked(false);
             }
             plc++;
@@ -271,7 +266,7 @@ public class PlayListManager {
     private Map<String, ItemPlayList> getLocalPlayLists() {
         Map<String, ItemPlayList> ret = getDataAsMap(plPath);
         if (ret.size() < 1) {
-            Log.v(LOG_TAG, "NONE/CORRUPT PLAYLISTS FOUND");
+            Log.e(LOG_TAG, "NONE/CORRUPT PLAYLISTS FOUND");
         } else {
             for (Map.Entry<String, ItemPlayList> entry : ret.entrySet()) {
                 Log.v(LOG_TAG, "FOUND PLAYLIST : " + entry.getKey() + " SIZE: " + entry.getValue().audio.size());
@@ -286,7 +281,6 @@ public class PlayListManager {
 
     //XML Abstraction Layer
     private Map<String, ItemPlayList> getDataAsMap(String path) {
-        Log.v(LOG_TAG, "GETDATA AS MAP");
         Map<String, ItemPlayList> ret = new HashMap<>();
         String XMLSTR = readFromDisk(path);
         if (XMLSTR.length() > 0) {
@@ -305,7 +299,6 @@ public class PlayListManager {
 
     //File System Abstraction Layer
     private String readFromDisk(String path) {
-        Log.v(LOG_TAG, "READFROMDISK");
         File rf = new File(path);
         if (!rf.exists())
             return "";
@@ -320,12 +313,10 @@ public class PlayListManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.v(LOG_TAG, "XML RED FROM DISK: " + ret);
         return ret;
     }
 
     private void writeToDisk(String path, String data) {
-        Log.v(LOG_TAG, "WRITING: " + data);
         try {
             FileOutputStream fos = new FileOutputStream(new File(path));
             BufferedOutputStream bos = new BufferedOutputStream(fos);
@@ -339,20 +330,20 @@ public class PlayListManager {
     }
 
     //Compression
-    public static byte[] compress(String string) throws IOException {
-        Log.v("PLC", "PLAYLISTS UNCOMPRESSED SIZE: " + string.getBytes().length + " BYTES");
+    public byte[] compress(String string) throws IOException {
+        Log.v(LOG_TAG, "PLAYLISTS DECOMPRESSED SIZE: " + string.getBytes().length + " BYTES");
         ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
         GZIPOutputStream gos = new GZIPOutputStream(os);
         gos.write(string.getBytes());
         gos.close();
         byte[] compressed = os.toByteArray();
         os.close();
-        Log.v("PLC", "PLAYLISTS COMPRESSED SIZE: " + compressed.length + " BYTES");
+        Log.v(LOG_TAG, "PLAYLISTS COMPRESSED SIZE: " + compressed.length + " BYTES");
         return compressed;
     }
 
-    public static String decompress(byte[] compressed) throws IOException {
-        Log.v("PLC", "PLAYLISTS COMPRESSED SIZE: " + compressed.length + " BYTES");
+    public String decompress(byte[] compressed) throws IOException {
+        Log.v(LOG_TAG, "PLAYLISTS COMPRESSED SIZE: " + compressed.length + " BYTES");
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);
         GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
@@ -364,7 +355,7 @@ public class PlayListManager {
         }
         gis.close();
         is.close();
-        Log.v("PLC", "PLAYLISTS UNCOMPRESSED SIZE: " + string.toString().getBytes().length + " BYTES");
+        Log.v(LOG_TAG, "PLAYLISTS DECOMPRESSED SIZE: " + string.toString().getBytes().length + " BYTES");
         return string.toString();
     }
 
@@ -383,7 +374,6 @@ public class PlayListManager {
             ret += "</playlist>";
         }
         ret += "</playlists>";
-        Log.v(LOG_TAG, "BUILT XML STRING: " + ret);
         return ret;
     }
 
@@ -398,12 +388,11 @@ public class PlayListManager {
             Document doc = builder.parse(input);
             Element root = doc.getDocumentElement();
             NodeList pln = root.getChildNodes();
+            Log.v(LOG_TAG, "FOUND " + pln.getLength() + " PLAYLISTS");
             for (int i = 0; i < pln.getLength(); i++) {
                 List<ItemSong> tmp = new ArrayList<>();
-                Log.v(LOG_TAG, "PLAYLIST NAME: " + pln.item(i).getAttributes().item(0).getTextContent());
                 NodeList sitm = pln.item(i).getChildNodes();
                 for (int y = 0; y < sitm.getLength(); y++) {
-                    Log.v(LOG_TAG, "PATH: " + sitm.item(y).getTextContent());
                     ItemSong t = getMetadata(new File(sitm.item(y).getTextContent()));
                     tmp.add(t);
                 }
@@ -420,7 +409,7 @@ public class PlayListManager {
     //Other
     private ItemSong getMetadata(File f) {
         ItemSong t = new ItemSong();
-        Log.v(LOG_TAG, "Getting Metadata for File: " + f.getAbsolutePath());
+        //Log.v(LOG_TAG, "Getting Metadata for File: " + f.getAbsolutePath());
         Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
                 MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION
         }, null, null, null);
@@ -504,9 +493,6 @@ public class PlayListManager {
             if (!lst.contains(bx.get(i))) {
                 lst.add(bx.get(i));
             }
-        }
-        for (int i = 0; i < lst.size(); i++) {
-            Log.v(LOG_TAG, "MERGED LIST ITEM: " + lst.get(i).file.getAbsolutePath());
         }
         ItemPlayList ret = new ItemPlayList(orig.Title, lst);
         ret.resid = orig.resid;
@@ -644,9 +630,8 @@ public class PlayListManager {
             PlayLists.get("").audio.clear();
             PlayLists.get("").audio.addAll(nnw);
             updateContent();
-            if (contentList.size() == 0)
-            {
-                Log.e(LOG_TAG,"NO FILES FOUND");
+            if (contentList.size() == 0) {
+                Log.e(LOG_TAG, "NO FILES FOUND");
             }
             sortContent(mainActivity.sortBy);
             try {

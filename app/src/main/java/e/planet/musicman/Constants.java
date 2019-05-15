@@ -58,6 +58,8 @@ public final class Constants {
     public static final String THEME_MINT = "Mint";
     public static final String THEME_DARK = "Dark";
 
+    public static final String THEME_DEFAULT = THEME_BLUE;
+
     public static final int SPINNERPOS_THEME_BLUE = 0;
     public static final int SPINNERPOS_THEME_MINT = 1;
     public static final int SPINNERPOS_THEME_DARK = 2;
