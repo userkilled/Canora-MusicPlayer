@@ -57,6 +57,9 @@ public final class Constants {
     public static final String THEME_BLUE = "Blue";
     public static final String THEME_MINT = "Mint";
 
+    public static final int SPINNERPOS_THEME_BLUE = 0;
+    public static final int SPINNERPOS_THEME_MINT = 1;
+
     public static final int SORT_BYTITLE = 0;
     public static final int SORT_BYARTIST = 1;
 

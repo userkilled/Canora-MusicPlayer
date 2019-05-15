@@ -465,26 +465,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.Themes, android.R.layout.simple_spinner_item);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinner.setAdapter(adapter);
-                if (thm.getThemeResourceID() == R.style.AppTheme_Blue) {
-                    spinner.setSelection(0);
-                } else if (thm.getThemeResourceID() == R.style.AppTheme_Mint) {
-                    spinner.setSelection(1);
-                }
+                spinner.setSelection(thm.getSpinnerPosition(thm.getThemeResourceID()));
                 spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        if (arg2 == 0) {
-                            //blue
-                            if (thm.request(Constants.THEME_BLUE)) {
-                                setdia.dismiss();
-                                recreate();
-                            }
-                        } else if (arg2 == 1) {
-                            //mint
-                            if (thm.request(Constants.THEME_MINT)) {
-                                setdia.dismiss();
-                                recreate();
-                            }
+                        if (thm.request(arg2))
+                        {
+                            setdia.dismiss();
+                            recreate();
                         }
                     }
 
