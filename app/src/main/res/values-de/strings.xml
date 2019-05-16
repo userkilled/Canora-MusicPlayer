@@ -28,13 +28,13 @@
     <string name="menu_options_cancelselect">Auswahl beenden</string>
 
     <!-- Snackbars -->
-    <string name="error_emptyplname">Der Playlist Namen darf nicht leer sein</string>
+    <string name="error_emptyplname">Der Playlist Name darf nicht leer sein</string>
     <string name="error_createempty">Bitte mindestens eine Audiodatei Auswählen</string>
     <string name="error_delfromdef">Kann die Default Playlist nicht bearbeiten</string>
     <string name="error_delfromempty">"Die Playlist muss mindestens eine Audiodatei beeinhalten"</string>
 
     <!-- Misc -->
-    <string name="layout_main_searchPH">Suchbegriff...</string>
+    <string name="layout_main_searchPH">Suche</string>
 
     <string name="controls_by">von</string>
 
