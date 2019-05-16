@@ -44,7 +44,7 @@ public class MusicPlayerService extends Service {
     }
 
     //Globals
-    MediaPlayer player;
+    private MediaPlayer player;
     private int position; //Position of Media Player in Miliseconds
 
     private final IBinder mBinder = new LocalBinder();
@@ -240,6 +240,20 @@ public class MusicPlayerService extends Service {
 
     public ItemSong getCurrentSong() {
         return plm.currentSong;
+    }
+
+    public int getCurrentPosition()
+    {
+        if (player != null)
+            return player.getCurrentPosition();
+        return 0;
+    }
+
+    public int getDuration()
+    {
+        if (player != null)
+            return player.getDuration();
+        return 0;
     }
 
     //Private Functions

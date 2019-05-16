@@ -72,7 +72,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onDestroy() {
         super.onDestroy();
         Log.v(LOG_TAG, "ONDESTROY CALLED");
-        stopplayer();
+        if (!switchUI)
+            stopplayer();
         if (brcv != null) {
             unregisterReceiver(brcv);
         }
@@ -84,8 +85,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onStart() {
         super.onStart();
         Log.v(LOG_TAG, "ONSTART CALLED");
-        if (serv != null && serv.player != null) {
-            handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
+        if (serv != null) {
+            handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
         }
     }
 
@@ -195,8 +196,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             else
                 setPlayButton(btn, false);
             updateSongDisplay();
-            if (serv.player != null)
-                handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
+            handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
         }
     }
 
@@ -285,6 +285,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     int sortBy;
     int searchBy;
 
+    private boolean switchUI = false;
+
     PerformanceTimer globT = new PerformanceTimer();
 
     String LOG_TAG = "main";
@@ -329,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                if (serv == null || serv.player == null)
+                if (serv == null)
                     return;
                 double proc = 0;
                 double dur = animation.getDuration();
@@ -470,6 +472,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                         if (thm.request(arg2)) {
                             setdia.dismiss();
+                            switchUI = true;
                             recreate();
                         }
                     }
@@ -758,22 +761,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (serv != null && serv.player != null) {
+                if (serv != null) {
                     if (serv.pauseResume())
                         setPlayButton(playbtn, true);
                     else
                         setPlayButton(playbtn, false);
-                    handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
+                    handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
                 }
             }
         };
         prevbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (serv != null && serv.player != null) {
+                if (serv != null && serv != null) {
                     serv.previous();
                     updateSongDisplay();
-                    handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
+                    handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
                     setPlayButton(playbtn, true);
                 }
             }
@@ -781,10 +784,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         nexbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (serv != null && serv.player != null) {
+                if (serv != null && serv != null) {
                     serv.next();
                     updateSongDisplay();
-                    handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
+                    handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
                     setPlayButton(playbtn, true);
                 }
             }
@@ -913,12 +916,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     case Constants.ACTION_STATUS_PLAYING:
                         ImageButton btn = findViewById(R.id.buttonPlay);
                         setPlayButton(btn, true);
-                        handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
+                        handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
                         break;
                     case Constants.ACTION_STATUS_PAUSED:
                         ImageButton btn1 = findViewById(R.id.buttonPlay);
                         setPlayButton(btn1, false);
-                        handleProgressAnimation(serv.player.getDuration(), serv.player.getCurrentPosition());
+                        handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
                         break;
                 }
             }
@@ -1098,6 +1101,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             serv = ((MusicPlayerService.LocalBinder) service).getService();
             getSettings();
             initPlayer();
+            handleProgressAnimation(serv.getDuration(),serv.getCurrentPosition());
             globT.printStep(LOG_TAG, "Service Initialization");
             long l = globT.tdur;
             showSnackMessage(getString(R.string.misc_init) + ": " + l + " ms.");
