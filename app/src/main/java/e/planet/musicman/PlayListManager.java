@@ -109,7 +109,8 @@ public class PlayListManager {
         Log.v(LOG_TAG, "UPDATE CONTENT PLI: " + pli);
         updateContent();
         sortContent(sortBy);
-        mainActivity.serv.reload(contentList);
+        if (contentList.size() > 0)
+            mainActivity.serv.setContent(contentList);
         mainActivity.notifyArrayAdapter();
         return 0;
     }
@@ -606,6 +607,7 @@ public class PlayListManager {
             });
             contentList.clear();
             contentList.addAll(PlayLists.get(pli).audio);
+            Log.v(LOG_TAG,"CONTENT LIST SET SIZE: " + contentList.size());
         } else {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
@@ -616,6 +618,7 @@ public class PlayListManager {
             });
             contentList.clear();
             contentList.addAll(PlayLists.get("").audio);
+            Log.v(LOG_TAG,"CONTENT LIST SET SIZE: " + contentList.size());
         }
     }
 
@@ -641,7 +644,7 @@ public class PlayListManager {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            mainActivity.serv.reload(contentList);
+            mainActivity.serv.setContent(contentList);
             if (filtering) {
                 showFiltered(searchTerm, searchBy);
             } else {

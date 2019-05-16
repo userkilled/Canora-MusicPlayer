@@ -74,21 +74,16 @@ public class MusicPlayerService extends Service {
     }
 
     //Public Control Functions
-    public int init(List<ItemSong> in) {
-        Log.v(LOG_TAG, "Init called, ");
-        if (in != null) {
-            plm.setContent(in);
-            return 0;
-        } else {
-            Log.v(LOG_TAG, "Files are Null");
-            return 1;
-        }
+    public int init() {
+        Log.v(LOG_TAG, "Init called Size: ");
+        return 0;
     }
 
-    public int reload(List<ItemSong> pl) {
-        Log.v(LOG_TAG, "Reload Called");
+    public int setContent(List<ItemSong> pl) {
+        Log.v(LOG_TAG, "SetContent Called Size: " + pl.size());
         //Called when Content Changes
-        plm.setContent(pl);
+        List<ItemSong> t = new ArrayList<>(pl);
+        plm.setContent(t);
         return 0;
     }
 

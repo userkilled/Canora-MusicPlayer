@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } else {
             Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
             startplayer();
-            loadFiles();
             registerReceiver();
             setListeners();
             colorControlWidgets();
@@ -206,7 +205,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERM GRANTED");
                 startplayer();
-                loadFiles();
                 registerReceiver();
                 setListeners();
                 colorControlWidgets();
@@ -306,8 +304,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void initPlayer() {
         /* Callback when Player Service is Ready */
-        Log.v(LOG_TAG, "INIT PLAYER");
-        serv.init(pl.contentList);
+        loadFiles();
+        serv.init();
         updateSongDisplay();
     }
 
