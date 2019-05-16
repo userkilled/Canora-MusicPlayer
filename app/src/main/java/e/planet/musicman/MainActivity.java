@@ -70,8 +70,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onDestroy() {
         super.onDestroy();
         Log.v(LOG_TAG, "ONDESTROY CALLED");
-        if (!switchUI)
-            stopplayer();
+        stopplayer();
         if (brcv != null) {
             unregisterReceiver(brcv);
         }
@@ -312,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "LOADING FILES");
         pl.loadContent();
         pl.sortContent(sortBy);
+        notifyArrayAdapter();
     }
 
     public void handleProgressAnimation(int dur, int pos) {
@@ -1090,7 +1090,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     void doUnbindService() {
         Intent intent = new Intent(this, MusicPlayerService.class);
         unbindService(mConnection);
-        stopService(intent);
+        if (!switchUI)
+            stopService(intent);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
