@@ -13,7 +13,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -46,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         globT.start();
         sc = new SettingsManager(getApplicationContext());
         pl = new PlayListManager(getApplicationContext(), this);
-        thm = new ThemeManager(sc.getSetting(Constants.SETTING_THEME), this);
+        thm = new ThemeManager(this);
         setTheme(thm.getThemeResourceID());
         setContentView(R.layout.layout_main);
         ListView lv = findViewById(R.id.mainViewport);
@@ -359,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void updateSongDisplay() {
         /* Set the Song Title Text */
         String text = "";
-        ItemSong s = serv.getCurrentSong();
+        data_song s = serv.getCurrentSong();
         if (s != null) {
             text = s.Title + " " + getString(R.string.controls_by) + " " + s.Artist;
         }
@@ -545,7 +544,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Log.v(LOG_TAG, "CREATING PLAYLIST");
-                        List<ItemSong> t = getSelected();
+                        List<data_song> t = getSelected();
                         multiSelect();
                         for (int i = 0; i < t.size(); i++) {
                             Log.v(LOG_TAG, "ITEM: " + t.get(i).file.getAbsolutePath());
@@ -603,9 +602,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         } else {
                             for (int i = 0; i < pl.contentList.size(); i++) {
                                 if (pl.contentList.get(i).file.getAbsolutePath().equals(fpath)) {
-                                    List<ItemSong> nw = new ArrayList<>(pl.contentList);
+                                    List<data_song> nw = new ArrayList<>(pl.contentList);
                                     nw.remove(i);
-                                    ItemPlayList ip = new ItemPlayList(pl.getIndex(), nw);
+                                    data_playlist ip = new data_playlist(pl.getIndex(), nw);
                                     pl.createPlayList(pl.getIndex(), ip);
                                     pl.selectPlayList(pl.getIndex());
                                     break;
@@ -948,7 +947,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } else {
             Log.v(LOG_TAG, "SWITCHING TO NORMAL MODE");
             ListView v = findViewById(R.id.mainViewport);
-            List<ItemSong> p = getSelected();
+            List<data_song> p = getSelected();
             Log.v(LOG_TAG, "NUMBER OF SELECTED ITEMS: " + p.size());
             for (int i = 0; i < p.size(); i++) {
                 Log.v(LOG_TAG, "ITEM " + i + " PATH: " + p.get(i).file.getAbsolutePath());
@@ -962,12 +961,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         arrayAdapter.notifyDataSetChanged();
     }
 
-    private ItemPlayList getPlayList(String title, List<ItemSong> audio) {
-        return new ItemPlayList(title, audio);
+    private data_playlist getPlayList(String title, List<data_song> audio) {
+        return new data_playlist(title, audio);
     }
 
-    public List<ItemSong> getSelected() {
-        List<ItemSong> ret = new ArrayList<>();
+    public List<data_song> getSelected() {
+        List<data_song> ret = new ArrayList<>();
         for (int i = 0; i < pl.contentList.size(); i++) {
             if (pl.contentList.get(i).selected) {
                 ret.add(pl.contentList.get(i));
@@ -1136,14 +1135,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     //ArrayAdapter of Song List Display
-    public class SongAdapter extends ArrayAdapter<ItemSong> {
+    public class SongAdapter extends ArrayAdapter<data_song> {
 
         public int state = Constants.ARRAYADAPT_STATE_DEFAULT;
 
         private Context mContext;
-        private List<ItemSong> viewList;
+        private List<data_song> viewList;
 
-        public SongAdapter(@NonNull Context context, List<ItemSong> list) {
+        public SongAdapter(@NonNull Context context, List<data_song> list) {
             super(context, 0, list);
             mContext = context;
             viewList = list;

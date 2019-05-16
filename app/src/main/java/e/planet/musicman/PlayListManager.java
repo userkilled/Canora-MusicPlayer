@@ -29,10 +29,10 @@ import java.util.zip.GZIPOutputStream;
 
 public class PlayListManager {
     //Reference For ListView, Used to Manipulate the Shown Items, Always a Subset of contentList
-    public List<ItemSong> viewList = new ArrayList<>();
+    public List<data_song> viewList = new ArrayList<>();
 
     //Reference of the Currently Playing PlayList for the Service
-    public List<ItemSong> contentList = new ArrayList<>();
+    public List<data_song> contentList = new ArrayList<>();
 
     public PlayListManager(Context c, MainActivity b) {
         gc = c;
@@ -44,10 +44,10 @@ public class PlayListManager {
 
     //Public Callbacks
     public void loadContent() {
-        List<ItemSong> ml = getSongsfromMediaStore();
+        List<data_song> ml = getSongsfromMediaStore();
         Log.v(LOG_TAG, "FOUND " + ml.size() + " SONGS IN MEDIASTORE");
-        ItemPlayList t = new ItemPlayList("", ml);
-        Map<String, ItemPlayList> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
+        data_playlist t = new data_playlist("", ml);
+        Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
         tmp.put("", t);
         PlayLists.clear();
         PlayLists.putAll(tmp);
@@ -68,7 +68,7 @@ public class PlayListManager {
         this.sortBy = SortBy;
         if (contentList.size() == 0)
             return;
-        final List<ItemSong> srted;
+        final List<data_song> srted;
         Log.v(LOG_TAG, "SORTING BY: " + sortBy);
         switch (sortBy) {
             case Constants.SORT_BYARTIST:
@@ -115,7 +115,7 @@ public class PlayListManager {
         return 0;
     }
 
-    public int createPlayList(String name, ItemPlayList in) {
+    public int createPlayList(String name, data_playlist in) {
         Log.v(LOG_TAG, "CREATE PLAYLIST: " + name);
         PlayLists.put(name, in);
         putLocalPlayLists(PlayLists);
@@ -131,9 +131,9 @@ public class PlayListManager {
         return 0;
     }
 
-    public int updatePlayList(String name, ItemPlayList in) {
+    public int updatePlayList(String name, data_playlist in) {
         Log.v(LOG_TAG, "UPDATE PLAYLIST: " + name);
-        ItemPlayList n = mergePlayLists(PlayLists.get(name), in);
+        data_playlist n = mergePlayLists(PlayLists.get(name), in);
         PlayLists.put(name, n);
         putLocalPlayLists(PlayLists);
         return 0;
@@ -162,7 +162,7 @@ public class PlayListManager {
         });
         m.findItem(R.id.action_playlist_select).getSubMenu().clear();
         int plc = 0;
-        for (Map.Entry<String, ItemPlayList> entry : PlayLists.entrySet()) {
+        for (Map.Entry<String, data_playlist> entry : PlayLists.entrySet()) {
             //ADDTO
             SubMenu sub = m.findItem(R.id.action_addTo).getSubMenu();
             if (entry.getValue().Title.length() != 0) {
@@ -170,7 +170,7 @@ public class PlayListManager {
                 sub.findItem(plc).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        ItemPlayList t = new ItemPlayList(item.getTitle().toString(), mainActivity.getSelected());
+                        data_playlist t = new data_playlist(item.getTitle().toString(), mainActivity.getSelected());
                         mainActivity.multiSelect();
                         updatePlayList(item.getTitle().toString(), t);
                         mainActivity.showSnackMessage(t.audio.size() + " " + mainActivity.getString(R.string.misc_added));
@@ -191,7 +191,7 @@ public class PlayListManager {
             sub.findItem(plc).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    for (Map.Entry<String, ItemPlayList> entry : PlayLists.entrySet()) {
+                    for (Map.Entry<String, data_playlist> entry : PlayLists.entrySet()) {
                         if (item.getItemId() == entry.getValue().resid2) {
                             if (selectPlayList(entry.getValue().Title) > 0) {
                                 Log.e(LOG_TAG, "ERROR SELECTING PLAYLIST");
@@ -254,7 +254,7 @@ public class PlayListManager {
     private String plPath;
 
     private String pli = ""; //Current Index of PlayLists Indicating Currently Selected PlayList
-    private Map<String, ItemPlayList> PlayLists = new HashMap<>(); //Holds ALL Content, Empty Index = All Files, otherwise Index = Name of PlayList
+    private Map<String, data_playlist> PlayLists = new HashMap<>(); //Holds ALL Content, Empty Index = All Files, otherwise Index = Name of PlayList
 
     private int GIDC = 0; //ID Counter for Song Items
 
@@ -264,25 +264,25 @@ public class PlayListManager {
     //Private Functions
 
     //START Local Playlists
-    private Map<String, ItemPlayList> getLocalPlayLists() {
-        Map<String, ItemPlayList> ret = getDataAsMap(plPath);
+    private Map<String, data_playlist> getLocalPlayLists() {
+        Map<String, data_playlist> ret = getDataAsMap(plPath);
         if (ret.size() < 1) {
             Log.e(LOG_TAG, "NONE/CORRUPT PLAYLISTS FOUND");
         } else {
-            for (Map.Entry<String, ItemPlayList> entry : ret.entrySet()) {
+            for (Map.Entry<String, data_playlist> entry : ret.entrySet()) {
                 Log.v(LOG_TAG, "FOUND PLAYLIST : " + entry.getKey() + " SIZE: " + entry.getValue().audio.size());
             }
         }
         return ret;
     }
 
-    private void putLocalPlayLists(Map<String, ItemPlayList> in) {
+    private void putLocalPlayLists(Map<String, data_playlist> in) {
         writeDataAsXML(plPath, in);
     }
 
     //XML Abstraction Layer
-    private Map<String, ItemPlayList> getDataAsMap(String path) {
-        Map<String, ItemPlayList> ret = new HashMap<>();
+    private Map<String, data_playlist> getDataAsMap(String path) {
+        Map<String, data_playlist> ret = new HashMap<>();
         String XMLSTR = readFromDisk(path);
         if (XMLSTR.length() > 0) {
             ret = getMapFromXML(XMLSTR);
@@ -291,7 +291,7 @@ public class PlayListManager {
     }
 
     //TODO#REWRITE: Single Data Modification Factory
-    private void writeDataAsXML(String path, Map<String, ItemPlayList> data) {
+    private void writeDataAsXML(String path, Map<String, data_playlist> data) {
         if (data.size() > 0) {
             String writeStr = getXmlFromMap(data);
             writeToDisk(path, writeStr);
@@ -361,9 +361,9 @@ public class PlayListManager {
     }
 
     //Conversion
-    private String getXmlFromMap(Map<String, ItemPlayList> in) {
+    private String getXmlFromMap(Map<String, data_playlist> in) {
         String ret = "<?xml version=\"1.0\"?><playlists>";
-        for (Map.Entry<String, ItemPlayList> entry : in.entrySet()) {
+        for (Map.Entry<String, data_playlist> entry : in.entrySet()) {
             if (entry.getKey() == "")
                 continue;
             ret += "<playlist title=\"" + entry.getKey() + "\">";
@@ -378,8 +378,8 @@ public class PlayListManager {
         return ret;
     }
 
-    private Map<String, ItemPlayList> getMapFromXML(String xml) {
-        Map<String, ItemPlayList> ret = new HashMap<>();
+    private Map<String, data_playlist> getMapFromXML(String xml) {
+        Map<String, data_playlist> ret = new HashMap<>();
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -391,13 +391,13 @@ public class PlayListManager {
             NodeList pln = root.getChildNodes();
             Log.v(LOG_TAG, "FOUND " + pln.getLength() + " PLAYLISTS");
             for (int i = 0; i < pln.getLength(); i++) {
-                List<ItemSong> tmp = new ArrayList<>();
+                List<data_song> tmp = new ArrayList<>();
                 NodeList sitm = pln.item(i).getChildNodes();
                 for (int y = 0; y < sitm.getLength(); y++) {
-                    ItemSong t = getMetadata(new File(sitm.item(y).getTextContent()));
+                    data_song t = getMetadata(new File(sitm.item(y).getTextContent()));
                     tmp.add(t);
                 }
-                ItemPlayList p = new ItemPlayList(pln.item(i).getAttributes().item(0).getTextContent(), tmp);
+                data_playlist p = new data_playlist(pln.item(i).getAttributes().item(0).getTextContent(), tmp);
                 ret.put(p.Title, p);
             }
         } catch (Exception e) {
@@ -408,8 +408,8 @@ public class PlayListManager {
 
     //END Local Playlists
     //Other
-    private ItemSong getMetadata(File f) {
-        ItemSong t = new ItemSong();
+    private data_song getMetadata(File f) {
+        data_song t = new data_song();
         //Log.v(LOG_TAG, "Getting Metadata for File: " + f.getAbsolutePath());
         Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
                 MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION
@@ -441,27 +441,27 @@ public class PlayListManager {
         return Pattern.compile(Pattern.quote(needle), Pattern.CASE_INSENSITIVE).matcher(haystack).find();
     }
 
-    private List<ItemSong> sortSongsByTitle(List<ItemSong> s) {
-        List<ItemSong> ret = new ArrayList<>();
+    private List<data_song> sortSongsByTitle(List<data_song> s) {
+        List<data_song> ret = new ArrayList<>();
         ListSorter ls = new ListSorter();
         ret = ls.sort(gc, s, Constants.SORT_BYTITLE);
         return ret;
     }
 
-    private List<ItemSong> sortSongsByArtist(List<ItemSong> s) {
-        List<ItemSong> ret = new ArrayList<>();
+    private List<data_song> sortSongsByArtist(List<data_song> s) {
+        List<data_song> ret = new ArrayList<>();
         ListSorter ls = new ListSorter();
         ret = ls.sort(gc, s, Constants.SORT_BYARTIST);
         return ret;
     }
 
-    private List<ItemSong> getSongsfromMediaStore() {
-        List<ItemSong> ret = new ArrayList<>();
+    private List<data_song> getSongsfromMediaStore() {
+        List<data_song> ret = new ArrayList<>();
         Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
                 MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION
         }, null, null, null);
         while (c.moveToNext()) {
-            ItemSong t = new ItemSong();
+            data_song t = new data_song();
             t.Title = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE));
             t.Artist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST));
             t.Album = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM));
@@ -473,36 +473,36 @@ public class PlayListManager {
         return ret;
     }
 
-    private List<ItemSong> getSongsfromFiles() {
-        List<ItemSong> ret = new ArrayList<>();
+    private List<data_song> getSongsfromFiles() {
+        List<data_song> ret = new ArrayList<>();
         for (String str : searchPaths) {
             Log.v(LOG_TAG, "Searching in Directory: " + str);
-            List<ItemSong> te = getPlayListAsItems(str);
+            List<data_song> te = getPlayListAsItems(str);
             if (te != null)
                 ret.addAll(te);
         }
         return ret;
     }
 
-    private ItemPlayList mergePlayLists(ItemPlayList orig, ItemPlayList adding) {
+    private data_playlist mergePlayLists(data_playlist orig, data_playlist adding) {
         Log.v(LOG_TAG, "MERGING PLAYLIST " + orig.Title + " WITH " + adding.Title);
-        List<ItemSong> lst = new ArrayList<>();
-        List<ItemSong> ax = orig.audio;
-        List<ItemSong> bx = adding.audio;
+        List<data_song> lst = new ArrayList<>();
+        List<data_song> ax = orig.audio;
+        List<data_song> bx = adding.audio;
         lst.addAll(ax);
         for (int i = 0; i < bx.size(); i++) {
             if (!lst.contains(bx.get(i))) {
                 lst.add(bx.get(i));
             }
         }
-        ItemPlayList ret = new ItemPlayList(orig.Title, lst);
+        data_playlist ret = new data_playlist(orig.Title, lst);
         ret.resid = orig.resid;
         ret.resid2 = orig.resid2;
         return ret;
     }
 
-    private List<ItemSong> mergeLists(List<ItemSong> a, List<ItemSong> b) {
-        List<ItemSong> ret = new ArrayList<>();
+    private List<data_song> mergeLists(List<data_song> a, List<data_song> b) {
+        List<data_song> ret = new ArrayList<>();
         if (a.size() > b.size()) {
             ret.addAll(a);
             for (int i = 0; i < b.size(); i++) {
@@ -545,12 +545,12 @@ public class PlayListManager {
         searchPaths.add("/storage/emulated/0/Download");
     }
 
-    private List<ItemSong> getPlayListAsItems(String rootPath) {
+    private List<data_song> getPlayListAsItems(String rootPath) {
         Bitmap dicon = BitmapFactory.decodeResource(gc.getResources(), R.drawable.icon_unsetsong);
         List<File> t = getPlayListFiles(rootPath);
-        List<ItemSong> ret = new ArrayList<>();
+        List<data_song> ret = new ArrayList<>();
         for (int i = 0; i < t.size(); i++) {
-            ItemSong s = getMetadata(t.get(i));
+            data_song s = getMetadata(t.get(i));
             ret.add(s);
         }
         return ret;
@@ -627,9 +627,9 @@ public class PlayListManager {
     protected class LoadFilesTask extends AsyncTask<Context, Integer, String> {
         @Override
         protected String doInBackground(Context... params) {
-            List<ItemSong> nw = getSongsfromFiles();
+            List<data_song> nw = getSongsfromFiles();
             Log.v(LOG_TAG, "FOUND " + nw.size() + " AUDIO FILES ON DISK");
-            List<ItemSong> nnw = mergeLists(PlayLists.get("").audio, nw);
+            List<data_song> nnw = mergeLists(PlayLists.get("").audio, nw);
             PlayLists.get("").audio.clear();
             PlayLists.get("").audio.addAll(nnw);
             updateContent();
@@ -681,7 +681,7 @@ public class PlayListManager {
             String term = "" + searchTerm;
             if (contentList.size() == 0)
                 return "ERROR: EMPTY CONTENT LIST";
-            List<ItemSong> flt = new ArrayList<>();
+            List<data_song> flt = new ArrayList<>();
             switch (srb) {
                 case Constants.SEARCH_BYTITLE:
                     Log.v(LOG_TAG, "SEARCH BY TITLE");
@@ -708,7 +708,7 @@ public class PlayListManager {
                     }
                     break;
             }
-            final List<ItemSong> inp = flt;
+            final List<data_song> inp = flt;
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

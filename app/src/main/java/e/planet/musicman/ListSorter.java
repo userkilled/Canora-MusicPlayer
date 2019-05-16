@@ -19,9 +19,9 @@ public class ListSorter {
     }
 
     //Callbacks
-    public List<ItemSong> sort(Context c, List<ItemSong> in, int SortMode) {
+    public List<data_song> sort(Context c, List<data_song> in, int SortMode) {
         co = c;
-        List<ItemSong> sorted = null;
+        List<data_song> sorted = null;
         switch (SortMode) {
             case Constants.SORT_BYTITLE:
                 sorted = sortSongsByTitle(in);
@@ -34,29 +34,29 @@ public class ListSorter {
     }
 
     //Sort Functions
-    private List<ItemSong> sortSongsByTitle(List<ItemSong> in) {
-        List<ItemSong> rtrn = in;
+    private List<data_song> sortSongsByTitle(List<data_song> in) {
+        List<data_song> rtrn = in;
         Collections.sort(rtrn, new TitleSorter());
         return rtrn;
     }
 
-    private List<ItemSong> sortSongsByArtist(List<ItemSong> in) {
-        List<ItemSong> rt = in;
+    private List<data_song> sortSongsByArtist(List<data_song> in) {
+        List<data_song> rt = in;
         Collections.sort(rt, new ArtistSorter());
         return rt;
     }
 
     //Comparators
-    private class TitleSorter implements Comparator<ItemSong> {
+    private class TitleSorter implements Comparator<data_song> {
         @Override
-        public int compare(ItemSong f1, ItemSong f2) {
+        public int compare(data_song f1, data_song f2) {
             return f1.Title.toLowerCase().compareTo(f2.Title.toLowerCase());
         }
     }
 
-    private class ArtistSorter implements Comparator<ItemSong> {
+    private class ArtistSorter implements Comparator<data_song> {
         @Override
-        public int compare(ItemSong o1, ItemSong o2) {
+        public int compare(data_song o1, data_song o2) {
             return o1.Artist.toLowerCase().compareTo(o2.Artist.toLowerCase());
         }
     }

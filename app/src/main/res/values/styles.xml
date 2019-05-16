@@ -31,14 +31,14 @@
 
     <!-- Additional Themes, Set Color Values Here -->
     <style name="AppTheme.Mint" parent="Base.Theme.AppCompat.Light">
-        <item name="colorViewPort">#00994d</item>
-        <item name="colorFrame">#006633</item>
+        <item name="colorViewPort">#1b985f</item>
+        <item name="colorFrame">#178252</item>
         <item name="colorText">#000000</item>
         <item name="colorHighlight">#e68a00</item>
 
-        <item name="colorDialogBackground">#00994d</item>
-        <item name="colorDialogText">#000000</item>
-        <item name="colorDialogHighlight">#e68a00</item>
+        <item name="colorDialogBackground">?colorFrame</item>
+        <item name="colorDialogText">?colorText</item>
+        <item name="colorDialogHighlight">?colorHighlight</item>
 
         <item name="colorToolbar">?attr/colorFrame</item>
 

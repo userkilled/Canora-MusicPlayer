@@ -9,7 +9,7 @@ import android.provider.MediaStore;
 
 import java.io.File;
 
-public class ItemSong {
+public class data_song {
 
     //TODO: Load Album Cover via MediaStore
 
@@ -31,10 +31,10 @@ public class ItemSong {
     private Cursor cursor;
     private String LOG_TAG = "SONGITEM";
 
-    public ItemSong() {
+    public data_song() {
     }
 
-    public ItemSong(ItemSong in) {
+    public data_song(data_song in) {
         id = in.id;
         file = in.file;
         Title = in.Title;
@@ -43,7 +43,7 @@ public class ItemSong {
         icon = in.icon;
     }
 
-    public ItemSong(Context co, File f, int i, Bitmap defaultIcon) {
+    public data_song(Context co, File f, int i, Bitmap defaultIcon) {
         file = f;
         defIcon = defaultIcon;
         c = co;

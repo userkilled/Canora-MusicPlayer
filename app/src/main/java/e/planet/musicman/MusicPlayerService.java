@@ -79,16 +79,16 @@ public class MusicPlayerService extends Service {
         return 0;
     }
 
-    public int setContent(List<ItemSong> pl) {
+    public int setContent(List<data_song> pl) {
         Log.v(LOG_TAG, "SetContent Called Size: " + pl.size());
         //Called when Content Changes
-        List<ItemSong> t = new ArrayList<>(pl);
+        List<data_song> t = new ArrayList<>(pl);
         plm.setContent(t);
         return 0;
     }
 
     public int play(int id) {
-        ItemSong n = plm.setNext(id);
+        data_song n = plm.setNext(id);
         if (n != null) {
             Log.v(LOG_TAG, "Setting up Song: " + n.Title);
             createPlayer(n.file.getAbsolutePath());
@@ -101,7 +101,7 @@ public class MusicPlayerService extends Service {
 
     public int next() {
         Log.v(LOG_TAG, "Next");
-        ItemSong n = plm.getNext();
+        data_song n = plm.getNext();
         if (n != null) {
             Log.v(LOG_TAG, "Setting up Song: " + n.Title);
             createPlayer(n.file.getAbsolutePath());
@@ -114,7 +114,7 @@ public class MusicPlayerService extends Service {
 
     public int previous() {
         Log.v(LOG_TAG, "Previous");
-        ItemSong n = plm.getPrev();
+        data_song n = plm.getPrev();
         if (n != null) {
             Log.v(LOG_TAG, "Setting up Song: " + n.Title);
             createPlayer(n.file.getAbsolutePath());
@@ -233,7 +233,7 @@ public class MusicPlayerService extends Service {
         return false;
     }
 
-    public ItemSong getCurrentSong() {
+    public data_song getCurrentSong() {
         return plm.currentSong;
     }
 
@@ -436,9 +436,9 @@ public class MusicPlayerService extends Service {
 
     private class PlayBackManager {
         /*
-        Provides ItemSong
+        Provides data_song
          */
-        public ItemSong currentSong;
+        public data_song currentSong;
 
         public boolean shuffle;
 
@@ -448,7 +448,7 @@ public class MusicPlayerService extends Service {
             currentIndex = 0;
         }
 
-        public ItemSong setNext(int id) {
+        public data_song setNext(int id) {
             if (content.size() == 0) {
                 Log.v(LOG_TAG,"CONTENT EMPTY");
                 return null;
@@ -460,7 +460,7 @@ public class MusicPlayerService extends Service {
             return currentSong;
         }
 
-        public ItemSong getNext() {
+        public data_song getNext() {
             if (content.size() == 0) {
                 Log.v(LOG_TAG,"CONTENT EMPTY");
                 return null;
@@ -485,7 +485,7 @@ public class MusicPlayerService extends Service {
             }
         }
 
-        public ItemSong getPrev() {
+        public data_song getPrev() {
             if (content.size() == 0)
                 return null;
             if (history.size() > 0) {
@@ -510,13 +510,13 @@ public class MusicPlayerService extends Service {
             }
         }
 
-        public void setContent(List<ItemSong> c) {
+        public void setContent(List<data_song> c) {
             content = c;
         }
 
-        private Stack<ItemSong> history;
+        private Stack<data_song> history;
 
-        private List<ItemSong> content;
+        private List<data_song> content;
         private int currentIndex;
 
         private int getIndexOfID(int id) {

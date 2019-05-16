@@ -16,6 +16,27 @@ public final class Constants {
 
     public static final String ACTION_QUIT = "com.musicman.QUIT";
 
+    public enum Themes {
+        theThemes();
+        private List<data_theme> themes;
+        Themes() {
+            themes = new ArrayList<>();
+            themes.add(new data_theme(Constants.THEME_BLUE,R.style.AppTheme_Blue));
+            themes.add(new data_theme(Constants.THEME_MINT,R.style.AppTheme_Mint));
+            themes.add(new data_theme(Constants.THEME_DARK,R.style.AppTheme_Dark));
+        }
+        public List<data_theme> get()
+        {
+            return themes;
+        }
+    }
+
+    public static final String THEME_BLUE = "Blue";
+    public static final String THEME_MINT = "Mint";
+    public static final String THEME_DARK = "Dark";
+
+    public static final String THEME_DEFAULT = THEME_BLUE;
+
     public enum Settings {
         theSettings;
         private Map<String, String> settings;
@@ -34,7 +55,7 @@ public final class Constants {
             settList.add(SETTING_REPEAT);
             settings.put("SETTING_SHUFFLE", SETTING_SHUFFLE);
             settList.add(SETTING_SHUFFLE);
-            settings.put("SETTING_THEME",SETTING_THEME);
+            settings.put("SETTING_THEME", SETTING_THEME);
             settList.add(SETTING_THEME);
         }
 
@@ -53,16 +74,6 @@ public final class Constants {
     public static final String SETTING_SHUFFLE = "SHUFFLE";
     public static final String SETTING_REPEAT = "REPEAT";
     public static final String SETTING_THEME = "THEME";
-
-    public static final String THEME_BLUE = "Blue";
-    public static final String THEME_MINT = "Mint";
-    public static final String THEME_DARK = "Dark";
-
-    public static final String THEME_DEFAULT = THEME_BLUE;
-
-    public static final int SPINNERPOS_THEME_BLUE = 0;
-    public static final int SPINNERPOS_THEME_MINT = 1;
-    public static final int SPINNERPOS_THEME_DARK = 2;
 
     public static final int SORT_BYTITLE = 0;
     public static final int SORT_BYARTIST = 1;

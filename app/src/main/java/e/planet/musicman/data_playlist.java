@@ -1,17 +1,15 @@
 package e.planet.musicman;
 
-import android.view.MenuItem;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemPlayList {
+public class data_playlist {
     public String Title;
-    public List<ItemSong> audio = new ArrayList<>();
+    public List<data_song> audio = new ArrayList<>();
     public int resid; //RESOURCE ID OF ADD TO OPTIONS ITEM
     public int resid2; //RESOURCE ID OF SELECT OPTIONS ITEM
 
-    public ItemPlayList(String title, List<ItemSong> in) {
+    public data_playlist(String title, List<data_song> in) {
         audio.clear();
         audio.addAll(in);
         Title = "" + title;
