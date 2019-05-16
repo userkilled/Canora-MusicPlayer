@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void initPlayer() {
         /* Callback when Player Service is Ready */
         Log.v(LOG_TAG, "INIT PLAYER");
-        serv.init(pl);
+        serv.init(pl.contentList);
         updateSongDisplay();
     }
 
@@ -378,7 +378,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     public void onClick(DialogInterface dialog, int which) {
                         //Sort By Selection
                         pl.sortContent(sortBy);
-                        serv.reload();
                         arrayAdapter.notifyDataSetChanged();
                     }
                 });

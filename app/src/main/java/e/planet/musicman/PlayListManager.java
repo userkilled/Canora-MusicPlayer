@@ -109,7 +109,7 @@ public class PlayListManager {
         Log.v(LOG_TAG, "UPDATE CONTENT PLI: " + pli);
         updateContent();
         sortContent(sortBy);
-        mainActivity.serv.reload();
+        mainActivity.serv.reload(contentList);
         mainActivity.notifyArrayAdapter();
         return 0;
     }
@@ -641,7 +641,7 @@ public class PlayListManager {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            mainActivity.serv.reload();
+            mainActivity.serv.reload(contentList);
             if (filtering) {
                 showFiltered(searchTerm, searchBy);
             } else {
@@ -713,7 +713,6 @@ public class PlayListManager {
                     viewList.addAll(inp);
                 }
             });
-            mainActivity.serv.reload();
             mainActivity.notifyArrayAdapter();
             return "COMPLETE!";
         }

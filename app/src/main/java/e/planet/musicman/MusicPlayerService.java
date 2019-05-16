@@ -53,8 +53,6 @@ public class MusicPlayerService extends Service {
     private NotificationManagerCompat nfm;
     private int notificationID = 1;
 
-    private PlayListManager pl;
-
     private PlayBackManager plm;
 
     private String LOG_TAG = "SERV";
@@ -76,11 +74,10 @@ public class MusicPlayerService extends Service {
     }
 
     //Public Control Functions
-    public int init(PlayListManager plv) {
+    public int init(List<ItemSong> in) {
         Log.v(LOG_TAG, "Init called, ");
-        if (plv != null) {
-            pl = plv;
-            plm.setContent(pl.contentList);
+        if (in != null) {
+            plm.setContent(in);
             return 0;
         } else {
             Log.v(LOG_TAG, "Files are Null");
@@ -88,9 +85,10 @@ public class MusicPlayerService extends Service {
         }
     }
 
-    public int reload() {
+    public int reload(List<ItemSong> pl) {
         Log.v(LOG_TAG, "Reload Called");
         //Called when Content Changes
+        plm.setContent(pl);
         return 0;
     }
 
@@ -442,8 +440,10 @@ public class MusicPlayerService extends Service {
         }
 
         public ItemSong setNext(int id) {
-            if (content.size() == 0)
+            if (content.size() == 0) {
+                Log.v(LOG_TAG,"CONTENT EMPTY");
                 return null;
+            }
             if (currentSong != null)
                 history.push(currentSong);
             currentIndex = getIndexOfID(id);
@@ -452,8 +452,10 @@ public class MusicPlayerService extends Service {
         }
 
         public ItemSong getNext() {
-            if (content.size() == 0)
+            if (content.size() == 0) {
+                Log.v(LOG_TAG,"CONTENT EMPTY");
                 return null;
+            }
             if (currentSong != null)
                 history.push(currentSong);
             if (shuffle) {
