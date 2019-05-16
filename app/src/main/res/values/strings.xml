@@ -59,5 +59,6 @@
         <item>Blue</item>
         <item>Mint</item>
         <item>Dark</item>
+        <item>Light</item>
     </string-array>
 </resources>

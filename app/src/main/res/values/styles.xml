@@ -60,10 +60,39 @@
     </style>
 
     <style name="AppTheme.Dark" parent="Base.Theme.AppCompat.Light">
-        <item name="colorViewPort">#1a1a1a</item>
-        <item name="colorFrame">#0d0d0d</item>
+        <item name="colorViewPort">#262626</item>
+        <item name="colorFrame">#1a1a1a</item>
         <item name="colorText">#ffffff</item>
         <item name="colorHighlight">#00ffff</item>
+
+        <item name="colorDialogBackground">?colorViewPort</item>
+        <item name="colorDialogText">?colorText</item>
+        <item name="colorDialogHighlight">?colorHighlight</item>
+
+        <item name="colorToolbar">?attr/colorFrame</item>
+
+        <item name="colorSnackbarText">#ffffff</item>
+        <item name="colorSnackbarBackground">#262626</item>
+
+        <item name="colorGreyed">#33ffffff</item>
+
+        <!--Options Context Menu Background-->
+        <item name="android:itemBackground">?colorViewPort</item>
+
+        <item name="android:colorEdgeEffect">?attr/colorText</item>
+        <item name="colorControlHighlight">?attr/colorText</item>
+        <item name="android:panelFullBackground">?colorDialogBackground</item>
+        <item name="android:textColor">?colorDialogText</item>
+
+        <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
+        <item name="actionBarStyle">@style/MyActionBar</item>
+    </style>
+
+    <style name="AppTheme.Light" parent="Base.Theme.AppCompat.Light">
+        <item name="colorViewPort">#ffffff</item>
+        <item name="colorFrame">#ffffff</item>
+        <item name="colorText">#000000</item>
+        <item name="colorHighlight">#00cccc</item>
 
         <item name="colorDialogBackground">?colorViewPort</item>
         <item name="colorDialogText">?colorText</item>
