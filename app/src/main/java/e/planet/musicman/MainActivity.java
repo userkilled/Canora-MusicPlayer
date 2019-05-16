@@ -311,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "LOADING FILES");
         pl.loadContent();
         pl.sortContent(sortBy);
+        serv.setContent(pl.contentList);
         notifyArrayAdapter();
     }
 

@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import static e.planet.musicman.Constants.*;
@@ -237,15 +238,13 @@ public class MusicPlayerService extends Service {
         return plm.currentSong;
     }
 
-    public int getCurrentPosition()
-    {
+    public int getCurrentPosition() {
         if (player != null)
             return player.getCurrentPosition();
         return 0;
     }
 
-    public int getDuration()
-    {
+    public int getDuration() {
         if (player != null)
             return player.getDuration();
         return 0;
@@ -450,7 +449,7 @@ public class MusicPlayerService extends Service {
 
         public data_song setNext(int id) {
             if (content.size() == 0) {
-                Log.v(LOG_TAG,"CONTENT EMPTY");
+                Log.v(LOG_TAG, "CONTENT EMPTY");
                 return null;
             }
             if (currentSong != null)
@@ -462,7 +461,7 @@ public class MusicPlayerService extends Service {
 
         public data_song getNext() {
             if (content.size() == 0) {
-                Log.v(LOG_TAG,"CONTENT EMPTY");
+                Log.v(LOG_TAG, "CONTENT EMPTY");
                 return null;
             }
             if (currentSong != null)
@@ -511,7 +510,7 @@ public class MusicPlayerService extends Service {
         }
 
         public void setContent(List<data_song> c) {
-            content = c;
+            content = new ArrayList<>(c);
         }
 
         private Stack<data_song> history;
