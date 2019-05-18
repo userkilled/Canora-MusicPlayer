@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "ONSTART CALLED");
         if (serv != null) {
             handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
+            updateSongDisplay();
         }
     }
 
@@ -437,7 +438,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         tv.setText(dspt);
         if (serv.getPlaybackStatus())
             animator.start();
-        updateSongDisplay();
     }
 
     public void updateSongDisplay() {
@@ -1002,6 +1002,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         int dur = intent.getIntExtra("dur", 0);
                         int pos = intent.getIntExtra("pos", 0);
                         handleProgressAnimation(dur, pos);
+                        updateSongDisplay();
                         break;
                     case Constants.ACTION_STATUS_PLAYING:
                         ImageButton btn = findViewById(R.id.buttonPlay);

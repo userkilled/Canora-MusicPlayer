@@ -98,7 +98,12 @@
                       android:layout_marginLeft="5dp"
                       android:layout_marginRight="5dp"
                       android:background="@null"
-                      android:maxLines="1"
+                      android:singleLine="true"
+                      android:ellipsize="marquee"
+                      android:marqueeRepeatLimit="marquee_forever"
+                      android:focusable="true"
+                      android:focusableInTouchMode="true"
+                      android:scrollHorizontally="true"
             />
             <SeekBar android:id="@+id/songDurBar"
                      android:layout_width="match_parent"
