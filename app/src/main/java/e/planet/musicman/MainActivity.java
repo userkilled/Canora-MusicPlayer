@@ -840,6 +840,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             iv.setVisibility(View.GONE);
             pl.filtering = false;
             pl.showFiltered("", searchBy);
+            findViewById(R.id.songDisplay).requestFocus();
         }
     }
 
