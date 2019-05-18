@@ -17,7 +17,7 @@ Features:
 Upcoming Features:
 * Costumization/Themes
 
-Soon Available for Free on the Play Store!
+Available Soon for Free on the Play Store!
 
 <h1>Contributing:</h1>
 This Project is still in early Development and thus alot of the Code is going to Change.<br>
