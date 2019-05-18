@@ -139,10 +139,8 @@ public class PlayListManager {
         return 0;
     }
 
-    public int replacePlayList(String name, data_playlist in)
-    {
-        if (!name.equals(""))
-        {
+    public int replacePlayList(String name, data_playlist in) {
+        if (!name.equals("")) {
             PlayLists.get(name).audio.clear();
             PlayLists.get(name).audio.addAll(in.audio);
             putLocalPlayLists(PlayLists);
@@ -162,8 +160,7 @@ public class PlayListManager {
         return pli;
     }
 
-    public Map<String,data_playlist> getPlayLists()
-    {
+    public Map<String, data_playlist> getPlayLists() {
         return PlayLists;
     }
 
@@ -417,18 +414,15 @@ public class PlayListManager {
         List<data_song> ax = orig.audio;
         List<data_song> bx = adding.audio;
         lst.addAll(ax);
-        for (int i = 0; i < bx.size(); i++)
-        {
+        for (int i = 0; i < bx.size(); i++) {
             boolean exists = false;
             for (int y = 0; y < ax.size(); y++) {
-                if (ax.get(y).file.getAbsolutePath().equals(bx.get(i).file.getAbsolutePath()))
-                {
+                if (ax.get(y).file.getAbsolutePath().equals(bx.get(i).file.getAbsolutePath())) {
                     exists = true;
                     break;
                 }
             }
-            if (!exists)
-            {
+            if (!exists) {
                 lst.add(bx.get(i));
             }
         }
@@ -544,7 +538,7 @@ public class PlayListManager {
             });
             contentList.clear();
             contentList.addAll(PlayLists.get(pli).audio);
-            Log.v(LOG_TAG,"CONTENT LIST SET SIZE: " + contentList.size());
+            Log.v(LOG_TAG, "CONTENT LIST SET SIZE: " + contentList.size());
         } else {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
@@ -555,7 +549,7 @@ public class PlayListManager {
             });
             contentList.clear();
             contentList.addAll(PlayLists.get("").audio);
-            Log.v(LOG_TAG,"CONTENT LIST SET SIZE: " + contentList.size());
+            Log.v(LOG_TAG, "CONTENT LIST SET SIZE: " + contentList.size());
         }
     }
 

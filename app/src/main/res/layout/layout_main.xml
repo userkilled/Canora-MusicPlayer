@@ -81,10 +81,10 @@
                     android:layout_height="wrap_content"
                     android:background="?attr/colorFrame">
         <RelativeLayout android:id="@+id/part1"
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="vertical"
-                    android:clipChildren="false">
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:clipChildren="false">
             <TextView android:id="@+id/songDisplay"
                       android:layout_width="match_parent"
                       android:layout_height="25dp"

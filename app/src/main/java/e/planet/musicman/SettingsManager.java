@@ -32,7 +32,7 @@ public class SettingsManager {
             data.put(Constants.SETTING_VOLUME, "0.7");
             data.put(Constants.SETTING_REPEAT, "false");
             data.put(Constants.SETTING_SHUFFLE, "false");
-            data.put(Constants.SETTING_THEME,Constants.THEME_DEFAULT);
+            data.put(Constants.SETTING_THEME, Constants.THEME_DEFAULT);
             writeDataAsXML(settingsFile.getAbsolutePath(), data);
         }
     }

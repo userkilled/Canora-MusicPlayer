@@ -1052,18 +1052,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         arrayAdapter.notifyDataSetChanged();
     }
 
-    public void multiSelect(boolean state)
-    {
-        if (state)
-        {
+    public void multiSelect(boolean state) {
+        if (state) {
             arrayAdapter.state = Constants.ARRAYADAPT_STATE_SELECT;
             invalidateOptionsMenu();
             for (int i = 0; i < pl.contentList.size(); i++) {
                 pl.contentList.get(i).selected = false;
             }
-        }
-        else
-        {
+        } else {
             arrayAdapter.state = Constants.ARRAYADAPT_STATE_DEFAULT;
             invalidateOptionsMenu();
             for (int i = 0; i < pl.contentList.size(); i++) {

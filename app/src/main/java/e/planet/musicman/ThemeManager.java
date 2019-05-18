@@ -11,10 +11,8 @@ public class ThemeManager {
     2. In the Constants.java File add your Theme Title String and a Entry in the Themes Enum.
      */
     public int getThemeResourceID() {
-        for (int i = 0; i < themes.size(); i++)
-        {
-            if (themes.get(i).title.equals(currentTheme))
-            {
+        for (int i = 0; i < themes.size(); i++) {
+            if (themes.get(i).title.equals(currentTheme)) {
                 return themes.get(i).resID;
             }
         }
@@ -22,10 +20,8 @@ public class ThemeManager {
     }
 
     public int getSpinnerPosition(int resid) {
-        for (int i = 0; i < themes.size(); i++)
-        {
-            if (themes.get(i).resID == resid)
-            {
+        for (int i = 0; i < themes.size(); i++) {
+            if (themes.get(i).resID == resid) {
                 return i;
             }
         }
@@ -34,8 +30,7 @@ public class ThemeManager {
 
     public boolean request(int spinnerpos) {
         Log.v(LOG_TAG, "REQUEST: " + spinnerpos + " SELECTED: " + currentTheme);
-        if (!currentTheme.equals(themes.get(spinnerpos).title))
-        {
+        if (!currentTheme.equals(themes.get(spinnerpos).title)) {
             selectTheme(themes.get(spinnerpos).title);
             return true;
         }

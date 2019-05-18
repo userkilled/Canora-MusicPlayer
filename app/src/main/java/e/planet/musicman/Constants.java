@@ -19,15 +19,16 @@ public final class Constants {
     public enum Themes {
         theThemes();
         private List<data_theme> themes;
+
         Themes() {
             themes = new ArrayList<>();
-            themes.add(new data_theme(Constants.THEME_BLUE,R.style.AppTheme_Blue));
-            themes.add(new data_theme(Constants.THEME_MINT,R.style.AppTheme_Mint));
-            themes.add(new data_theme(Constants.THEME_DARK,R.style.AppTheme_Dark));
-            themes.add(new data_theme(Constants.THEME_LIGHT,R.style.AppTheme_Light));
+            themes.add(new data_theme(Constants.THEME_BLUE, R.style.AppTheme_Blue));
+            themes.add(new data_theme(Constants.THEME_MINT, R.style.AppTheme_Mint));
+            themes.add(new data_theme(Constants.THEME_DARK, R.style.AppTheme_Dark));
+            themes.add(new data_theme(Constants.THEME_LIGHT, R.style.AppTheme_Light));
         }
-        public List<data_theme> get()
-        {
+
+        public List<data_theme> get() {
             return themes;
         }
     }
