@@ -1,4 +1,4 @@
-package e.planet.musicman;
+package ch.swissproductions.canora;
 
 import java.util.ArrayList;
 import java.util.HashMap;

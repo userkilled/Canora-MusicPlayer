@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MusicMan</string>
+    <string name="app_name">Canora</string>
     <!-- Dialogues -->
     <string name="dialog_file_deletefrom_t1">Möchten sie</string>
     <string name="dialog_file_deletefrom_t2">Dateien Löschen?</string>
@@ -47,6 +47,8 @@
     <string name="misc_title">Titel</string>
     <string name="misc_artist">Interpret</string>
     <string name="misc_both">Beide</string>
+
+    <string name="misc_unknown">Unbekannt</string>
 
     <string name="misc_themes">Themen</string>
 

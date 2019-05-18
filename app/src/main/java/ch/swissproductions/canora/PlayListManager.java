@@ -1,4 +1,4 @@
-package e.planet.musicman;
+package ch.swissproductions.canora;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -7,11 +7,7 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
-import android.text.Html;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.SubMenu;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -355,7 +351,11 @@ public class PlayListManager {
             MediaMetadataRetriever m = new MediaMetadataRetriever();
             m.setDataSource(f.getAbsolutePath());
             t.Title = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            if (t.Title == null)
+                t.Title = f.getName();
             t.Artist = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+            if (t.Artist == null)
+                t.Artist = mainActivity.getString(R.string.misc_unknown);
             t.length = Long.parseLong(m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         }
         return t;

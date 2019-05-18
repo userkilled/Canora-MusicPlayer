@@ -1,4 +1,4 @@
-package e.planet.musicman;
+package ch.swissproductions.canora;
 
 import android.app.*;
 import android.content.*;
@@ -10,10 +10,9 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
-import static e.planet.musicman.Constants.*;
+import static ch.swissproductions.canora.Constants.*;
 
 public class MusicPlayerService extends Service {
     //Callbacks
