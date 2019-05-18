@@ -1,5 +1,5 @@
 <p align=center>
-  <img src="https://github.com/ZoidbergZero/MusicMan/raw/master/app/src/main/res/drawable/mainicon.png" alt="MainIcon"/>
+  <img src="https://github.com/ZoidbergZero/Canora-MediaPlayer/raw/master/app/src/main/res/drawable/mainicon.png" alt="MainIcon"/>
   <h1>Canora MediaPlayer</h1>
 </p>
 The Aim of this Project is to Provide a Lightweight Fast and Costumizable Music Playback Experience.<br>
@@ -16,6 +16,7 @@ Features:
 
 Upcoming Features:
 * Costumization/Themes
+* Equalizer
 
 Available Soon for Free on the Play Store!
 
@@ -23,4 +24,4 @@ Available Soon for Free on the Play Store!
 This Project is still in early Development and thus alot of the Code is going to Change.<br>
 Also much of the Code at the Moment is written so it works, but not necessairly so others can easily Read and use it.<br>
 I will do a Rewrite after 1.0 so it is more Clean and Easier to Use as a potential Contributer.<br>
-That said if you already want to Contribute to the Project Great! You can find a Contributers Guide <a href="https://github.com/ZoidbergZero/MusicMan/blob/master/Contributing.md">here</a>.
+That said if you already want to Contribute to the Project Great! You can find a Contributers Guide <a href="https://github.com/ZoidbergZero/Canora-MediaPlayer/blob/master/Contributing.md">here</a>.
