@@ -87,10 +87,10 @@ public final class Constants {
     public static final int DIALOG_SORT = 1;
     public static final int DIALOG_SETTINGS = 2;
     public static final int DIALOG_SEARCHBY = 3;
-    public static final int DIALOG_FILE_DELETE_FROMPLAYLIST = 4;
+    public static final int DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST = 4;
     public static final int DIALOG_FILE_INFO = 5;
     public static final int DIALOG_PLAYLIST_CREATE = 6;
-    public static final int DIALOG_PLAYLIST_DELETE = 7;
+    public static final int DIALOG_WARNING_PLAYLIST_DELETE = 7;
     public static final int DIALOG_PLAYLIST_EDIT = 8;
 
     public static final int ARRAYADAPT_STATE_DEFAULT = 0;

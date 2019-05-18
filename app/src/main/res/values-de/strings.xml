@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">MusicMan</string>
     <!-- Dialogues -->
-    <string name="dialog_file_delete_t1">Möchten sie folgende Datei aus der Playlist löschen:</string>
+    <string name="dialog_file_deletefrom_t1">Möchten sie</string>
+    <string name="dialog_file_deletefrom_t2">Dateien Löschen?</string>
     <string name="dialog_file_info_title">Datei Info</string>
     <string name="dialog_file_info_t1">Dateipfad</string>
     <string name="dialog_playlist_delete_t1">Möchten sie folgende Playlist Löschen:</string>
@@ -53,5 +54,6 @@
     <string name="misc_init">Initialisierungs Zeit</string>
     <string name="misc_founditems">Anzahl Gefundener Dateien</string>
     <string name="misc_createpl">Playlist Erstellt</string>
-    <string name="misc_added">Audiodateien Hinzugefügt</string>
+    <string name="misc_addedto">Audiodateien Hinzugefügt zu</string>
+    <string name="misc_removed">Audiodateien Gelöscht</string>
 </resources>

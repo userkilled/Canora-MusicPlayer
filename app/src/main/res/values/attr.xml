@@ -6,6 +6,7 @@
     <attr name="colorHighlight" format="reference|color"/>
 
     <attr name="colorDialogBackground" format="reference|color"/>
+    <attr name="colorDialogFrame" format="reference|color"/>
     <attr name="colorDialogText" format="reference|color"/>
     <attr name="colorDialogHighlight" format="reference|color"/>
 

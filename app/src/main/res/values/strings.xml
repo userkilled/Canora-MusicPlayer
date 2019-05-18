@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">MusicMan</string>
     <!-- Dialogues -->
-    <string name="dialog_file_delete_t1">Do you really want to delete the File:</string>
+    <string name="dialog_file_deletefrom_t1">Do you really want to delete</string>
+    <string name="dialog_file_deletefrom_t2">Files?</string>
     <string name="dialog_file_info_title">File Info</string>
     <string name="dialog_file_info_t1">Filepath</string>
     <string name="dialog_playlist_delete_t1">Do you really want to delete the Playlist:</string>
@@ -53,7 +54,8 @@
     <string name="misc_init">Initialization Time</string>
     <string name="misc_founditems">Total Items Found</string>
     <string name="misc_createpl">Created Playlist</string>
-    <string name="misc_added">Items Added</string>
+    <string name="misc_addedto">Items Added to</string>
+    <string name="misc_removed">Items Removed</string>
 
     <string-array name="Themes">
         <item>Blue</item>

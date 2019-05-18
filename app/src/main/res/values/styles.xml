@@ -7,7 +7,8 @@
         <item name="colorText">#ffffff</item>
         <item name="colorHighlight">#42f486</item>
 
-        <item name="colorDialogBackground">#00172E</item>
+        <item name="colorDialogBackground">?colorViewPort</item>
+        <item name="colorDialogFrame">?colorFrame</item>
         <item name="colorDialogText">#ffffff</item>
         <item name="colorDialogHighlight">#CC42f486</item>
 
@@ -36,7 +37,8 @@
         <item name="colorText">#000000</item>
         <item name="colorHighlight">#e68a00</item>
 
-        <item name="colorDialogBackground">?colorFrame</item>
+        <item name="colorDialogBackground">?colorViewPort</item>
+        <item name="colorDialogFrame">?colorFrame</item>
         <item name="colorDialogText">?colorText</item>
         <item name="colorDialogHighlight">?colorHighlight</item>
 
@@ -66,6 +68,7 @@
         <item name="colorHighlight">#00ffff</item>
 
         <item name="colorDialogBackground">?colorViewPort</item>
+        <item name="colorDialogFrame">?colorFrame</item>
         <item name="colorDialogText">?colorText</item>
         <item name="colorDialogHighlight">?colorHighlight</item>
 
@@ -95,6 +98,7 @@
         <item name="colorHighlight">#00cccc</item>
 
         <item name="colorDialogBackground">?colorViewPort</item>
+        <item name="colorDialogFrame">?colorFrame</item>
         <item name="colorDialogText">?colorText</item>
         <item name="colorDialogHighlight">?colorHighlight</item>
 

@@ -2,31 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <!-- Actions -->
-    <item android:id="@+id/action_playlist_del"
-          android:title="@string/menu_options_delpl"
+    <item android:id="@+id/action_deleteFromPlaylist"
           app:showAsAction="always"
-          android:visible="false"
-          android:icon="@drawable/trashicon"/>
-    <item android:id="@+id/action_search"
-          android:title="@string/menu_options_search"
-          app:showAsAction="always"
-          android:icon="@drawable/searchicon"/>
-
-    <!-- Other -->
-    <item android:id="@+id/action_settings"
-          android:title="@string/menu_options_settings"
-          app:showAsAction="never"/>
-    <item android:id="@+id/action_sortby"
-          android:title="@string/menu_options_sort"
-          app:showAsAction="never"/>
-    <item android:id="@+id/action_playlist_select"
-          android:title="@string/menu_options_playlists"
-          app:showAsAction="never">
-        <menu></menu>
-    </item>
+          android:icon="@drawable/trashicon"
+          android:visible="false"/>
     <item android:id="@+id/action_addTo"
-          android:title="@string/menu_options_addtoplaylist"
-          app:showAsAction="never"
+          app:showAsAction="always"
+          android:icon="@drawable/action_addplaylist"
           android:visible="false">
         <menu>
             <item android:id="@+id/action_playlist_create"
@@ -34,6 +16,29 @@
                   app:showAsAction="never"/>
         </menu>
     </item>
+    <item android:id="@+id/action_playlist_select"
+          android:title="@string/menu_options_playlists"
+          app:showAsAction="always"
+          android:icon="@drawable/action_playlists">
+        <menu></menu>
+    </item>
+    <item android:id="@+id/action_search"
+          android:title="@string/menu_options_search"
+          app:showAsAction="always"
+          android:icon="@drawable/searchicon"/>
+
+    <!-- Other -->
+
+    <item android:id="@+id/action_settings"
+          android:title="@string/menu_options_settings"
+          app:showAsAction="never"/>
+    <item android:id="@+id/action_sortby"
+          android:title="@string/menu_options_sort"
+          app:showAsAction="never"/>
+    <item android:id="@+id/action_playlist_del"
+          android:title="@string/menu_options_delpl"
+          app:showAsAction="never"
+          android:visible="false"/>
     <item android:id="@+id/action_cancel"
           android:title="@string/menu_options_cancelselect"
           app:showAsAction="never"

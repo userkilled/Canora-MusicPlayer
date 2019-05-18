@@ -139,6 +139,18 @@ public class PlayListManager {
         return 0;
     }
 
+    public int replacePlayList(String name, data_playlist in)
+    {
+        if (!name.equals(""))
+        {
+            PlayLists.get(name).audio.clear();
+            PlayLists.get(name).audio.addAll(in.audio);
+            putLocalPlayLists(PlayLists);
+            return 0;
+        }
+        return 1;
+    }
+
     public boolean checkPlayList(String name) {
         if (PlayLists.get(name) != null) {
             return true;
@@ -150,94 +162,9 @@ public class PlayListManager {
         return pli;
     }
 
-    public void updateOptionsMenu(Menu m) {
-        //TODO#REWRITE: Bad Practice to Modify the View from PLC
-        m.findItem(R.id.action_addTo).getSubMenu().clear();
-        m.findItem(R.id.action_addTo).getSubMenu().add(0, R.id.action_playlist_create, 0, R.string.menu_options_newplaylist).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                mainActivity.displayDialog(Constants.DIALOG_PLAYLIST_CREATE);
-                return false;
-            }
-        });
-        m.findItem(R.id.action_playlist_select).getSubMenu().clear();
-        int plc = 0;
-        for (Map.Entry<String, data_playlist> entry : PlayLists.entrySet()) {
-            //ADDTO
-            SubMenu sub = m.findItem(R.id.action_addTo).getSubMenu();
-            if (entry.getValue().Title.length() != 0) {
-                sub.add(0, plc, 1, entry.getValue().Title);
-                sub.findItem(plc).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        data_playlist t = new data_playlist(item.getTitle().toString(), mainActivity.getSelected());
-                        mainActivity.multiSelect();
-                        updatePlayList(item.getTitle().toString(), t);
-                        mainActivity.showSnackMessage(t.audio.size() + " " + mainActivity.getString(R.string.misc_added));
-                        return false;
-                    }
-                });
-            }
-            entry.getValue().resid = plc;
-            //SELECT
-            plc++;
-            sub = m.findItem(R.id.action_playlist_select).getSubMenu();
-            if (entry.getValue().Title.length() == 0) {
-                sub.add(0, plc, 0, R.string.misc_allfiles);//DEFAULT PLAYLIST
-            } else {
-                sub.add(0, plc, 1, entry.getValue().Title);
-            }
-            entry.getValue().resid2 = plc;
-            sub.findItem(plc).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    for (Map.Entry<String, data_playlist> entry : PlayLists.entrySet()) {
-                        if (item.getItemId() == entry.getValue().resid2) {
-                            if (selectPlayList(entry.getValue().Title) > 0) {
-                                Log.e(LOG_TAG, "ERROR SELECTING PLAYLIST");
-                            } else {
-                                mainActivity.invalidateOptionsMenu();
-                            }
-                            if (entry.getValue().Title.equals("")) {
-                                mainActivity.getSupportActionBar().setDisplayShowHomeEnabled(true);
-                                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-                                String t = "<font color='" + hexColor + "'>" + mainActivity.getString(R.string.app_name) + "</font>";
-                                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
-                            } else {
-                                mainActivity.getSupportActionBar().setDisplayShowHomeEnabled(false);
-                                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-                                String t = "<font color='" + hexColor + "'>" + entry.getValue().Title + "</font>";
-                                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
-                            }
-                            sortContent(sortBy);
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-            });
-            //HIGHLIGHT
-            if (entry.getKey().equals(pli)) {
-                sub.findItem(plc).setCheckable(true).setChecked(true);
-            } else {
-                sub.findItem(plc).setCheckable(false).setChecked(false);
-            }
-            plc++;
-            if (!pli.equals("")) {
-                m.findItem(R.id.action_playlist_del).setVisible(true);
-                m.findItem(R.id.action_playlist_del).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        mainActivity.displayDialog(Constants.DIALOG_PLAYLIST_DELETE);
-                        return false;
-                    }
-                });
-            } else {
-                m.findItem(R.id.action_playlist_del).setVisible(false);
-            }
-        }
+    public Map<String,data_playlist> getPlayLists()
+    {
+        return PlayLists;
     }
 
     //Private Globals
@@ -490,8 +417,18 @@ public class PlayListManager {
         List<data_song> ax = orig.audio;
         List<data_song> bx = adding.audio;
         lst.addAll(ax);
-        for (int i = 0; i < bx.size(); i++) {
-            if (!lst.contains(bx.get(i))) {
+        for (int i = 0; i < bx.size(); i++)
+        {
+            boolean exists = false;
+            for (int y = 0; y < ax.size(); y++) {
+                if (ax.get(y).file.getAbsolutePath().equals(bx.get(i).file.getAbsolutePath()))
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists)
+            {
                 lst.add(bx.get(i));
             }
         }

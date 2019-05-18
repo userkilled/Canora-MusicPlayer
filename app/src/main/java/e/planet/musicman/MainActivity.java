@@ -34,6 +34,7 @@ import android.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
@@ -127,7 +128,82 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         //TODO#POLISHING: Options Menu Changes are still Visible
-        pl.updateOptionsMenu(menu);
+        Menu m = menu;
+        final MainActivity mainActivity = this;
+        m.findItem(R.id.action_addTo).getSubMenu().clear();
+        m.findItem(R.id.action_addTo).getSubMenu().add(0, R.id.action_playlist_create, 0, R.string.menu_options_newplaylist);
+        m.findItem(R.id.action_playlist_select).getSubMenu().clear();
+        int plc = 0;
+        for (Map.Entry<String, data_playlist> entry : pl.getPlayLists().entrySet()) {
+            //ADDTO
+            SubMenu sub = m.findItem(R.id.action_addTo).getSubMenu();
+            if (entry.getValue().Title.length() != 0) {
+                sub.add(0, plc, 1, entry.getValue().Title);
+                sub.findItem(plc).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        data_playlist t = new data_playlist(item.getTitle().toString(), mainActivity.getSelected());
+                        mainActivity.multiSelect();
+                        pl.updatePlayList(item.getTitle().toString(), t);
+                        mainActivity.showSnackMessage(t.audio.size() + " " + mainActivity.getString(R.string.misc_addedto) + " " + item.getTitle());
+                        return false;
+                    }
+                });
+            }
+            entry.getValue().resid = plc;
+            //SELECT
+            plc++;
+            sub = m.findItem(R.id.action_playlist_select).getSubMenu();
+            if (entry.getValue().Title.length() == 0) {
+                sub.add(0, plc, 0, R.string.misc_allfiles);//DEFAULT PLAYLIST
+            } else {
+                sub.add(0, plc, 1, entry.getValue().Title);
+            }
+            entry.getValue().resid2 = plc;
+            sub.findItem(plc).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    for (Map.Entry<String, data_playlist> entry : pl.getPlayLists().entrySet()) {
+                        if (item.getItemId() == entry.getValue().resid2) {
+                            if (pl.selectPlayList(entry.getValue().Title) > 0) {
+                                Log.e(LOG_TAG, "ERROR SELECTING PLAYLIST");
+                            } else {
+                                mainActivity.invalidateOptionsMenu();
+                            }
+                            if (entry.getValue().Title.equals("")) {
+                                mainActivity.getSupportActionBar().setDisplayShowHomeEnabled(true);
+                                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
+                                String t = "<font color='" + hexColor + "'>" + mainActivity.getString(R.string.app_name) + "</font>";
+                                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
+                            } else {
+                                mainActivity.getSupportActionBar().setDisplayShowHomeEnabled(false);
+                                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
+                                String t = "<font color='" + hexColor + "'>" + entry.getValue().Title + "</font>";
+                                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
+                            }
+                            pl.sortContent(sortBy);
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+            //HIGHLIGHT
+            if (entry.getKey().equals(pl.getIndex())) {
+                sub.findItem(plc).setCheckable(true).setChecked(true);
+            } else {
+                sub.findItem(plc).setCheckable(false).setChecked(false);
+            }
+            plc++;
+            if (!pl.getIndex().equals("")) {
+                m.findItem(R.id.action_playlist_del).setVisible(true);
+            } else {
+                m.findItem(R.id.action_playlist_del).setVisible(false);
+            }
+        }
+
         switch (arrayAdapter.state) {
             case Constants.ARRAYADAPT_STATE_DEFAULT:
                 Log.v(LOG_TAG, "OPTIONS NORMAL MODE");
@@ -135,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 menu.findItem(R.id.action_cancel).setVisible(false);
                 menu.findItem(R.id.action_select).setVisible(true);
                 menu.findItem(R.id.action_playlist_select).setVisible(true);
+                menu.findItem(R.id.action_deleteFromPlaylist).setVisible(false);
                 break;
             case Constants.ARRAYADAPT_STATE_SELECT:
                 Log.v(LOG_TAG, "OPTIONS SELECT MODE");
@@ -143,9 +220,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 menu.findItem(R.id.action_cancel).setVisible(true);
                 menu.findItem(R.id.action_select).setVisible(false);
                 menu.findItem(R.id.action_playlist_select).setVisible(false);
+                if (!pl.getIndex().equals(""))
+                    menu.findItem(R.id.action_deleteFromPlaylist).setVisible(true);
                 break;
         }
-        menu.findItem(R.id.action_playlist_del).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+
+        menu.findItem(R.id.action_playlist_select).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+        menu.findItem(R.id.action_addTo).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         menu.findItem(R.id.action_search).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         return super.onPrepareOptionsMenu(menu);
     }
@@ -154,29 +235,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Log.v(LOG_TAG, "Settings Pressed");
                 displayDialog(Constants.DIALOG_SETTINGS);
                 return true;
             case R.id.action_sortby:
-                Log.v(LOG_TAG, "SortBy Pressed");
                 displayDialog(Constants.DIALOG_SORT);
                 return true;
             case R.id.action_search:
-                Log.v(LOG_TAG, "Search Pressed");
                 handleSearch();
                 return true;
             case R.id.action_select:
-                Log.v(LOG_TAG, "Select Pressed");
-                invalidateOptionsMenu();
                 multiSelect();
                 return true;
             case R.id.action_addTo:
-                Log.v(LOG_TAG, "ADDTOPLAYLIST PRESSED");
                 return true;
             case R.id.action_cancel:
-                Log.v(LOG_TAG, "CANCEL PRESSED");
-                invalidateOptionsMenu();
                 multiSelect();
+                return true;
+            case R.id.action_deleteFromPlaylist:
+                displayDialog(Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST);
+                return true;
+            case R.id.action_playlist_del:
+                displayDialog(Constants.DIALOG_WARNING_PLAYLIST_DELETE);
+                return true;
+            case R.id.action_playlist_create:
+                displayDialog(Constants.DIALOG_PLAYLIST_CREATE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -238,7 +320,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 displayDialog(Constants.DIALOG_FILE_INFO);
                 return true;
             case R.id.del:
-                displayDialog(Constants.DIALOG_FILE_DELETE_FROMPLAYLIST);
+                pl.viewList.get(info.position).selected = true;
+                displayDialog(Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -305,6 +388,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         loadFiles();
         serv.init();
         updateSongDisplay();
+        invalidateOptionsMenu();
     }
 
     public void loadFiles() {
@@ -554,7 +638,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             showSnackMessage(getString(R.string.error_emptyplname));
                         } else if (pl.checkPlayList(ip.getText().toString())) {
                             pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
-                            showSnackMessage(t.size() + " " + getString(R.string.misc_added));
+                            showSnackMessage(t.size() + " " + getString(R.string.misc_addedto));
                         } else {
                             if (t.size() <= 0) {
                                 showSnackMessage(getString(R.string.error_createempty));
@@ -585,32 +669,40 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 plcdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 plcdia.show();
                 break;
-            case Constants.DIALOG_FILE_DELETE_FROMPLAYLIST:
+            case Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST:
                 Log.v(LOG_TAG, "SHOWING FILE DELETE FROM PL DIALOG");
                 LayoutInflater liff = LayoutInflater.from(this);
                 View viv = liff.inflate(R.layout.dialog_file_delete, null);
                 AlertDialog.Builder build = new AlertDialog.Builder(this, R.style.DialogStyle);
-                TextView tv = viv.findViewById(R.id.fpath);
-                tv.setText(pl.viewList.get(arrayAdapter.clicked).Title);
+                TextView tv = viv.findViewById(R.id.ays);
+                tv.setText(getString(R.string.dialog_file_deletefrom_t1) + " " + getSelected().size() + " " + getString(R.string.dialog_file_deletefrom_t2));
                 build.setPositiveButton(R.string.misc_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String fpath = pl.viewList.get(arrayAdapter.clicked).file.getAbsolutePath();
                         if (pl.getIndex().equals("")) {
                             showSnackMessage(getString(R.string.error_delfromdef));
-                        } else if (pl.contentList.size() <= 1) {
+                        } else if (pl.contentList.size() <= getSelected().size()) {
                             showSnackMessage(getString(R.string.error_delfromempty));
                         } else {
+                            List<data_song> t = getSelected();
+                            List<data_song> nw = new ArrayList<>();
                             for (int i = 0; i < pl.contentList.size(); i++) {
-                                if (pl.contentList.get(i).file.getAbsolutePath().equals(fpath)) {
-                                    List<data_song> nw = new ArrayList<>(pl.contentList);
-                                    nw.remove(i);
-                                    data_playlist ip = new data_playlist(pl.getIndex(), nw);
-                                    pl.createPlayList(pl.getIndex(), ip);
-                                    pl.selectPlayList(pl.getIndex());
-                                    break;
+                                boolean ex = false;
+                                for (int y = 0; y < t.size(); y++) {
+                                    if (t.get(y).file.getAbsolutePath().equals(pl.contentList.get(i).file.getAbsolutePath())) {
+                                        ex = true;
+                                        break;
+                                    }
                                 }
+                                if (!ex)
+                                    nw.add(pl.contentList.get(i));
                             }
+                            data_playlist tmp = new data_playlist(pl.getIndex(), nw);
+                            pl.replacePlayList(pl.getIndex(), tmp);
+                            pl.selectPlayList(pl.getIndex());
+                            multiSelect(false);
+                            notifyArrayAdapter();
+                            showSnackMessage(t.size() + " " + getString(R.string.misc_removed));
                         }
                     }
                 });
@@ -662,7 +754,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 eddiae.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 eddiae.show();
                 break;
-            case Constants.DIALOG_PLAYLIST_DELETE:
+            case Constants.DIALOG_WARNING_PLAYLIST_DELETE:
                 Log.v(LOG_TAG, "SHOWING DELETE PLAYLIST DIALOG");
                 LayoutInflater laf = LayoutInflater.from(this);
                 View vivef = laf.inflate(R.layout.dialog_playlist_delete, null);
@@ -945,14 +1037,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             Log.v(LOG_TAG, "SWITCHING TO SELECT MODE");
             arrayAdapter.state = Constants.ARRAYADAPT_STATE_SELECT;
             invalidateOptionsMenu();
+            for (int i = 0; i < pl.contentList.size(); i++) {
+                pl.contentList.get(i).selected = false;
+            }
         } else {
             Log.v(LOG_TAG, "SWITCHING TO NORMAL MODE");
-            ListView v = findViewById(R.id.mainViewport);
-            List<data_song> p = getSelected();
-            Log.v(LOG_TAG, "NUMBER OF SELECTED ITEMS: " + p.size());
-            for (int i = 0; i < p.size(); i++) {
-                Log.v(LOG_TAG, "ITEM " + i + " PATH: " + p.get(i).file.getAbsolutePath());
-            }
             arrayAdapter.state = Constants.ARRAYADAPT_STATE_DEFAULT;
             invalidateOptionsMenu();
             for (int i = 0; i < pl.contentList.size(); i++) {
@@ -960,6 +1049,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         }
         arrayAdapter.notifyDataSetChanged();
+    }
+
+    public void multiSelect(boolean state)
+    {
+        if (state)
+        {
+            arrayAdapter.state = Constants.ARRAYADAPT_STATE_SELECT;
+            invalidateOptionsMenu();
+            for (int i = 0; i < pl.contentList.size(); i++) {
+                pl.contentList.get(i).selected = false;
+            }
+        }
+        else
+        {
+            arrayAdapter.state = Constants.ARRAYADAPT_STATE_DEFAULT;
+            invalidateOptionsMenu();
+            for (int i = 0; i < pl.contentList.size(); i++) {
+                pl.contentList.get(i).selected = false;
+            }
+        }
     }
 
     private data_playlist getPlayList(String title, List<data_song> audio) {
@@ -1013,7 +1122,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         TextView tv = b.getView().findViewById(android.support.design.R.id.snackbar_text);
         tv.setTextColor(getColorFromAtt(R.attr.colorSnackbarText));
         b.getView().setBackgroundColor(getColorFromAtt(R.attr.colorSnackbarBackground));
-        b.show();
+        //b.show();
     }
 
     public int getColorFromAtt(int v) {
@@ -1100,7 +1209,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             serv = ((MusicPlayerService.LocalBinder) service).getService();
             getSettings();
             initPlayer();
-            handleProgressAnimation(serv.getDuration(),serv.getCurrentPosition());
+            handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
             globT.printStep(LOG_TAG, "Service Initialization");
             //long l = globT.tdur;
             //showSnackMessage(getString(R.string.misc_init) + ": " + l + " ms.");
