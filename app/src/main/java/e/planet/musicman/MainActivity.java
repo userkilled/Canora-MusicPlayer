@@ -436,8 +436,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int secondsP = (pos / 1000) % 60;
         String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + " - " + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
         tv.setText(dspt);
-        if (serv.getPlaybackStatus())
+        setPlayButton((ImageButton)findViewById(R.id.buttonPlay) ,serv.getPlaybackStatus());
+        if (serv.getPlaybackStatus()) {
             animator.start();
+        }
     }
 
     public void updateSongDisplay() {
