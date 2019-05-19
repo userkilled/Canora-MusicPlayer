@@ -289,7 +289,7 @@ public class MusicPlayerService extends Service {
                 .setStyle(new Notification.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2))
                 .setColor(0x020202)
-                .setSmallIcon(R.drawable.notification_mainicon)
+                .setSmallIcon(R.drawable.mainicon40x40)
                 .setContentTitle(md.get("TITLE"))
                 .setContentText(md.get("ARTIST"))
                 .addAction(R.drawable.main_btnprev, "prev", retrievePlaybackAction(3));
