@@ -2,7 +2,7 @@
     <string name="app_name">Canora</string>
     <!-- Dialogues -->
     <string name="dialog_file_deletefrom_t1">Do you really want to delete</string>
-    <string name="dialog_file_deletefrom_t2">Files?</string>
+    <string name="dialog_file_deletefrom_t2">Files from the Playlist?</string>
     <string name="dialog_file_info_title">File Info</string>
     <string name="dialog_file_info_t1">Filepath</string>
     <string name="dialog_playlist_delete_t1">Do you really want to delete the Playlist:</string>

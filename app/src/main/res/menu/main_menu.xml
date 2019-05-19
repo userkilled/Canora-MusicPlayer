@@ -4,7 +4,7 @@
     <!-- Actions -->
     <item android:id="@+id/action_deleteFromPlaylist"
           app:showAsAction="always"
-          android:icon="@drawable/trashicon"
+          android:icon="@drawable/action_remfrompl"
           android:visible="false"/>
     <item android:id="@+id/action_addTo"
           app:showAsAction="always"
@@ -35,10 +35,6 @@
     <item android:id="@+id/action_sortby"
           android:title="@string/menu_options_sort"
           app:showAsAction="never"/>
-    <item android:id="@+id/action_playlist_del"
-          android:title="@string/menu_options_delpl"
-          app:showAsAction="never"
-          android:visible="false"/>
     <item android:id="@+id/action_cancel"
           android:title="@string/menu_options_cancelselect"
           app:showAsAction="never"
@@ -46,4 +42,8 @@
     <item android:id="@+id/action_select"
           android:title="@string/menu_options_select"
           app:showAsAction="never"/>
+    <item android:id="@+id/action_playlist_del"
+          android:title="@string/menu_options_delpl"
+          app:showAsAction="never"
+          android:visible="false"/>
 </menu>

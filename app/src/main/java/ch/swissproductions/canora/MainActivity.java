@@ -320,10 +320,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.info:
                 displayDialog(Constants.DIALOG_FILE_INFO);
                 return true;
-            case R.id.del:
-                pl.viewList.get(info.position).selected = true;
-                displayDialog(Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST);
-                return true;
             default:
                 return super.onContextItemSelected(item);
         }
@@ -802,7 +798,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setupActionBar() {
         ActionBar actionbar = getSupportActionBar();
-        actionbar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
+        Drawable mc = getDrawable(R.drawable.mainicon40x40);
+        mc.mutate().setColorFilter(getColorFromAtt(R.attr.colorText),PorterDuff.Mode.MULTIPLY);
+        getSupportActionBar().setIcon(mc);
+        getSupportActionBar().setLogo(mc);
         actionbar.setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
         String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
         String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
