@@ -60,6 +60,8 @@ public final class Constants {
             settList.add(SETTING_SHUFFLE);
             settings.put("SETTING_THEME", SETTING_THEME);
             settList.add(SETTING_THEME);
+            settings.put("SETTING_EQUALIZERPRESET",SETTING_EQUALIZERPRESET);
+            settList.add(SETTING_EQUALIZERPRESET);
         }
 
         public Map<String, String> getSettings() {
@@ -77,6 +79,7 @@ public final class Constants {
     public static final String SETTING_SHUFFLE = "SHUFFLE";
     public static final String SETTING_REPEAT = "REPEAT";
     public static final String SETTING_THEME = "THEME";
+    public static final String SETTING_EQUALIZERPRESET = "EQPRE";
 
     public static final int SORT_BYTITLE = 0;
     public static final int SORT_BYARTIST = 1;

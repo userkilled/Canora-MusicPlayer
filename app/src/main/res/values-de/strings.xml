@@ -51,6 +51,7 @@
     <string name="misc_unknown">Unbekannt</string>
 
     <string name="misc_themes">Themen</string>
+    <string name="misc_equalizerpreset">Equalizer Voreinstellungen</string>
 
     <string name="misc_allfiles">Alle Dateien</string>
     <string name="misc_init">Initialisierungs Zeit</string>

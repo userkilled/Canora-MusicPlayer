@@ -42,7 +42,7 @@
                 android:textColor="?colorDialogText"
                 android:includeFontPadding="false"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
         />
         <Spinner android:id="@+id/spinner"
                  android:layout_width="match_parent"
@@ -51,7 +51,32 @@
                  android:popupBackground="?colorDialogBackground"
                  android:layout_below="@id/textView1"
                  android:layout_centerHorizontal="true"
-                 android:layout_marginBottom="10dp"
+                 android:layout_marginBottom="20dp"
+        />
+    </RelativeLayout>
+    <RelativeLayout android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?colorDialogBackground"
+                    android:layout_below="@id/themeBox"
+                    android:layout_marginTop="5dp">
+        <TextView
+                android:id="@+id/TitleEqualizer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/misc_equalizerpreset"
+                android:textColor="?colorDialogText"
+                android:includeFontPadding="false"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+        />
+        <Spinner android:id="@+id/spinnerEqualizer"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:backgroundTint="?colorDialogText"
+                 android:popupBackground="?colorDialogBackground"
+                 android:layout_below="@id/TitleEqualizer"
+                 android:layout_centerHorizontal="true"
+                 android:layout_marginBottom="20dp"
         />
     </RelativeLayout>
 </RelativeLayout>

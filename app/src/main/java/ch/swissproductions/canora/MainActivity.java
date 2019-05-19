@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
@@ -146,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         data_playlist t = new data_playlist(item.getTitle().toString(), mainActivity.getSelected());
                         mainActivity.multiSelect();
                         pl.updatePlayList(item.getTitle().toString(), t);
-                        mainActivity.showSnackMessage(t.audio.size() + " " + mainActivity.getString(R.string.misc_addedto) + " " + item.getTitle());
+                        mainActivity.showToastMessage(t.audio.size() + " " + mainActivity.getString(R.string.misc_addedto) + " " + item.getTitle());
                         return false;
                     }
                 });
@@ -380,14 +379,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 42;
 
-    public void initPlayer() {
-        /* Callback when Player Service is Ready */
-        loadFiles();
-        serv.init();
-        updateSongDisplay();
-        invalidateOptionsMenu();
-    }
-
     public void loadFiles() {
         Log.v(LOG_TAG, "LOADING FILES");
         pl.loadContent();
@@ -543,7 +534,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 });
 
                 Spinner spinner = v.findViewById(R.id.spinner);
-                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.Themes, android.R.layout.simple_spinner_item);
+                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.Themes, R.layout.spinner_item);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinner.setAdapter(adapter);
                 spinner.setSelection(thm.getSpinnerPosition(thm.getThemeResourceID()));
@@ -563,7 +554,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
 
                 });
+                ArrayAdapter<String> ada = new ArrayAdapter<>(this,R.layout.spinner_item,serv.getEqualizerPresetNames());
+                ada.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner = v.findViewById(R.id.spinnerEqualizer);
+                spinner.setAdapter(ada);
+                spinner.setSelection(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                        serv.setEqualizerPreset(serv.getEqualizerPresetNames().get(arg2));
+                        sc.putSetting(Constants.SETTING_EQUALIZERPRESET,"" + arg2);
+                    }
 
+                    @Override
+                    public void onNothingSelected(AdapterView<?> arg0) {
+
+                    }
+
+                });
                 setdia.setView(v);
                 setdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 setdia.show();
@@ -633,16 +641,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             Log.v(LOG_TAG, "ITEM: " + t.get(i).file.getAbsolutePath());
                         }
                         if (ip.getText().toString().length() == 0) {
-                            showSnackMessage(getString(R.string.error_emptyplname));
+                            showToastMessage(getString(R.string.error_emptyplname));
                         } else if (pl.checkPlayList(ip.getText().toString())) {
                             pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
-                            showSnackMessage(t.size() + " " + getString(R.string.misc_addedto));
+                            showToastMessage(t.size() + " " + getString(R.string.misc_addedto) + ip.getText().toString());
                         } else {
                             if (t.size() <= 0) {
-                                showSnackMessage(getString(R.string.error_createempty));
+                                showToastMessage(getString(R.string.error_createempty));
                             } else {
-                                pl.createPlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
-                                showSnackMessage(getString(R.string.misc_createpl) + ": " + ip.getText().toString());
+                                String in = ip.getText().toString();
+                                pl.createPlayList(in, getPlayList(ip.getText().toString(), t));
+                                showToastMessage(getString(R.string.misc_createpl) + ": " + in);
                             }
                         }
                         pl.sortContent(sortBy);
@@ -678,9 +687,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (pl.getIndex().equals("")) {
-                            showSnackMessage(getString(R.string.error_delfromdef));
+                            showToastMessage(getString(R.string.error_delfromdef));
                         } else if (pl.contentList.size() <= getSelected().size()) {
-                            showSnackMessage(getString(R.string.error_delfromempty));
+                            showToastMessage(getString(R.string.error_delfromempty));
                         } else {
                             List<data_song> t = getSelected();
                             List<data_song> nw = new ArrayList<>();
@@ -700,7 +709,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             pl.selectPlayList(pl.getIndex());
                             multiSelect(false);
                             notifyArrayAdapter();
-                            showSnackMessage(t.size() + " " + getString(R.string.misc_removed));
+                            showToastMessage(t.size() + " " + getString(R.string.misc_removed));
                         }
                     }
                 });
@@ -1117,12 +1126,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    public void showSnackMessage(String msg) {
-        Snackbar b = Snackbar.make(findViewById(android.R.id.content), msg, Snackbar.LENGTH_LONG);
-        TextView tv = b.getView().findViewById(android.support.design.R.id.snackbar_text);
-        tv.setTextColor(getColorFromAtt(R.attr.colorSnackbarText));
-        b.getView().setBackgroundColor(getColorFromAtt(R.attr.colorSnackbarBackground));
-        //b.show();
+    public void showToastMessage(String msg) {
+        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     public int getColorFromAtt(int v) {
@@ -1208,11 +1214,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         public void onServiceConnected(ComponentName className, IBinder service) {
             serv = ((MusicPlayerService.LocalBinder) service).getService();
             getSettings();
-            initPlayer();
+            loadFiles();
+            serv.init();
+            updateSongDisplay();
+            invalidateOptionsMenu();
+            serv.setEqualizerPreset(serv.getEqualizerPresetNames().get(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET))));
             handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
             globT.printStep(LOG_TAG, "Service Initialization");
             //long l = globT.tdur;
-            //showSnackMessage(getString(R.string.misc_init) + ": " + l + " ms.");
+            //showToastMessage(getString(R.string.misc_init) + ": " + l + " ms.");
         }
 
         public void onServiceDisconnected(ComponentName className) {

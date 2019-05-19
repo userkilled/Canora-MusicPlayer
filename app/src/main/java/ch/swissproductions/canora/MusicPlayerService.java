@@ -3,6 +3,7 @@ package ch.swissproductions.canora;
 import android.app.*;
 import android.content.*;
 import android.media.MediaPlayer;
+import android.media.audiofx.Equalizer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -26,6 +27,8 @@ public class MusicPlayerService extends Service {
         plm = new PlayBackManager();
         registerReceiver();
         handleMediaController();
+        player = new MediaPlayer();
+        mpq = new MediaPlayerEqualizer(player);
     }
 
     public void onDestroy() {
@@ -45,6 +48,8 @@ public class MusicPlayerService extends Service {
 
     //Globals
     private MediaPlayer player;
+    private MediaPlayerEqualizer mpq;
+
     private int position; //Position of Media Player in Miliseconds
 
     private final IBinder mBinder = new LocalBinder();
@@ -249,6 +254,21 @@ public class MusicPlayerService extends Service {
         return 0;
     }
 
+    public int setEqualizerPreset(String name)
+    {
+        if (player != null)
+            mpq.setPreset(name);
+        return 0;
+    }
+
+    public List<String> getEqualizerPresetNames()
+    {
+        if (player != null)
+            return mpq.getPresets();
+        else
+            return new ArrayList<>();
+    }
+
     //Private Functions
     private void handleMediaController() {
         nfm = NotificationManagerCompat.from(this);
@@ -366,6 +386,7 @@ public class MusicPlayerService extends Service {
         songP = "file://" + songP;
         Log.v(LOG_TAG, "CREATING PLAYER: " + songP);
         player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
+        mpq.updateMP(player);
         if (player != null) {
             player.start();
             playing = true;

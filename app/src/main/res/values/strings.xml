@@ -50,6 +50,7 @@
     <string name="misc_unknown">Unknown</string>
 
     <string name="misc_themes">Themes</string>
+    <string name="misc_equalizerpreset">Equalizer Presets</string>
 
     <string name="misc_allfiles">All Files</string>
     <string name="misc_init">Initialization Time</string>
