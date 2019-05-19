@@ -423,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int secondsP = (pos / 1000) % 60;
         String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + " - " + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
         tv.setText(dspt);
-        setPlayButton((ImageButton)findViewById(R.id.buttonPlay) ,serv.getPlaybackStatus());
+        setPlayButton((ImageButton) findViewById(R.id.buttonPlay), serv.getPlaybackStatus());
         if (serv.getPlaybackStatus()) {
             animator.start();
         }
@@ -554,7 +554,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
 
                 });
-                ArrayAdapter<String> ada = new ArrayAdapter<>(this,R.layout.spinner_item,serv.getEqualizerPresetNames());
+                ArrayAdapter<String> ada = new ArrayAdapter<>(this, R.layout.spinner_item, serv.getEqualizerPresetNames());
                 ada.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinner = v.findViewById(R.id.spinnerEqualizer);
                 spinner.setAdapter(ada);
@@ -563,7 +563,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                         serv.setEqualizerPreset(serv.getEqualizerPresetNames().get(arg2));
-                        sc.putSetting(Constants.SETTING_EQUALIZERPRESET,"" + arg2);
+                        sc.putSetting(Constants.SETTING_EQUALIZERPRESET, "" + arg2);
                     }
 
                     @Override
@@ -809,7 +809,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         ActionBar actionbar = getSupportActionBar();
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
         Drawable mc = getDrawable(R.drawable.mainicon40x40);
-        mc.mutate().setColorFilter(getColorFromAtt(R.attr.colorText),PorterDuff.Mode.MULTIPLY);
+        mc.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         getSupportActionBar().setIcon(mc);
         getSupportActionBar().setLogo(mc);
         actionbar.setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
@@ -901,10 +901,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.switchShuffle()) {
                         sc.putSetting(Constants.SETTING_SHUFFLE, "true");
-                        btn.setBackgroundColor(getColorFromAtt(R.attr.colorHighlight));
+                        colorControlWidgets();
                     } else {
                         sc.putSetting(Constants.SETTING_SHUFFLE, "false");
-                        btn.setBackgroundColor(Color.TRANSPARENT);
+                        colorControlWidgets();
                     }
                 }
             }
@@ -916,10 +916,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (serv != null) {
                     if (serv.switchRepeat()) {
                         sc.putSetting(Constants.SETTING_REPEAT, "true");
-                        btn.setBackgroundColor(getColorFromAtt(R.attr.colorHighlight));
+                        colorControlWidgets();
                     } else {
                         sc.putSetting(Constants.SETTING_REPEAT, "false");
-                        btn.setBackgroundColor(Color.TRANSPARENT);
+                        colorControlWidgets();
                     }
                 }
             }
@@ -987,12 +987,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         btn = findViewById(R.id.buttonNex);
         btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
-        btn = findViewById(R.id.buttonShuff);
-        btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
-        btn = findViewById(R.id.buttonRep);
-        btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         btn = findViewById(R.id.searchbybtn);
         btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+        if (serv != null && serv.getShuffle()) {
+            btn = findViewById(R.id.buttonShuff);
+            btn.setColorFilter(getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.MULTIPLY);
+        } else {
+            btn = findViewById(R.id.buttonShuff);
+            btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+        }
+        if (serv != null && serv.getRepeat()) {
+            btn = findViewById(R.id.buttonRep);
+            btn.setColorFilter(getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.MULTIPLY);
+        } else {
+            btn = findViewById(R.id.buttonRep);
+            btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+        }
     }
 
     private void setListAdapter() {
@@ -1108,22 +1118,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         searchBy = Integer.parseInt(sc.getSetting(Constants.SETTING_SEARCHBY));
         serv.setVolume(Float.parseFloat(sc.getSetting(Constants.SETTING_VOLUME)));
         serv.switchRepeat(Boolean.parseBoolean(sc.getSetting(Constants.SETTING_REPEAT)));
-        if (Boolean.parseBoolean(sc.getSetting(Constants.SETTING_REPEAT))) {
-            ImageButton btn = findViewById(R.id.buttonRep);
-            btn.setBackgroundColor(getColorFromAtt(R.attr.colorHighlight));
-        } else {
-            ImageButton btn = findViewById(R.id.buttonRep);
-            btn.setBackgroundColor(Color.TRANSPARENT);
-        }
         serv.switchShuffle(Boolean.parseBoolean(sc.getSetting(Constants.SETTING_SHUFFLE)));
-        if (Boolean.parseBoolean(sc.getSetting(Constants.SETTING_SHUFFLE))) {
-
-            ImageButton btn = findViewById(R.id.buttonShuff);
-            btn.setBackgroundColor(getColorFromAtt(R.attr.colorHighlight));
-        } else {
-            ImageButton btn = findViewById(R.id.buttonShuff);
-            btn.setBackgroundColor(Color.TRANSPARENT);
-        }
+        colorControlWidgets();
     }
 
     public void showToastMessage(String msg) {

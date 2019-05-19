@@ -269,6 +269,9 @@ public class MusicPlayerService extends Service {
             return new ArrayList<>();
     }
 
+    public boolean getRepeat(){return repeatSong;}
+    public boolean getShuffle(){return plm.shuffle;}
+
     //Private Functions
     private void handleMediaController() {
         nfm = NotificationManagerCompat.from(this);
