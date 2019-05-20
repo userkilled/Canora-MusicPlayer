@@ -253,9 +253,11 @@ public class MusicPlayerService extends Service {
         return 0;
     }
 
-    public int setEqualizerPreset(String name) {
-        if (mpq != null)
-            mpq.setPreset(player, name);
+    public int setEqualizerPreset(int preset) {
+        Log.v(LOG_TAG, "SELECTING PRESET: " + preset);
+        if (mpq != null) {
+            mpq.setPreset(player, preset);
+        }
         return 0;
     }
 

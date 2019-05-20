@@ -274,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setPlayButton(btn, true);
             else
                 setPlayButton(btn, false);
+            serv.setEqualizerPreset(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
             updateSongDisplay();
             handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
         }
@@ -562,7 +563,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        serv.setEqualizerPreset(serv.getEqualizerPresetNames().get(arg2));
+                        serv.setEqualizerPreset(arg2);
                         sc.putSetting(Constants.SETTING_EQUALIZERPRESET, "" + arg2);
                     }
 
@@ -1214,9 +1215,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             serv.init();
             updateSongDisplay();
             invalidateOptionsMenu();
-            List<String> names = serv.getEqualizerPresetNames();
-            if (names != null)
-                serv.setEqualizerPreset(names.get(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET))));
+            serv.setEqualizerPreset(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
             handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
             globT.printStep(LOG_TAG, "Service Initialization");
             //long l = globT.tdur;

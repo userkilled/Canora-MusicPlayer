@@ -22,6 +22,14 @@ public class MediaPlayerEqualizer {
         }
     }
 
+    public void setPreset(MediaPlayer mp, int preset) {
+        if (mp != null) {
+            eq = new Equalizer(0, mp.getAudioSessionId());
+            eq.setEnabled(true);
+            eq.usePreset((short) preset);
+        }
+    }
+
     public void setPreset(MediaPlayer mp, String preset) {
         if (mp != null) {
             eq = new Equalizer(0, mp.getAudioSessionId());
