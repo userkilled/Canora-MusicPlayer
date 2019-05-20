@@ -253,23 +253,26 @@ public class MusicPlayerService extends Service {
         return 0;
     }
 
-    public int setEqualizerPreset(String name)
-    {
+    public int setEqualizerPreset(String name) {
         if (mpq != null)
-            mpq.setPreset(player,name);
+            mpq.setPreset(player, name);
         return 0;
     }
 
-    public List<String> getEqualizerPresetNames()
-    {
+    public List<String> getEqualizerPresetNames() {
         if (mpq != null)
             return mpq.getPresets();
         else
             return new ArrayList<>();
     }
 
-    public boolean getRepeat(){return repeatSong;}
-    public boolean getShuffle(){return plm.shuffle;}
+    public boolean getRepeat() {
+        return repeatSong;
+    }
+
+    public boolean getShuffle() {
+        return plm.shuffle;
+    }
 
     //Private Functions
     private void handleMediaController() {

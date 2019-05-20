@@ -60,7 +60,7 @@ public final class Constants {
             settList.add(SETTING_SHUFFLE);
             settings.put("SETTING_THEME", SETTING_THEME);
             settList.add(SETTING_THEME);
-            settings.put("SETTING_EQUALIZERPRESET",SETTING_EQUALIZERPRESET);
+            settings.put("SETTING_EQUALIZERPRESET", SETTING_EQUALIZERPRESET);
             settList.add(SETTING_EQUALIZERPRESET);
         }
 

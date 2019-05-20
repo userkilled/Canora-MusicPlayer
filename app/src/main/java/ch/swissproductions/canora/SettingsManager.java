@@ -30,7 +30,7 @@ public class SettingsManager {
             data.put(Constants.SETTING_REPEAT, "false");
             data.put(Constants.SETTING_SHUFFLE, "false");
             data.put(Constants.SETTING_THEME, Constants.THEME_DEFAULT);
-            data.put(Constants.SETTING_EQUALIZERPRESET,"0");
+            data.put(Constants.SETTING_EQUALIZERPRESET, "0");
             writeDataAsXML(settingsFile.getAbsolutePath(), data);
         }
     }
