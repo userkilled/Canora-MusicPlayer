@@ -27,7 +27,7 @@ public class MusicPlayerService extends Service {
         plm = new PlayBackManager();
         registerReceiver();
         handleMediaController();
-        mpq = new MediaPlayerEqualizer(new MediaPlayer());
+        mpq = new MediaPlayerEqualizer();
     }
 
     public void onDestroy() {
@@ -256,7 +256,7 @@ public class MusicPlayerService extends Service {
     public int setEqualizerPreset(String name)
     {
         if (mpq != null)
-            mpq.setPreset(name);
+            mpq.setPreset(player,name);
         return 0;
     }
 
@@ -388,7 +388,6 @@ public class MusicPlayerService extends Service {
         songP = "file://" + songP;
         Log.v(LOG_TAG, "CREATING PLAYER: " + songP);
         player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
-        mpq.updateMP(player);
         if (player != null) {
             player.start();
             playing = true;
