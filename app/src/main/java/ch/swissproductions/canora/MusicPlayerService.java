@@ -27,8 +27,7 @@ public class MusicPlayerService extends Service {
         plm = new PlayBackManager();
         registerReceiver();
         handleMediaController();
-        player = new MediaPlayer();
-        mpq = new MediaPlayerEqualizer(player);
+        mpq = new MediaPlayerEqualizer(new MediaPlayer());
     }
 
     public void onDestroy() {
@@ -256,14 +255,14 @@ public class MusicPlayerService extends Service {
 
     public int setEqualizerPreset(String name)
     {
-        if (player != null)
+        if (mpq != null)
             mpq.setPreset(name);
         return 0;
     }
 
     public List<String> getEqualizerPresetNames()
     {
-        if (player != null)
+        if (mpq != null)
             return mpq.getPresets();
         else
             return new ArrayList<>();

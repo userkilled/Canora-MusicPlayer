@@ -1214,7 +1214,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             serv.init();
             updateSongDisplay();
             invalidateOptionsMenu();
-            serv.setEqualizerPreset(serv.getEqualizerPresetNames().get(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET))));
+            List<String> names = serv.getEqualizerPresetNames();
+            if (names != null)
+                serv.setEqualizerPreset(names.get(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET))));
             handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
             globT.printStep(LOG_TAG, "Service Initialization");
             //long l = globT.tdur;
