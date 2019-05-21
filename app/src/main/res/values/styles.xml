@@ -93,9 +93,9 @@
 
     <style name="AppTheme.Light" parent="Base.Theme.AppCompat.Light">
         <item name="colorViewPort">#ffffff</item>
-        <item name="colorFrame">#ffffff</item>
+        <item name="colorFrame">#d9d9d9</item>
         <item name="colorText">#000000</item>
-        <item name="colorHighlight">#00cccc</item>
+        <item name="colorHighlight">#000099</item>
 
         <item name="colorDialogBackground">?colorViewPort</item>
         <item name="colorDialogFrame">?colorFrame</item>
