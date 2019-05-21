@@ -334,6 +334,7 @@ public class PlayListManager {
         Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
                 MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION
         }, null, null, null);
+        boolean found = false;
         while (c.moveToNext()) {
             if (c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)).equals(f.getAbsolutePath())) {
                 t.Title = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE));
@@ -342,14 +343,14 @@ public class PlayListManager {
                 t.file = new File(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
                 t.length = Long.parseLong(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DURATION)));
                 t.id = GIDC++;
+                found = true;
             }
         }
         c.close();
-        if (t.file == null) {
-            Log.e(LOG_TAG, "FILE " + f.getAbsolutePath() + " NOT FOUND IN MEDIASTORE, FALLING BACK TO MEDIA-METADATA-RETRIEVER (SLOW PERFORMANCE)");
-            t.file = f;
+        if (!found) {
             MediaMetadataRetriever m = new MediaMetadataRetriever();
             m.setDataSource(f.getAbsolutePath());
+            t.file = f;
             t.Title = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
             if (t.Title == null)
                 t.Title = f.getName();
@@ -357,6 +358,7 @@ public class PlayListManager {
             if (t.Artist == null)
                 t.Artist = mainActivity.getString(R.string.misc_unknown);
             t.length = Long.parseLong(m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            t.id = GIDC++;
         }
         return t;
     }
