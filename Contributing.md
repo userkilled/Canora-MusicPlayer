@@ -1,10 +1,10 @@
-# MusicMan Contributor's guidelines.
+# Canora Contributor's guidelines.
 
 
 # How to contribute
 
-Great! MusicMan continues to improve from the contributions of its users. This could include code contributions, feature requests, and bug fixes for [MusicMan](https://github.com/ZoidbergZero/MusicMan). 
-Thank you for your interest in contributing to MusicMan. I appreciate all help with finding and fixing bugs, making performance improvements, and other tasks. Every contribution is helpful and I thank you for your effort. To ensure the process of contributing is as smooth as possible, here are a few guidelines for you to follow.
+Great! Canora continues to improve from the contributions of its users. This could include code contributions, feature requests, and bug fixes for [Canora](https://github.com/ZoidbergZero/Canora-MusicPlayer).
+Thank you for your interest in contributing to Canora. I appreciate all help with finding and fixing bugs, making performance improvements, and other tasks. Every contribution is helpful and I thank you for your effort. To ensure the process of contributing is as smooth as possible, here are a few guidelines for you to follow.
 
 - Remember to Create an Issue before submitting any major changes like a new feature or UI changes etc. Changes like the addition of new language or spelling mistakes don't require issue creation.
 ---
@@ -12,7 +12,7 @@ Thank you for your interest in contributing to MusicMan. I appreciate all help w
 
 # Creating an issue
 
-There are several reasons to create a new issue. As always, make sure you search through open and **closed** 
+There are several reasons to create a new issue. As always, make sure you search through open and **closed**
 issues before opening a new one.
 There's a good chance that whatever reason you might be opening an issue for might already have been opened or closed by another user.
 
@@ -23,7 +23,7 @@ Great! The developer loves new ideas and welcome opportunities for improvement.
 
 ### I'm not a developer
 
-Great. Feel free to open a new issue. Please describe the enhancement or feature you like and then be patient. The developer would certainly work on the request as soon as possible. Help can also be gotten from the opensource community. 
+Great. Feel free to open a new issue. Please describe the enhancement or feature you like and then be patient. The developer would certainly work on the request as soon as possible. Help can also be gotten from the opensource community.
 
 In order to help the developer understand the feature request;
 
@@ -36,10 +36,10 @@ When submitting a feature request, please make a single issue for each feature r
 
 ### I'm a developer (Code Contributions).
 
-Fantastic. It's very rare for us to deny pull requests. Open a ticket to let other's know what you are working on along with a description. Fork the repository which in this case is [MusicMan](https://github.com/ZoidbergZero/MusicMan), make your desired changes, and send a pull request.
+Fantastic. It's very rare for us to deny pull requests. Open a ticket to let other's know what you are working on along with a description. Fork the repository which in this case is [Canora](https://github.com/ZoidbergZero/Canora-MusicPlayer), make your desired changes, and send a pull request.
 
 Please refrain from reformatting or rearranging the code. It makes it very hard to identify changes
-in pull requests. 
+in pull requests.
 If you're adding a new feature or function, please either incorporate a test or a sample that shows
 how your new function can be used. Oh, and please make sure it works.
 
@@ -74,30 +74,30 @@ After submitting a pull request, you should get a response within the next 7 day
 
 ## Creating a pull request
 
-If you don't know how to create a pull request, this section will help you to get started. 
+If you don't know how to create a pull request, this section will help you to get started.
 
 Here's a detailed content on how to [Create a pull request](https://help.github.com/articles/creating-a-pull-request)
 
-Simply put, the way to create a Pull request is first to; 
+Simply put, the way to create a Pull request is first to;
 
-1. Fork the repository of the project which in this case is [MusicMan](https://github.com/ZoidbergZero/MusicMan)
+1. Fork the repository of the project which in this case is [Canora](https://github.com/ZoidbergZero/Canora-MusicPlayer)
 2. Commit modifications and changes to your fork
 3. Send a [pull request](https://help.github.com/articles/creating-a-pull-request) to the original repository you forked your repository from in step 1
 
 ## Bug Reports
 
-Sorry to hear about your troubles. I try to make the app free of bugs and errors but, the app is not 100% bug proof. That's why bug reports are useful for this project when you encounter them. Before filing a bug report; check the issue tracker if the bug hasn't been reported by other users. If it has been reported before, it is likely to be in [opened issues](https://github.com/ZoidbergZero/MusicMan/issues?q=is%3Aopen+is%3Aissue).  You can also check out [closed issues](https://github.com/ZoidbergZero/MusicMan/issues?q=is%3Aissue+is%3Aclosed).
- 
+Sorry to hear about your troubles. I try to make the app free of bugs and errors but, the app is not 100% bug proof. That's why bug reports are useful for this project when you encounter them. Before filing a bug report; check the issue tracker if the bug hasn't been reported by other users. If it has been reported before, it is likely to be in [opened issues](https://github.com/ZoidbergZero/Canora-MusicPlayer/issues?q=is%3Aopen+is%3Aissue).  You can also check out [closed issues](https://github.com/ZoidbergZero/Canora-MusicPlayer/issues?q=is%3Aissue+is%3Aclosed).
+
 
 So, if it's a new issue; please include the following:
 
  * Steps to reproduce and/or sample code to recreate the problem.
- * I'll also need to know what version of MusicMan you've installed and,
- * The version of Android in the device in question. Sometimes the manufacturer is helpful too. Since there can be variants of Android that may affect 
+ * I'll also need to know what version of Canora you've installed and,
+ * The version of Android in the device in question. Sometimes the manufacturer is helpful too. Since there can be variants of Android that may affect
    things (such as x86).
 
 Finally, please be patient. The developer has a lot of things to do. But, be assured that the bug report will receive adequate attention, and will consequently be fixed. If you are a
-developer,  you can fork MusicMan and fix it yourself. 
+developer,  you can fork Canora and fix it yourself.
 
 
 ## Contact.
@@ -107,4 +107,4 @@ For further inquiries, you can contact the developer by opening an issue on the 
 You can also check out the developer's profile [here](https://github.com/ZoidbergZero).
 
 
-***Thank you for your interest in contributing to MusicMan. I appreciate all the help with finding and fixing bugs, making performance improvements, and other tasks. Every contribution is helpful and I thank you for your effort.***
+***Thank you for your interest in contributing to Canora. I appreciate all the help with finding and fixing bugs, making performance improvements, and other tasks. Every contribution is helpful and I thank you for your effort.***
