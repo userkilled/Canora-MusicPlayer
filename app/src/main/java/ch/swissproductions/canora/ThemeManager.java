@@ -1,5 +1,6 @@
 package ch.swissproductions.canora;
 
+import android.app.Activity;
 import android.util.Log;
 
 import java.util.List;
@@ -37,23 +38,23 @@ public class ThemeManager {
         return false;
     }
 
-    public ThemeManager(MainActivity ma) {
-        mainActivity = ma;
+    public ThemeManager(SettingsManager s) {
+        sc = s;
         themes = Constants.Themes.theThemes.get();
-        currentTheme = mainActivity.sc.getSetting(Constants.SETTING_THEME);
+        currentTheme = sc.getSetting(Constants.SETTING_THEME);
         if (currentTheme.equals(""))
             currentTheme = Constants.THEME_DEFAULT;
         Log.v(LOG_TAG, "INIT SELECTED: " + currentTheme);
     }
 
     private String currentTheme;
-    private MainActivity mainActivity;
+    private SettingsManager sc;
     private String LOG_TAG = "THM";
 
     private List<data_theme> themes;
 
     private void selectTheme(String title) {
         currentTheme = title;
-        mainActivity.sc.putSetting(Constants.SETTING_THEME, currentTheme);
+        sc.putSetting(Constants.SETTING_THEME, currentTheme);
     }
 }

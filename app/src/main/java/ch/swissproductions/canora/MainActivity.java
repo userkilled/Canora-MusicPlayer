@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         globT.start();
         sc = new SettingsManager(getApplicationContext());
         pl = new PlayListManager(getApplicationContext(), this);
-        thm = new ThemeManager(this);
+        thm = new ThemeManager(sc);
         setTheme(thm.getThemeResourceID());
         setContentView(R.layout.layout_main);
         ListView lv = findViewById(R.id.mainViewport);
@@ -493,89 +493,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 sortdia.show();
                 break;
             case Constants.DIALOG_SETTINGS:
-                AlertDialog.Builder d = new AlertDialog.Builder(this, R.style.DialogStyle);
-                d.setTitle(R.string.dialog_settings_title);
-                d.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                final AlertDialog setdia = d.create();
-                LayoutInflater f = LayoutInflater.from(this);
-                View v = f.inflate(R.layout.dialog_settings, null);
-                SeekBar pb = v.findViewById(R.id.seekBar1);
-                pb.setProgress((int) (serv.getVolume() * 100));
-                pb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-                    }
-
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-                    }
-
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        float c = (float) progress / 100;
-                        Log.v(LOG_TAG, "Setting Volume: " + c);
-                        if (serv != null)
-                            serv.setVolume(c);
-                        sc.putSetting(Constants.SETTING_VOLUME, "" + c);
-                    }
-                });
-                pb.getProgressDrawable().setColorFilter(getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
-                pb.getThumb().setColorFilter(getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
-
-                setdia.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        setdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                    }
-                });
-
-                Spinner spinner = v.findViewById(R.id.spinner);
-                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.Themes, R.layout.spinner_item);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinner.setAdapter(adapter);
-                spinner.setSelection(thm.getSpinnerPosition(thm.getThemeResourceID()));
-                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        if (thm.request(arg2)) {
-                            setdia.dismiss();
-                            switchUI = true;
-                            recreate();
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> arg0) {
-
-                    }
-
-                });
-                ArrayAdapter<String> ada = new ArrayAdapter<>(this, R.layout.spinner_item, serv.getEqualizerPresetNames());
-                ada.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinner = v.findViewById(R.id.spinnerEqualizer);
-                spinner.setAdapter(ada);
-                spinner.setSelection(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        serv.setEqualizerPreset(arg2);
-                        sc.putSetting(Constants.SETTING_EQUALIZERPRESET, "" + arg2);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> arg0) {
-
-                    }
-
-                });
-                setdia.setView(v);
-                setdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
-                setdia.show();
+                switchUI = true;
+                Intent i = new Intent(this, SettingsActivity.class);
+                startActivity(i);
+                finish();
                 break;
             case Constants.DIALOG_SEARCHBY:
                 AlertDialog.Builder b1 = new AlertDialog.Builder(this, R.style.DialogStyle);
