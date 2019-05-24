@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (serv != null) {
             loadFiles();
         }
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -425,8 +426,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String dspt = leftpadZero(minutesP) + ":" + leftpadZero(secondsP) + " - " + leftpadZero(minutesT) + ":" + leftpadZero(secondsT);
         tv.setText(dspt);
         setPlayButton((ImageButton) findViewById(R.id.buttonPlay), serv.getPlaybackStatus());
-        if (serv.getPlaybackStatus()) {
-            animator.start();
+        animator.start();
+        if (!serv.getPlaybackStatus()) {
+            animator.pause();
         }
     }
 
