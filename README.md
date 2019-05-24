@@ -23,14 +23,7 @@ ToDo:
 
 Available Soon for Free on the Play Store!
 
-<h1>Screenshots:</h1>
-
-<p>
-<img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo1.png" alt="scr1"/>
-<img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo2.png" alt="scr2"/>
-<img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo3.png" alt="scr3"/>
-<img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo4.png" alt="scr4"/>
-</p>
+<h1>Screenshots:</h1><p align=center><img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo1.png" alt="scr1"/><img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo2.png" alt="scr2"/><br><img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo3.png" alt="scr3"/><img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo4.png" alt="scr4"/></p>
 
 <h1>Contributing:</h1>
 You can find a Contributers Guide <a href="https://github.com/ZoidbergZero/Canora-MediaPlayer/blob/master/Contributing.md">here</a>.
