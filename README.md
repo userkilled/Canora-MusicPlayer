@@ -29,10 +29,9 @@ Available Soon for Free on the Play Store!
 <img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo1.png" alt="scr1"/>
 <img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo2.png" alt="scr2"/>
 <img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo3.png" alt="scr3"/>
+<img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/.github/Promo/promo4.png" alt="scr4"/>
 </p>
+
 <h1>Contributing:</h1>
-This Project is still in early Development and thus alot of the Code is going to Change.<br>
-Also much of the Code at the Moment is written so it works, but not necessairly so others can easily Read and use it.<br>
-I will do a Rewrite after 1.0 so it is more Clean and Easier to Use as a potential Contributer.<br><br>
-That said if you already want to Contribute to the Project Great! You can find a Contributers Guide <a href="https://github.com/ZoidbergZero/Canora-MediaPlayer/blob/master/Contributing.md">here</a>.
+You can find a Contributers Guide <a href="https://github.com/ZoidbergZero/Canora-MediaPlayer/blob/master/Contributing.md">here</a>.
 
