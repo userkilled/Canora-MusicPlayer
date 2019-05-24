@@ -48,6 +48,9 @@ public class PlayListManager {
         PlayLists.clear();
         PlayLists.putAll(tmp);
         updateContent();
+        sortContent(mainActivity.sortBy);
+        if (searchTerm != null && !searchTerm.equals(""))
+            showFiltered(searchTerm, searchBy);
         if (!taskIsRunning)
             new LoadFilesTask().execute(gc);
     }
@@ -57,7 +60,51 @@ public class PlayListManager {
     public void showFiltered(String term, int srb) {
         searchTerm = term;
         searchBy = srb;
-        new SearchFilesTask().execute(gc);
+        if (!taskIsRunning) {
+            new SearchFilesTask().execute(gc);
+        } else {
+            if (contentList.size() == 0)
+                return;
+            List<data_song> cl = new ArrayList<>(contentList);
+            Log.v(LOG_TAG, "CONTENT SIZE:" + cl.size());
+            List<data_song> flt = new ArrayList<>();
+            switch (srb) {
+                case Constants.SEARCH_BYTITLE:
+                    Log.v(LOG_TAG, "SEARCH BY TITLE");
+                    for (int i = 0; i < cl.size(); i++) {
+                        if (compareStrings(cl.get(i).Title, term)) {
+                            flt.add(cl.get(i));
+                        }
+                    }
+                    break;
+                case Constants.SEARCH_BYARTIST:
+                    Log.v(LOG_TAG, "SEARCH BY ARTIST");
+                    for (int i = 0; i < cl.size(); i++) {
+                        if (compareStrings(cl.get(i).Artist, term)) {
+
+                            flt.add(cl.get(i));
+                        }
+                    }
+                    break;
+                case Constants.SEARCH_BYBOTH:
+                    Log.v(LOG_TAG, "SEARCH BY BOTH");
+                    for (int i = 0; i < cl.size(); i++) {
+                        if (compareStrings(cl.get(i).Title, term) || compareStrings(cl.get(i).Artist, term)) {
+                            flt.add(cl.get(i));
+                        }
+                    }
+                    break;
+            }
+            final List<data_song> inp = flt;
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    viewList.clear();
+                    viewList.addAll(inp);
+                }
+            });
+            mainActivity.notifyArrayAdapter();
+        }
     }
 
     public void sortContent(int SortBy) {
@@ -614,29 +661,32 @@ public class PlayListManager {
             String term = "" + searchTerm;
             if (contentList.size() == 0)
                 return "ERROR: EMPTY CONTENT LIST";
+            List<data_song> cl = new ArrayList<>(contentList);
+            Log.v(LOG_TAG, "CONTENT SIZE:" + cl.size());
             List<data_song> flt = new ArrayList<>();
             switch (srb) {
                 case Constants.SEARCH_BYTITLE:
                     Log.v(LOG_TAG, "SEARCH BY TITLE");
-                    for (int i = 0; i < contentList.size(); i++) {
-                        if (compareStrings(contentList.get(i).Title, term)) {
-                            flt.add(contentList.get(i));
+                    for (int i = 0; i < cl.size(); i++) {
+                        if (compareStrings(cl.get(i).Title, term)) {
+                            flt.add(cl.get(i));
                         }
                     }
                     break;
                 case Constants.SEARCH_BYARTIST:
                     Log.v(LOG_TAG, "SEARCH BY ARTIST");
-                    for (int i = 0; i < contentList.size(); i++) {
-                        if (compareStrings(contentList.get(i).Artist, term)) {
-                            flt.add(contentList.get(i));
+                    for (int i = 0; i < cl.size(); i++) {
+                        if (compareStrings(cl.get(i).Artist, term)) {
+
+                            flt.add(cl.get(i));
                         }
                     }
                     break;
                 case Constants.SEARCH_BYBOTH:
                     Log.v(LOG_TAG, "SEARCH BY BOTH");
-                    for (int i = 0; i < contentList.size(); i++) {
-                        if (compareStrings(contentList.get(i).Title, term) || compareStrings(contentList.get(i).Artist, term)) {
-                            flt.add(contentList.get(i));
+                    for (int i = 0; i < cl.size(); i++) {
+                        if (compareStrings(cl.get(i).Title, term) || compareStrings(cl.get(i).Artist, term)) {
+                            flt.add(cl.get(i));
                         }
                     }
                     break;
@@ -656,13 +706,14 @@ public class PlayListManager {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.v(LOG_TAG, "SEARCH ASYNC START");
             if (searchtaskIsRunning) {
                 //TODO#POLISHING: Possible Race Condition
                 Log.e(LOG_TAG, "SEARCH ASYNC TASK ALREADY RUNNING, CANCELING");
                 cancel(false);
-            } else
+            } else {
                 searchtaskIsRunning = true;
+                Log.v(LOG_TAG, "SEARCH ASYNC START");
+            }
         }
 
         @Override
