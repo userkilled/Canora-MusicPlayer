@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setupActionBar();
         findViewById(R.id.searchbox).setVisibility(View.GONE);
         findViewById(R.id.searchbybtn).setVisibility(View.GONE);
+
+        pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.v(LOG_TAG, "REQUESTING PERMISSION");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
@@ -177,14 +180,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                 mainActivity.invalidateOptionsMenu();
                             }
                             if (entry.getValue().Title.equals("")) {
-                                mainActivity.getSupportActionBar().setDisplayShowHomeEnabled(true);
-                                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                                 String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
                                 String t = "<font color='" + hexColor + "'>" + mainActivity.getString(R.string.app_name) + "</font>";
                                 mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
                             } else {
-                                mainActivity.getSupportActionBar().setDisplayShowHomeEnabled(false);
-                                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                                 String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
                                 String t = "<font color='" + hexColor + "'>" + entry.getValue().Title + "</font>";
                                 mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
@@ -205,8 +204,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             plc++;
             if (!pl.getIndex().equals("")) {
                 m.findItem(R.id.action_playlist_del).setVisible(true);
+                getSupportActionBar().setDisplayShowHomeEnabled(false);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             } else {
                 m.findItem(R.id.action_playlist_del).setVisible(false);
+                getSupportActionBar().setDisplayShowHomeEnabled(true);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             }
         }
 
@@ -273,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-        Log.v(LOG_TAG, "You clicked Item: " + id + " at position:" + position);
         ImageButton btn = findViewById(R.id.buttonPlay);
         if (serv != null) {
             if (serv.play(pl.viewList.get(position).id) == 0)
@@ -374,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     String LOG_TAG = "main";
 
     private String searchTerm;
+    private String pltemp = "";
 
     View.OnClickListener playbutton_click;
     View.OnClickListener prevbutton_click;
@@ -391,6 +394,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         pl.loadContent();
         pl.sortContent(sortBy);
         serv.setContent(pl.contentList);
+        if (pltemp != null) {
+            pl.selectPlayList(pltemp);
+            pltemp = null;
+            invalidateOptionsMenu();
+        }
         notifyArrayAdapter();
     }
 
@@ -457,17 +465,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 b.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //Sort By Selection
                         pl.sortContent(sortBy);
                         arrayAdapter.notifyDataSetChanged();
                     }
                 });
-                b.setNegativeButton(R.string.misc_back, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Do Nothing
-                    }
-                });
+                b.setNegativeButton(R.string.misc_back, null);
                 CharSequence[] arr = {getString(R.string.misc_title), getString(R.string.misc_artist)};
                 b.setSingleChoiceItems(arr, sortBy, new DialogInterface.OnClickListener() {
                     @Override
@@ -502,6 +504,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case Constants.DIALOG_SETTINGS:
                 switchUI = true;
                 Intent i = new Intent(this, SettingsActivity.class);
+                i.putExtra(Constants.PARAMETER_PLAYLIST, pl.getIndex());
                 startActivity(i);
                 finish();
                 break;
@@ -554,7 +557,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 serdia.show();
                 break;
             case Constants.DIALOG_PLAYLIST_CREATE:
-                Log.v(LOG_TAG, "SHOWING PL CREATE DIALOG");
                 LayoutInflater lif = LayoutInflater.from(this);
                 View vi = lif.inflate(R.layout.dialog_playlist_create, null);
                 AlertDialog.Builder buil = new AlertDialog.Builder(this, R.style.DialogStyle);
@@ -606,7 +608,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 plcdia.show();
                 break;
             case Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST:
-                Log.v(LOG_TAG, "SHOWING FILE DELETE FROM PL DIALOG");
                 LayoutInflater liff = LayoutInflater.from(this);
                 View viv = liff.inflate(R.layout.dialog_file_delete, null);
                 AlertDialog.Builder build = new AlertDialog.Builder(this, R.style.DialogStyle);
@@ -662,7 +663,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case Constants.DIALOG_FILE_INFO:
                 //TODO:POPULATE FILE INFO DIALOGE
-                Log.v(LOG_TAG, "SHOWING FILE INFO DIALOG");
                 LayoutInflater lifff = LayoutInflater.from(this);
                 View vive = lifff.inflate(R.layout.dialog_file_info, null);
                 TextView fp = vive.findViewById(R.id.filepathtitle);
@@ -691,7 +691,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 eddiae.show();
                 break;
             case Constants.DIALOG_WARNING_PLAYLIST_DELETE:
-                Log.v(LOG_TAG, "SHOWING DELETE PLAYLIST DIALOG");
                 LayoutInflater laf = LayoutInflater.from(this);
                 View vivef = laf.inflate(R.layout.dialog_playlist_delete, null);
                 TextView fpf = vivef.findViewById(R.id.playlisttext);

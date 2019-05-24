@@ -32,6 +32,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
         doBindService();
         sc = new SettingsManager(this);
         thm = new ThemeManager(sc);
@@ -50,9 +51,9 @@ public class SettingsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Log.v(LOG_TAG, "BACK");
-                Intent i = new Intent(this, MainActivity.class);
-                startActivity(i);
+                Intent t = new Intent(this, MainActivity.class);
+                t.putExtra(Constants.PARAMETER_PLAYLIST, pltemp);
+                startActivity(t);
                 finish();
                 return true;
             default:
@@ -60,7 +61,17 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent t = new Intent(this, MainActivity.class);
+        t.putExtra(Constants.PARAMETER_PLAYLIST, pltemp);
+        startActivity(t);
+        finish();
+    }
+
     private String LOG_TAG = "SETTINGS";
+
+    private String pltemp = "";
 
     private void doBindService() {
         Intent intent = new Intent(this, MusicPlayerService.class);

@@ -81,6 +81,8 @@ public final class Constants {
     public static final String SETTING_THEME = "THEME";
     public static final String SETTING_EQUALIZERPRESET = "EQPRE";
 
+    public static final String PARAMETER_PLAYLIST = "SELPL";
+
     public static final int SORT_BYTITLE = 0;
     public static final int SORT_BYARTIST = 1;
 
