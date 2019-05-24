@@ -12,6 +12,7 @@
     <string name="dialog_settings_t1">Internal Volume</string>
     <string name="dialog_sortby_title">Sort by</string>
     <string name="dialog_searchby_title">Search by</string>
+    <string name="dialog_exit_ays">Do you really want to exit Canora?</string>
 
     <!-- Menus -->
     <string name="menu_listitem_select">Select</string>
@@ -43,6 +44,8 @@
     <string name="misc_back">Back</string>
     <string name="misc_yes">Yes</string>
     <string name="misc_no">No</string>
+    <string name="misc_minimize">Minimize</string>
+    <string name="misc_exit">Exit Canora</string>
 
     <string name="misc_title">Title</string>
     <string name="misc_artist">Artist</string>

@@ -127,6 +127,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     @Override
+    public void onBackPressed() {
+        displayDialog(Constants.DIALOG_EXIT_CONFIRM);
+    }
+
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         //TODO#POLISHING: Options Menu Changes are still Visible
         Menu m = menu;
@@ -725,6 +730,36 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 eddiaet.setView(vivef);
                 eddiaet.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 eddiaet.show();
+                break;
+            case Constants.DIALOG_EXIT_CONFIRM:
+                LayoutInflater exli = LayoutInflater.from(this);
+                View exv = exli.inflate(R.layout.dialog_exit, null);
+                AlertDialog.Builder exbuild = new AlertDialog.Builder(this, R.style.DialogStyle);
+                exbuild.setTitle(R.string.misc_exit);
+                exbuild.setPositiveButton(R.string.misc_yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                });
+                exbuild.setNegativeButton(R.string.misc_no, null);
+                exbuild.setNeutralButton(R.string.misc_minimize,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                moveTaskToBack(true);
+                            }
+                        });
+                final AlertDialog exad = exbuild.create();
+                exad.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        exad.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                        exad.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                    }
+                });
+                exad.setView(exv);
+                exad.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
+                exad.show();
                 break;
         }
     }

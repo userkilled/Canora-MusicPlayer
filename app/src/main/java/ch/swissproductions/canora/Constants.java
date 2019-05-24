@@ -96,6 +96,7 @@ public final class Constants {
     public static final int DIALOG_PLAYLIST_CREATE = 6;
     public static final int DIALOG_WARNING_PLAYLIST_DELETE = 7;
     public static final int DIALOG_PLAYLIST_EDIT = 8;
+    public static final int DIALOG_EXIT_CONFIRM = 9;
 
     public static final int ARRAYADAPT_STATE_DEFAULT = 0;
     public static final int ARRAYADAPT_STATE_SELECT = 1;
