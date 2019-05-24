@@ -20,6 +20,7 @@
     <string name="menu_listitem_delfrompl">Von Playlist löschen</string>
 
     <string name="menu_options_delpl">Playlist löschen</string>
+    <string name="menu_options_editpl">Playlist Editieren</string>
     <string name="menu_options_search">Suchen</string>
     <string name="menu_options_settings">Einstellungen</string>
     <string name="menu_options_sort">Sortieren</string>

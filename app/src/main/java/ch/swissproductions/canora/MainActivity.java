@@ -30,6 +30,7 @@ import android.view.*;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "ONCREATEOPTIONS");
         getMenuInflater().inflate(R.menu.main_menu, menu);
         menu.getItem(0).getIcon().mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
-        closeOptionsMenu();
         return true;
     }
 
@@ -203,13 +203,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             plc++;
             if (!pl.getIndex().equals("")) {
-                m.findItem(R.id.action_playlist_del).setVisible(true);
+                m.findItem(R.id.action_playlist_edit).setVisible(true);
                 getSupportActionBar().setDisplayShowHomeEnabled(false);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
+                String t = "<font color='" + hexColor + "'>" + entry.getValue().Title + "</font>";
+                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
             } else {
-                m.findItem(R.id.action_playlist_del).setVisible(false);
+                m.findItem(R.id.action_playlist_edit).setVisible(false);
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
+                String t = "<font color='" + hexColor + "'>" + mainActivity.getString(R.string.app_name) + "</font>";
+                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
             }
         }
 
@@ -263,8 +269,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.action_deleteFromPlaylist:
                 displayDialog(Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST);
                 return true;
-            case R.id.action_playlist_del:
-                displayDialog(Constants.DIALOG_WARNING_PLAYLIST_DELETE);
+            case R.id.action_playlist_edit:
+                displayDialog(Constants.DIALOG_PLAYLIST_EDIT);
                 return true;
             case R.id.action_playlist_create:
                 displayDialog(Constants.DIALOG_PLAYLIST_CREATE);
@@ -759,6 +765,46 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 exad.setView(exv);
                 exad.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 exad.show();
+                break;
+            case Constants.DIALOG_PLAYLIST_EDIT:
+                LayoutInflater plli = LayoutInflater.from(this);
+                View plv = plli.inflate(R.layout.dialog_playlist_edit, null);
+                AlertDialog.Builder plbuild = new AlertDialog.Builder(this, R.style.DialogStyle);
+                final EditText et = plv.findViewById(R.id.plname);
+                final String orig = pl.getIndex();
+                et.setText(pl.getIndex());
+                plbuild.setTitle(R.string.menu_options_editpl);
+                plbuild.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String t = et.getText().toString();
+                        if (t.length() > 0 && !t.equals(orig)) {
+                            pl.createPlayList(t, pl.getPlayLists().get(orig));
+                            pl.selectPlayList(t);
+                            pl.deletePlayList(orig);
+                            loadFiles();
+                            invalidateOptionsMenu();
+                        }
+                    }
+                });
+                plbuild.setNegativeButton(R.string.misc_back, null);
+                plbuild.setNeutralButton(R.string.menu_options_delpl,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                displayDialog(Constants.DIALOG_WARNING_PLAYLIST_DELETE);
+                            }
+                        });
+                final AlertDialog plad = plbuild.create();
+                plad.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        plad.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                        plad.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                    }
+                });
+                plad.setView(plv);
+                plad.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
+                plad.show();
                 break;
         }
     }

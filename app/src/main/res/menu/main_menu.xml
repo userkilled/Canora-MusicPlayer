@@ -42,8 +42,8 @@
     <item android:id="@+id/action_select"
           android:title="@string/menu_options_select"
           app:showAsAction="never"/>
-    <item android:id="@+id/action_playlist_del"
-          android:title="@string/menu_options_delpl"
+    <item android:id="@+id/action_playlist_edit"
+          android:title="@string/menu_options_editpl"
           app:showAsAction="never"
           android:visible="false"/>
 </menu>
