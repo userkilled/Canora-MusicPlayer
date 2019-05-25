@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
@@ -30,10 +29,8 @@ import android.view.*;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -117,9 +114,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onRestart();
         Log.v(LOG_TAG, "ONRESTART CALLED");
         if (serv != null) {
-            loadFiles();
+            pl.loadContentFromMediaStore();
+            pl.sortContent(sortBy);
+            notifyAAandOM();
+            pl.loadContentFromFiles();
         }
-        invalidateOptionsMenu();
     }
 
     @Override
@@ -332,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.sel:
                 multiSelect();
                 pl.viewList.get(info.position).selected = true;
-                arrayAdapter.notifyDataSetChanged();
+                notifyAAandOM();
                 return true;
             case R.id.info:
                 displayDialog(Constants.DIALOG_FILE_INFO);
@@ -353,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
         getSupportActionBar().setTitle(Html.fromHtml(t));
 
-        invalidateOptionsMenu();
+        notifyAAandOM();
         return true;
     }
 
@@ -397,19 +396,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     ValueAnimator animator;
 
     int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 42;
-
-    public void loadFiles() {
-        Log.v(LOG_TAG, "LOADING FILES");
-        pl.loadContent();
-        pl.sortContent(sortBy);
-        serv.setContent(pl.contentList);
-        if (pltemp != null) {
-            pl.selectPlayList(pltemp);
-            pltemp = null;
-            invalidateOptionsMenu();
-        }
-        notifyArrayAdapter();
-    }
 
     public void handleProgressAnimation(int dur, int pos) {
         /* Creates a new ValueAnimator for the Duration Bar and the Digits, And Calls Update Song Display*/
@@ -475,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         pl.sortContent(sortBy);
-                        arrayAdapter.notifyDataSetChanged();
+                        notifyAAandOM();
                     }
                 });
                 b.setNegativeButton(R.string.misc_back, null);
@@ -595,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             }
                         }
                         pl.sortContent(sortBy);
-                        invalidateOptionsMenu();
+                        notifyAAandOM();
                     }
                 });
                 buil.setNegativeButton(R.string.misc_back, new DialogInterface.OnClickListener() {
@@ -647,7 +633,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             pl.replacePlayList(pl.getIndex(), tmp);
                             pl.selectPlayList(pl.getIndex());
                             multiSelect(false);
-                            notifyArrayAdapter();
+                            notifyAAandOM();
                             showToastMessage(t.size() + " " + getString(R.string.misc_removed));
                         }
                     }
@@ -793,8 +779,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             pl.createPlayList(t, r);
                             pl.selectPlayList(t);
                             pl.deletePlayList(orig);
-                            loadFiles();
-                            invalidateOptionsMenu();
+                            pl.loadPlaylists(pltemp);
+                            notifyAAandOM();
                         }
                     }
                 });
@@ -1119,11 +1105,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return ret;
     }
 
-    public void notifyArrayAdapter() {
+    public void notifyAAandOM() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 arrayAdapter.notifyDataSetChanged();
+                invalidateOptionsMenu();
             }
         });
     }
@@ -1225,11 +1212,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         public void onServiceConnected(ComponentName className, IBinder service) {
             serv = ((MusicPlayerService.LocalBinder) service).getService();
             getSettings();
-            loadFiles();
-            serv.init();
-            updateSongDisplay();
-            invalidateOptionsMenu();
+            pl.loadContentFromMediaStore();
+            pl.sortContent(sortBy);
+            serv.setContent(pl.contentList);
+            pl.loadPlaylists(pltemp);
+            pl.loadContentFromFiles();
+            pl.sortContent(sortBy);
+
+            serv.setContent(pl.contentList);
             serv.setEqualizerPreset(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
+
+            updateSongDisplay();
             handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
             globT.printStep(LOG_TAG, "Service Initialization");
             //long l = globT.tdur;

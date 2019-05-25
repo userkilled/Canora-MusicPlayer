@@ -36,20 +36,21 @@ public class PlayListManager {
     }
 
     //Public Callbacks
-    public void loadContent() {
+    public void loadPlaylists(String selected) {
+        if (selected == null)
+            selected = "";
+        new LoadPlaylistsTask().execute(selected);
+    }
+
+    public void loadContentFromMediaStore() {
         List<data_song> ml = getSongsfromMediaStore();
         Log.v(LOG_TAG, "FOUND " + ml.size() + " SONGS IN MEDIASTORE");
         data_playlist t = new data_playlist("", ml);
-        Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
-        tmp.put("", t);
-        PlayLists.clear();
-        PlayLists.putAll(tmp);
-        updateContent();
-        sortContent(mainActivity.sortBy);
-        if (searchTerm != null && !searchTerm.equals(""))
-            showFiltered(searchTerm, searchBy);
-        if (!taskIsRunning)
-            new LoadFilesTask().execute(gc);
+        updateContent(t);
+    }
+
+    public void loadContentFromFiles() {
+        new LoadFilesTask().execute();
     }
 
     public boolean filtering = false;
@@ -100,7 +101,7 @@ public class PlayListManager {
                     viewList.addAll(inp);
                 }
             });
-            mainActivity.notifyArrayAdapter();
+            mainActivity.notifyAAandOM();
         }
     }
 
@@ -151,15 +152,20 @@ public class PlayListManager {
         sortContent(sortBy);
         if (contentList.size() > 0)
             mainActivity.serv.setContent(contentList);
-        mainActivity.notifyArrayAdapter();
+        mainActivity.notifyAAandOM();
         return 0;
     }
 
     public int createPlayList(String name, data_playlist in) {
         Log.v(LOG_TAG, "CREATE PLAYLIST: " + name);
-        PlayLists.put(name, in);
-        putLocalPlayLists(PlayLists);
-        return 0;
+        if (!pltaskrunning) {
+            PlayLists.put(name, in);
+            putLocalPlayLists(PlayLists);
+            return 0;
+        } else {
+            Log.v(LOG_TAG, "CANNOT CREATE PLAYLIST TASK RUNNING");
+            return 1;
+        }
     }
 
     public int deletePlayList(String name) {
@@ -369,7 +375,6 @@ public class PlayListManager {
         }
         return ret;
     }
-
     //END Local Playlists
     //Other
     private data_song getMetadata(File f) {
@@ -573,6 +578,16 @@ public class PlayListManager {
 
     }
 
+    private void updateContent(data_playlist in) {
+        if (in != null) {
+            viewList.clear();
+            viewList.addAll(in.audio);
+            contentList.clear();
+            contentList.addAll(in.audio);
+            Log.v(LOG_TAG, "CONTENT LIST SET SIZE: " + contentList.size());
+        }
+    }
+
     private void updateContent() {
         if (PlayLists.get(pli).audio != null) {
             mainActivity.runOnUiThread(new Runnable() {
@@ -601,9 +616,9 @@ public class PlayListManager {
 
     public boolean taskIsRunning = false;
 
-    protected class LoadFilesTask extends AsyncTask<Context, Integer, String> {
+    protected class LoadFilesTask extends AsyncTask<String, Integer, String> {
         @Override
-        protected String doInBackground(Context... params) {
+        protected String doInBackground(String... params) {
             List<data_song> nw = getSongsfromFiles();
             Log.v(LOG_TAG, "FOUND " + nw.size() + " AUDIO FILES ON DISK");
             List<data_song> nnw = mergeLists(PlayLists.get("").audio, nw);
@@ -625,7 +640,7 @@ public class PlayListManager {
             if (filtering) {
                 showFiltered(searchTerm, searchBy);
             } else {
-                mainActivity.notifyArrayAdapter();
+                mainActivity.notifyAAandOM();
             }
             return "COMPLETE!";
         }
@@ -633,19 +648,20 @@ public class PlayListManager {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.v(LOG_TAG, "LOAD ASYNC START");
             if (taskIsRunning) {
                 Log.e(LOG_TAG, "LOAD ASYNC TASK ALREADY RUNNING, CANCELING");
                 cancel(false);
-            } else
+            } else {
                 taskIsRunning = true;
+            }
+            Log.v(LOG_TAG, "LOAD ASYNC TASK ENTRY");
         }
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            Log.v(LOG_TAG, "LOAD ASYNC END: " + result);
             taskIsRunning = false;
+            Log.v(LOG_TAG, "LOAD ASYNC TASK EXIT: " + result);
         }
     }
 
@@ -696,7 +712,7 @@ public class PlayListManager {
                     viewList.addAll(inp);
                 }
             });
-            mainActivity.notifyArrayAdapter();
+            mainActivity.notifyAAandOM();
             return "COMPLETE!";
         }
 
@@ -709,15 +725,56 @@ public class PlayListManager {
                 cancel(false);
             } else {
                 searchtaskIsRunning = true;
-                Log.v(LOG_TAG, "SEARCH ASYNC START");
+                Log.v(LOG_TAG, "SEARCH ASYNC TASK ENTRY");
             }
         }
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            Log.v(LOG_TAG, "SEARCH ASYNC END: " + result);
             searchtaskIsRunning = false;
+            Log.v(LOG_TAG, "SEARCH ASYNC TASK EXIT: " + result);
+        }
+    }
+
+    public boolean pltaskrunning = false;
+
+    protected class LoadPlaylistsTask extends AsyncTask<String, Integer, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
+            tmp.put("", new data_playlist("", contentList));
+            PlayLists.clear();
+            PlayLists.putAll(tmp);
+            updateContent();
+            sortContent(mainActivity.sortBy);
+            if (params.length > 0) {
+                selectPlayList(params[0]);
+            }
+            if (searchTerm != null && !searchTerm.equals(""))
+                showFiltered(searchTerm, searchBy);
+            mainActivity.notifyAAandOM();
+            return "COMPLETE";
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (pltaskrunning) {
+                cancel(true);
+            } else {
+                Log.v(LOG_TAG, "PL TASK ENTRY: ");
+                pltaskrunning = true;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            pltaskrunning = false;
+            Log.v(LOG_TAG, "PL TASK EXIT: " + result);
+            mainActivity.notifyAAandOM();
         }
     }
 }

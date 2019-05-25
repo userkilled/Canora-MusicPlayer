@@ -78,10 +78,6 @@ public class MusicPlayerService extends Service {
     }
 
     //Public Control Functions
-    public int init() {
-        Log.v(LOG_TAG, "Init called Size: ");
-        return 0;
-    }
 
     public int setContent(List<data_song> pl) {
         Log.v(LOG_TAG, "SetContent Called Size: " + pl.size());
