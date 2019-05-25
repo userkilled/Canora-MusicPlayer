@@ -57,52 +57,56 @@ public class PlayListManager {
     public boolean filtering = false;
 
     public void showFiltered(String term, int srb) {
-        searchTerm = term;
-        searchBy = srb;
-        if (!taskIsRunning) {
-            new SearchFilesTask().execute(gc);
-        } else {
-            if (contentList.size() == 0)
-                return;
-            List<data_song> cl = new ArrayList<>(contentList);
-            Log.v(LOG_TAG, "CONTENT SIZE:" + cl.size());
-            List<data_song> flt = new ArrayList<>();
-            switch (srb) {
-                case Constants.SEARCH_BYTITLE:
-                    Log.v(LOG_TAG, "SEARCH BY TITLE");
-                    for (int i = 0; i < cl.size(); i++) {
-                        if (compareStrings(cl.get(i).Title, term)) {
-                            flt.add(cl.get(i));
+        try {
+            searchTerm = term;
+            searchBy = srb;
+            if (!taskIsRunning) {
+                new SearchFilesTask().execute(gc);
+            } else {
+                if (contentList.size() == 0)
+                    return;
+                List<data_song> cl = new ArrayList<>(contentList);
+                Log.v(LOG_TAG, "CONTENT SIZE:" + cl.size());
+                List<data_song> flt = new ArrayList<>();
+                switch (srb) {
+                    case Constants.SEARCH_BYTITLE:
+                        Log.v(LOG_TAG, "SEARCH BY TITLE");
+                        for (int i = 0; i < cl.size(); i++) {
+                            if (compareStrings(cl.get(i).Title, term)) {
+                                flt.add(cl.get(i));
+                            }
                         }
-                    }
-                    break;
-                case Constants.SEARCH_BYARTIST:
-                    Log.v(LOG_TAG, "SEARCH BY ARTIST");
-                    for (int i = 0; i < cl.size(); i++) {
-                        if (compareStrings(cl.get(i).Artist, term)) {
+                        break;
+                    case Constants.SEARCH_BYARTIST:
+                        Log.v(LOG_TAG, "SEARCH BY ARTIST");
+                        for (int i = 0; i < cl.size(); i++) {
+                            if (compareStrings(cl.get(i).Artist, term)) {
 
-                            flt.add(cl.get(i));
+                                flt.add(cl.get(i));
+                            }
                         }
-                    }
-                    break;
-                case Constants.SEARCH_BYBOTH:
-                    Log.v(LOG_TAG, "SEARCH BY BOTH");
-                    for (int i = 0; i < cl.size(); i++) {
-                        if (compareStrings(cl.get(i).Title, term) || compareStrings(cl.get(i).Artist, term)) {
-                            flt.add(cl.get(i));
+                        break;
+                    case Constants.SEARCH_BYBOTH:
+                        Log.v(LOG_TAG, "SEARCH BY BOTH");
+                        for (int i = 0; i < cl.size(); i++) {
+                            if (compareStrings(cl.get(i).Title, term) || compareStrings(cl.get(i).Artist, term)) {
+                                flt.add(cl.get(i));
+                            }
                         }
-                    }
-                    break;
-            }
-            final List<data_song> inp = flt;
-            mainActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    viewList.clear();
-                    viewList.addAll(inp);
+                        break;
                 }
-            });
-            mainActivity.notifyAAandOM();
+                final List<data_song> inp = flt;
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewList.clear();
+                        viewList.addAll(inp);
+                    }
+                });
+                mainActivity.notifyAAandOM();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -425,14 +429,22 @@ public class PlayListManager {
     private List<data_song> sortSongsByTitle(List<data_song> s) {
         List<data_song> ret = new ArrayList<>();
         ListSorter ls = new ListSorter();
-        ret = ls.sort(gc, s, Constants.SORT_BYTITLE);
+        try {
+            ret = ls.sort(gc, s, Constants.SORT_BYTITLE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return ret;
     }
 
     private List<data_song> sortSongsByArtist(List<data_song> s) {
         List<data_song> ret = new ArrayList<>();
         ListSorter ls = new ListSorter();
-        ret = ls.sort(gc, s, Constants.SORT_BYARTIST);
+        try {
+            ret = ls.sort(gc, s, Constants.SORT_BYARTIST);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return ret;
     }
 
