@@ -749,6 +749,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     public void onShow(DialogInterface dialog) {
                         exad.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
                         exad.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                        exad.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getColorFromAtt(R.attr.colorDialogText));
                     }
                 });
                 exad.setView(exv);
@@ -797,6 +798,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     public void onShow(DialogInterface dialog) {
                         plad.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
                         plad.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                        plad.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+
                     }
                 });
                 plad.setView(plv);
