@@ -15,10 +15,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -221,7 +218,7 @@ public class PlayListManager {
     private String plPath;
 
     private String pli = ""; //Current Index of PlayLists Indicating Currently Selected PlayList
-    private Map<String, data_playlist> PlayLists = new HashMap<>(); //Holds ALL Content, Empty Index = All Files, otherwise Index = Name of PlayList
+    private Map<String, data_playlist> PlayLists = new TreeMap<>(); //Holds ALL Content, Empty Index = All Files, otherwise Index = Name of PlayList
 
     private int GIDC = 0; //ID Counter for Song Items
 

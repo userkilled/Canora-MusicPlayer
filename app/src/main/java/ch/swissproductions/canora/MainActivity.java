@@ -781,11 +781,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String t = et.getText().toString();
-                        if (t.equals(orig))
-                        {
+                        if (t.equals(orig)) {
                             return;
-                        }
-                        else if (t.length() < 0) {
+                        } else if (t.length() < 0) {
                             showToastMessage(getString(R.string.error_emptyplname));
                         } else if (pl.checkPlayList(t)) {
                             showToastMessage(getString(R.string.misc_playlistexistsp1) + " " + t + " " + getString(R.string.misc_playlistexistsp2));
