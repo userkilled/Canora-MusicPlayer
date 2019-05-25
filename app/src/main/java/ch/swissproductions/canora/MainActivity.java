@@ -176,19 +176,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         if (item.getItemId() == entry.getValue().resid2) {
                             if (pl.selectPlayList(entry.getValue().Title) > 0) {
                                 Log.e(LOG_TAG, "ERROR SELECTING PLAYLIST");
-                            } else {
-                                mainActivity.invalidateOptionsMenu();
-                            }
-                            if (entry.getValue().Title.equals("")) {
-                                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-                                String t = "<font color='" + hexColor + "'>" + mainActivity.getString(R.string.app_name) + "</font>";
-                                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
-                            } else {
-                                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-                                String t = "<font color='" + hexColor + "'>" + entry.getValue().Title + "</font>";
-                                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
                             }
                             pl.sortContent(sortBy);
+                            notifyAAandOM();
                             return true;
                         }
                     }
@@ -770,7 +760,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         String t = et.getText().toString();
                         if (t.equals(orig)) {
                             return;
-                        } else if (t.length() < 0) {
+                        } else if (t.length() <= 0) {
                             showToastMessage(getString(R.string.error_emptyplname));
                         } else if (pl.checkPlayList(t)) {
                             showToastMessage(getString(R.string.misc_playlistexistsp1) + " " + t + " " + getString(R.string.misc_playlistexistsp2));
@@ -779,8 +769,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             r.Title = t;
                             pl.createPlayList(t, r);
                             pl.selectPlayList(t);
+                            Log.v(LOG_TAG, "ORIG: " + orig);
                             pl.deletePlayList(orig);
-                            pl.loadPlaylists(pltemp);
+                            pl.loadPlaylists(t);
                             notifyAAandOM();
                         }
                     }

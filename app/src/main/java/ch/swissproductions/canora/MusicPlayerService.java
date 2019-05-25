@@ -2,6 +2,10 @@ package ch.swissproductions.canora;
 
 import android.app.*;
 import android.content.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadata;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.audiofx.Equalizer;
 import android.net.Uri;
@@ -291,8 +295,23 @@ public class MusicPlayerService extends Service {
                 .setShowWhen(false)
                 .setStyle(new Notification.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2))
-                .setColor(0x020202)
-                .setSmallIcon(R.drawable.mainicon40x40)
+                .setColor(0x020202);
+        if (getCurrentSong() == null) {
+            nb.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mainicon));
+        } else if (getCurrentSong().icon != null) {
+            nb.setLargeIcon(getCurrentSong().icon);
+        } else {
+            MediaMetadataRetriever m = new MediaMetadataRetriever();
+            m.setDataSource(getCurrentSong().file.getAbsolutePath());
+            byte[] b = m.getEmbeddedPicture();
+            if (b != null) {
+                Bitmap icon = BitmapFactory.decodeByteArray(b, 0, b.length, null);
+                nb.setLargeIcon(icon);
+            } else {
+                nb.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mainicon));
+            }
+        }
+        nb.setSmallIcon(R.drawable.mainicon40x40)
                 .setContentTitle(md.get("TITLE"))
                 .setContentText(md.get("ARTIST"))
                 .addAction(R.drawable.main_btnprev, "prev", retrievePlaybackAction(3));

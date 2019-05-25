@@ -46,7 +46,8 @@ public class PlayListManager {
         List<data_song> ml = getSongsfromMediaStore();
         Log.v(LOG_TAG, "FOUND " + ml.size() + " SONGS IN MEDIASTORE");
         data_playlist t = new data_playlist("", ml);
-        updateContent(t);
+        PlayLists.put("", t);
+        updateContent();
     }
 
     public void loadContentFromFiles() {
@@ -147,7 +148,6 @@ public class PlayListManager {
             Log.e(LOG_TAG, "ERROR PLAYLIST NOT FOUND");
             return 1;
         }
-        Log.v(LOG_TAG, "UPDATE CONTENT PLI: " + pli);
         updateContent();
         sortContent(sortBy);
         if (contentList.size() > 0)
@@ -375,6 +375,7 @@ public class PlayListManager {
         }
         return ret;
     }
+
     //END Local Playlists
     //Other
     private data_song getMetadata(File f) {
@@ -384,7 +385,7 @@ public class PlayListManager {
                 MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION
         }, null, null, null);
         boolean found = false;
-        while (c.moveToNext()) {
+        while (c != null && c.moveToNext()) {
             if (c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)).equals(f.getAbsolutePath())) {
                 t.Title = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE));
                 t.Artist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST));
@@ -407,6 +408,11 @@ public class PlayListManager {
             if (t.Artist == null)
                 t.Artist = mainActivity.getString(R.string.misc_unknown);
             t.length = Long.parseLong(m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            byte[] b = m.getEmbeddedPicture();
+            if (b != null)
+                t.icon = BitmapFactory.decodeByteArray(b, 0, m.getEmbeddedPicture().length, null);
+            else
+                t.icon = BitmapFactory.decodeResource(mainActivity.getResources(), R.drawable.mainicon);
             t.id = GIDC++;
         }
         return t;
@@ -743,7 +749,7 @@ public class PlayListManager {
         @Override
         protected String doInBackground(String... params) {
             Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
-            tmp.put("", new data_playlist("", contentList));
+            tmp.put("", new data_playlist("", PlayLists.get("").audio));
             PlayLists.clear();
             PlayLists.putAll(tmp);
             updateContent();
