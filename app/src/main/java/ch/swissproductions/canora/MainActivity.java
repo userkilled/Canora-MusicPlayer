@@ -33,6 +33,7 @@ import android.widget.*;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -203,13 +204,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             plc++;
             if (!pl.getIndex().equals("")) {
+                Log.v(LOG_TAG, "NON DEFAULT PLAYLIST");
                 m.findItem(R.id.action_playlist_edit).setVisible(true);
                 getSupportActionBar().setDisplayShowHomeEnabled(false);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-                String t = "<font color='" + hexColor + "'>" + entry.getValue().Title + "</font>";
+                String t = "<font color='" + hexColor + "'>" + pl.getIndex() + "</font>";
                 mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
             } else {
+                Log.v(LOG_TAG, "DEFAULT PLAYLIST");
                 m.findItem(R.id.action_playlist_edit).setVisible(false);
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -778,8 +781,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String t = et.getText().toString();
-                        if (t.length() > 0 && !t.equals(orig)) {
-                            pl.createPlayList(t, pl.getPlayLists().get(orig));
+                        if (t.equals(orig))
+                        {
+                            return;
+                        }
+                        else if (t.length() < 0) {
+                            showToastMessage(getString(R.string.error_emptyplname));
+                        } else if (pl.checkPlayList(t)) {
+                            showToastMessage(getString(R.string.misc_playlistexistsp1) + " " + t + " " + getString(R.string.misc_playlistexistsp2));
+                        } else {
+                            data_playlist r = pl.getPlayLists().get(orig);
+                            r.Title = t;
+                            pl.createPlayList(t, r);
                             pl.selectPlayList(t);
                             pl.deletePlayList(orig);
                             loadFiles();

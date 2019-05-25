@@ -63,6 +63,9 @@
     <string name="misc_addedto">Items Added to</string>
     <string name="misc_removed">Items Removed</string>
 
+    <string name="misc_playlistexistsp1">A Playlist with the Name</string>
+    <string name="misc_playlistexistsp2">Already Exists</string>
+
     <string-array name="Themes">
         <item>Blue</item>
         <item>Mint</item>

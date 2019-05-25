@@ -10,6 +10,7 @@ public class ThemeManager {
     How to add a Theme:
     1. In the strings.xml add your Theme Title to the Themes String Array.
     2. In the Constants.java File add your Theme Title String and a Entry in the Themes Enum.
+    3. Add Theme to styles.xml
      */
     public int getThemeResourceID() {
         for (int i = 0; i < themes.size(); i++) {
