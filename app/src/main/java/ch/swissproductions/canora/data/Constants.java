@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class Constants {
+    //Strings
     public static final String ACTION_TOGGLE_PLAYBACK = "com.musicman.PLAYPAUSE";
     public static final String ACTION_NEXT = "com.musicman.NEXT";
     public static final String ACTION_PREV = "com.musicman.PREV";
@@ -18,6 +19,30 @@ public final class Constants {
 
     public static final String ACTION_QUIT = "com.musicman.QUIT";
 
+    public static final String PARAMETER_PLAYLIST = "SELPL";
+
+    //Integers
+    public static final int SORT_BYTITLE = 0;
+    public static final int SORT_BYARTIST = 1;
+
+    public static final int SEARCH_BYTITLE = 0;
+    public static final int SEARCH_BYARTIST = 1;
+    public static final int SEARCH_BYBOTH = 2;
+
+    public static final int DIALOG_SORT = 1;
+    public static final int DIALOG_SETTINGS = 2;
+    public static final int DIALOG_SEARCHBY = 3;
+    public static final int DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST = 4;
+    public static final int DIALOG_FILE_INFO = 5;
+    public static final int DIALOG_PLAYLIST_CREATE = 6;
+    public static final int DIALOG_WARNING_PLAYLIST_DELETE = 7;
+    public static final int DIALOG_PLAYLIST_EDIT = 8;
+    public static final int DIALOG_EXIT_CONFIRM = 9;
+
+    public static final int ARRAYADAPT_STATE_DEFAULT = 0;
+    public static final int ARRAYADAPT_STATE_SELECT = 1;
+
+    //Themes
     public enum Themes {
         theThemes();
         private List<data_theme> themes;
@@ -42,6 +67,7 @@ public final class Constants {
 
     public static final String THEME_DEFAULT = THEME_BLUE;
 
+    //Settings
     public enum Settings {
         theSettings;
         private Map<String, String> settings;
@@ -82,26 +108,4 @@ public final class Constants {
     public static final String SETTING_REPEAT = "REPEAT";
     public static final String SETTING_THEME = "THEME";
     public static final String SETTING_EQUALIZERPRESET = "EQPRE";
-
-    public static final String PARAMETER_PLAYLIST = "SELPL";
-
-    public static final int SORT_BYTITLE = 0;
-    public static final int SORT_BYARTIST = 1;
-
-    public static final int SEARCH_BYTITLE = 0;
-    public static final int SEARCH_BYARTIST = 1;
-    public static final int SEARCH_BYBOTH = 2;
-
-    public static final int DIALOG_SORT = 1;
-    public static final int DIALOG_SETTINGS = 2;
-    public static final int DIALOG_SEARCHBY = 3;
-    public static final int DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST = 4;
-    public static final int DIALOG_FILE_INFO = 5;
-    public static final int DIALOG_PLAYLIST_CREATE = 6;
-    public static final int DIALOG_WARNING_PLAYLIST_DELETE = 7;
-    public static final int DIALOG_PLAYLIST_EDIT = 8;
-    public static final int DIALOG_EXIT_CONFIRM = 9;
-
-    public static final int ARRAYADAPT_STATE_DEFAULT = 0;
-    public static final int ARRAYADAPT_STATE_SELECT = 1;
 }
