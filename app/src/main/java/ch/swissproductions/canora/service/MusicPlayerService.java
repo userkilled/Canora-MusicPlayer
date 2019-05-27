@@ -112,6 +112,38 @@ public class MusicPlayerService extends Service {
         return false;
     }
 
+    private int position; //Position of Media Player in Miliseconds
+
+    public boolean pause() {
+        Log.v(LOG_TAG, "Pause");
+        if (player != null) {
+            player.pause();
+            position = player.getCurrentPosition();
+            showNotification();
+        }
+        return false;
+    }
+
+    public boolean resume() {
+        Log.v(LOG_TAG, "Resume");
+        if (player != null) {
+            if (position > 0) {
+                player.seekTo(position);
+                player.start();
+                setCompletionListener();
+                setVolume(volume);
+                showNotification();
+            } else {
+                player.start();
+                setCompletionListener();
+                setVolume(volume);
+                showNotification();
+            }
+            return true;
+        }
+        return false;
+    }
+
     public int seek(int ms) {
         if (player != null) {
             position = ms;
@@ -299,39 +331,6 @@ public class MusicPlayerService extends Service {
             Intent in = new Intent(msg);
             sendBroadcast(in);
         }
-    }
-
-    //Pause / Resume Logic
-    private int position; //Position of Media Player in Miliseconds
-
-    private boolean pause() {
-        Log.v(LOG_TAG, "Pause");
-        if (player != null) {
-            player.pause();
-            position = player.getCurrentPosition();
-            showNotification();
-        }
-        return false;
-    }
-
-    private boolean resume() {
-        Log.v(LOG_TAG, "Resume");
-        if (player != null) {
-            if (position > 0) {
-                player.seekTo(position);
-                player.start();
-                setCompletionListener();
-                setVolume(volume);
-                showNotification();
-            } else {
-                player.start();
-                setCompletionListener();
-                setVolume(volume);
-                showNotification();
-            }
-            return true;
-        }
-        return false;
     }
 
     private void createPlayer(String songP) {
