@@ -23,7 +23,7 @@ public class data_song {
     public Bitmap icon;
     public long length;
 
-    public boolean selected;
+    public boolean selected;//Item Selection State (Add to Playlist etc.)
 
     //Privates
     private Bitmap defIcon;
