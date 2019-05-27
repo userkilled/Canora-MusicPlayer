@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (serv != null) {
             pl.loadContentFromMediaStore();
             pl.sortContent(sortBy);
+            serv.setContent(pl.contentList);
             notifyAAandOM();
             pl.loadContentFromFiles();
         }
