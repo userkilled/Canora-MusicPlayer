@@ -10,19 +10,8 @@ import java.util.List;
 
 
 public class ListSorter {
-    //Globals
-    String LOG_TAG = "LISTSRT";
-
-    Context co;
-
-    //Constructor
-    public ListSorter() {
-
-    }
-
     //Callbacks
     public List<data_song> sort(Context c, List<data_song> in, int SortMode) {
-        co = c;
         List<data_song> sorted = null;
         switch (SortMode) {
             case Constants.SORT_BYTITLE:
