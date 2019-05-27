@@ -12,9 +12,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+
+import ch.swissproductions.canora.activities.MainActivity;
 import ch.swissproductions.canora.tools.MediaPlayerEqualizer;
 import ch.swissproductions.canora.R;
-import ch.swissproductions.canora.activities.MainActivity;
 import ch.swissproductions.canora.data.data_song;
 
 import java.util.*;
@@ -22,20 +23,18 @@ import java.util.*;
 import static ch.swissproductions.canora.data.Constants.*;
 
 public class MusicPlayerService extends Service {
-    //Callbacks
+    //Overrides
     @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
     public void onCreate() {
         Log.v(LOG_TAG, "ONCREATE");
         plm = new PlayBackManager();
         registerReceiver();
-        handleMediaController();
+        nfm = NotificationManagerCompat.from(this);
+        showNotification();
         mpq = new MediaPlayerEqualizer();
     }
 
+    @Override
     public void onDestroy() {
         Log.v(LOG_TAG, "ONDESTROY");
         if (player != null) {
@@ -51,43 +50,14 @@ public class MusicPlayerService extends Service {
         }
     }
 
-    //Globals
-    private MediaPlayer player;
-    private MediaPlayerEqualizer mpq;
-
-    private int position; //Position of Media Player in Miliseconds
-
-    private final IBinder mBinder = new LocalBinder();
-    private BroadcastReceiver brcv;
-
-    private NotificationManagerCompat nfm;
-    private int notificationID = 1;
-
-    private PlayBackManager plm;
-
-    private String LOG_TAG = "SERV";
-
-    //Settings
-    private boolean repeatSong;
-    private boolean playing;
-
-    private float volume = 0.8f;
-
-    public MusicPlayerService() {
-    }
-
-    //Binder
-    public class LocalBinder extends Binder {
-        public MusicPlayerService getService() {
-            return MusicPlayerService.this;
-        }
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
     }
 
     //Public Control Functions
-
     public int setContent(List<data_song> pl) {
         Log.v(LOG_TAG, "SetContent Called Size: " + pl.size());
-        //Called when Content Changes
         List<data_song> t = new ArrayList<>(pl);
         plm.setContent(t);
         return 0;
@@ -142,39 +112,6 @@ public class MusicPlayerService extends Service {
         return false;
     }
 
-    public boolean pause() {
-        Log.v(LOG_TAG, "Pause");
-        if (player != null) {
-            player.pause();
-            playing = false;
-            position = player.getCurrentPosition();
-            showNotification();
-        }
-        return false;
-    }
-
-    public boolean resume() {
-        Log.v(LOG_TAG, "Resume");
-        if (player != null) {
-            if (position > 0) {
-                player.seekTo(position);
-                player.start();
-                playing = true;
-                setListener();
-                setVolume(volume);
-                showNotification();
-            } else {
-                player.start();
-                playing = true;
-                setListener();
-                setVolume(volume);
-                showNotification();
-            }
-            return true;
-        }
-        return false;
-    }
-
     public int seek(int ms) {
         if (player != null) {
             position = ms;
@@ -207,16 +144,16 @@ public class MusicPlayerService extends Service {
     }
 
     public boolean switchRepeat(boolean state) {
-        repeatSong = state;
+        plm.repeat = state;
         return state;
     }
 
     public boolean switchRepeat() {
-        if (repeatSong) {
-            repeatSong = false;
+        if (plm.repeat) {
+            plm.repeat = false;
             return false;
         } else {
-            repeatSong = true;
+            plm.repeat = true;
             return true;
         }
     }
@@ -231,6 +168,22 @@ public class MusicPlayerService extends Service {
         return volume;
     }
 
+    public int setEqualizerPreset(int preset) {
+        Log.v(LOG_TAG, "SELECTING PRESET: " + preset);
+        if (mpq != null) {
+            mpq.setPreset(player, preset);
+        }
+        return 0;
+    }
+
+    public List<String> getEqualizerPresetNames() {
+        if (mpq != null)
+            return mpq.getPresets();
+        else
+            return new ArrayList<>();
+    }
+
+    //Various Public State Providers
     public boolean getPlaybackStatus() {
         if (player != null) {
             if (player.isPlaying())
@@ -255,35 +208,153 @@ public class MusicPlayerService extends Service {
         return 0;
     }
 
-    public int setEqualizerPreset(int preset) {
-        Log.v(LOG_TAG, "SELECTING PRESET: " + preset);
-        if (mpq != null) {
-            mpq.setPreset(player, preset);
-        }
-        return 0;
-    }
-
-    public List<String> getEqualizerPresetNames() {
-        if (mpq != null)
-            return mpq.getPresets();
-        else
-            return new ArrayList<>();
-    }
-
     public boolean getRepeat() {
-        return repeatSong;
+        return plm.repeat;
     }
 
     public boolean getShuffle() {
         return plm.shuffle;
     }
 
-    //Private Functions
-    private void handleMediaController() {
-        nfm = NotificationManagerCompat.from(this);
-        showNotification();
+    //Private Globals
+    private MediaPlayer player;
+    private MediaPlayerEqualizer mpq;
+
+    private PlayBackManager plm;
+
+    private NotificationManagerCompat nfm;
+    private int notificationID = 1;
+
+    private String LOG_TAG = "SERV";
+
+    private float volume = 0.8f;
+
+    //Binder
+    private final IBinder mBinder = new LocalBinder();
+
+    public class LocalBinder extends Binder {
+        public MusicPlayerService getService() {
+            return MusicPlayerService.this;
+        }
     }
 
+    //Broadcast Receiver
+    private BroadcastReceiver brcv;
+
+    private void registerReceiver() {
+        brcv = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch (intent.getAction()) {
+                    case ACTION_QUIT:
+                        stopSelf();
+                    case android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY:
+                        pause();
+                        broadcast(ACTION_STATUS_PAUSED);
+                        break;
+                    case ACTION_TOGGLE_PLAYBACK:
+                        pauseResume();
+                        if (player != null && player.isPlaying())
+                            broadcast(ACTION_STATUS_PLAYING);
+                        else
+                            broadcast(ACTION_STATUS_PAUSED);
+                        break;
+                    case ACTION_NEXT:
+                        next();
+                        broadcastNewSong();
+                        break;
+                    case ACTION_PREV:
+                        previous();
+                        broadcastNewSong();
+                }
+            }
+        };
+        IntentFilter flt = new IntentFilter();
+        flt.addAction(ACTION_TOGGLE_PLAYBACK);
+        flt.addAction(ACTION_NEXT);
+        flt.addAction(ACTION_PREV);
+        flt.addAction(ACTION_QUIT);
+        flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        registerReceiver(brcv, flt);
+    }
+
+    //Broadcast Sender
+    private void broadcastNewSong() {
+        if (player != null) {
+            Intent in = new Intent(ACTION_STATUS_NEWSONG);
+            Bundle extras = new Bundle();
+            extras.putInt("dur", player.getDuration());
+            extras.putInt("pos", player.getCurrentPosition());
+            in.putExtras(extras);
+            sendBroadcast(in);
+            if (player.isPlaying())
+                broadcast(ACTION_STATUS_PLAYING);
+            else
+                broadcast(ACTION_STATUS_PAUSED);
+        }
+    }
+
+    private void broadcast(String msg) {
+        if (player != null) {
+            Intent in = new Intent(msg);
+            sendBroadcast(in);
+        }
+    }
+
+    //Pause / Resume Logic
+    private int position; //Position of Media Player in Miliseconds
+
+    private boolean pause() {
+        Log.v(LOG_TAG, "Pause");
+        if (player != null) {
+            player.pause();
+            position = player.getCurrentPosition();
+            showNotification();
+        }
+        return false;
+    }
+
+    private boolean resume() {
+        Log.v(LOG_TAG, "Resume");
+        if (player != null) {
+            if (position > 0) {
+                player.seekTo(position);
+                player.start();
+                setCompletionListener();
+                setVolume(volume);
+                showNotification();
+            } else {
+                player.start();
+                setCompletionListener();
+                setVolume(volume);
+                showNotification();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void createPlayer(String songP) {
+        if (player != null) {
+            Log.v(LOG_TAG, "Resetting Player");
+
+            if (player.isPlaying())
+                player.stop();
+
+            player.reset();
+            player.release();
+        }
+        songP = "file://" + songP;
+        Log.v(LOG_TAG, "CREATING PLAYER: " + songP);
+        player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
+        if (player != null) {
+            player.start();
+            setVolume(volume);
+            setCompletionListener();
+        }
+    }
+
+    //Notification Widget
     private void showNotification() {
         Map<String, String> md = new HashMap<>();
         if (plm.currentSong != null) {
@@ -375,61 +446,16 @@ public class MusicPlayerService extends Service {
         return null;
     }
 
-    private void broadcastNewSong() {
-        if (player != null) {
-            Intent in = new Intent(ACTION_STATUS_NEWSONG);
-            Bundle extras = new Bundle();
-            extras.putInt("dur", player.getDuration());
-            extras.putInt("pos", player.getCurrentPosition());
-            in.putExtras(extras);
-            sendBroadcast(in);
-            if (player.isPlaying())
-                broadcast(ACTION_STATUS_PLAYING);
-            else
-                broadcast(ACTION_STATUS_PAUSED);
-        }
-    }
-
-    private void broadcast(String msg) {
-        if (player != null) {
-            Intent in = new Intent(msg);
-            sendBroadcast(in);
-        }
-    }
-
-    private void createPlayer(String songP) {
-        if (player != null) {
-            Log.v(LOG_TAG, "Resetting Player");
-
-            if (player.isPlaying())
-                player.stop();
-
-            player.reset();
-            player.release();
-        }
-        songP = "file://" + songP;
-        Log.v(LOG_TAG, "CREATING PLAYER: " + songP);
-        player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
-        if (player != null) {
-            player.start();
-            playing = true;
-            setVolume(volume);
-            setListener();
-        }
-    }
-
-    private void setListener() {
-        Log.v(LOG_TAG, "setListener Called.");
+    private void setCompletionListener() {
+        Log.v(LOG_TAG, "setCompletionListener Called.");
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 Log.v(LOG_TAG, "Completion Listener Called.");
-                if (!playing)
-                    return;
-                if (repeatSong) {
+                if (plm.repeat) {
                     mp.seekTo(0);
                     mp.start();
-                    setListener();
+                    setCompletionListener();
                     broadcastNewSong();
                 } else {
                     next();
@@ -437,43 +463,6 @@ public class MusicPlayerService extends Service {
                 }
             }
         });
-    }
-
-    private void registerReceiver() {
-        brcv = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                switch (intent.getAction()) {
-                    case ACTION_QUIT:
-                        stopSelf();
-                    case android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY:
-                        pause();
-                        broadcast(ACTION_STATUS_PAUSED);
-                        break;
-                    case ACTION_TOGGLE_PLAYBACK:
-                        pauseResume();
-                        if (player != null && player.isPlaying())
-                            broadcast(ACTION_STATUS_PLAYING);
-                        else
-                            broadcast(ACTION_STATUS_PAUSED);
-                        break;
-                    case ACTION_NEXT:
-                        next();
-                        broadcastNewSong();
-                        break;
-                    case ACTION_PREV:
-                        previous();
-                        broadcastNewSong();
-                }
-            }
-        };
-        IntentFilter flt = new IntentFilter();
-        flt.addAction(ACTION_TOGGLE_PLAYBACK);
-        flt.addAction(ACTION_NEXT);
-        flt.addAction(ACTION_PREV);
-        flt.addAction(ACTION_QUIT);
-        flt.addAction(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY);
-        registerReceiver(brcv, flt);
     }
 
     private class PlayBackManager {
@@ -484,8 +473,11 @@ public class MusicPlayerService extends Service {
 
         public boolean shuffle;
 
+        public boolean repeat;
+
         public PlayBackManager() {
             shuffle = false;
+            repeat = false;
             history = new Stack<>();
             currentIndex = 0;
         }
