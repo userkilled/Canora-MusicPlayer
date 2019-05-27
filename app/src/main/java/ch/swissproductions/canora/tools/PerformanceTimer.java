@@ -7,13 +7,13 @@ import java.util.List;
 
 public class PerformanceTimer {
 
-    long genesis;
-    long tstart;
-    long tdur;
+    private long genesis;
+    private long tstart;
+    private long tdur;
 
-    List<Integer> avg;
+    private List<Integer> avg;
 
-    String LOG_TAG = "PT";
+    private String LOG_TAG = "PT";
 
     public PerformanceTimer() {
         tstart = 0;
