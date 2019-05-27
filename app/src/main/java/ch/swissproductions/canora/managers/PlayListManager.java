@@ -39,6 +39,7 @@ public class PlayListManager {
         plPath = mainActivity.getFilesDir().getAbsolutePath() + "/PlayLists";
         Log.v(LOG_TAG, "PLAYLISTS FILE: " + plPath);
         sortBy = SORTBY;
+        filesfound = true;
         setExtensionsAndSearchPaths();
     }
 
@@ -65,11 +66,11 @@ public class PlayListManager {
         try {
             searchTerm = term;
             searchBy = srb;
+            if (contentList.size() == 0 || !filesfound)
+                return;
             if (!taskIsRunning) {
                 new SearchFilesTask().execute(gc);
             } else {
-                if (contentList.size() == 0)
-                    return;
                 List<data_song> cl = new ArrayList<>(contentList);
                 Log.v(LOG_TAG, "CONTENT SIZE:" + cl.size());
                 List<data_song> flt = new ArrayList<>();
@@ -117,7 +118,7 @@ public class PlayListManager {
 
     public void sortContent(int SortBy) {
         this.sortBy = SortBy;
-        if (contentList.size() == 0)
+        if (contentList.size() == 0 || !filesfound)
             return;
         final List<data_song> srted;
         Log.v(LOG_TAG, "SORTING BY: " + sortBy);
@@ -223,6 +224,8 @@ public class PlayListManager {
     public void setFilter(boolean IsFiltering) {
         filtering = IsFiltering;
     }
+
+    public boolean filesfound;
 
     //Private Globals
     private Context gc;
@@ -617,7 +620,16 @@ public class PlayListManager {
     }
 
     private void updateContent() {
-        if (PlayLists.get(pli).audio != null) {
+        if (!filesfound) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    viewList.clear();
+                    viewList.add(new data_song());
+                }
+            });
+            return;
+        } else if (PlayLists.get(pli).audio != null) {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -654,10 +666,16 @@ public class PlayListManager {
             List<data_song> nnw = mergeLists(PlayLists.get("").audio, nw);
             PlayLists.get("").audio.clear();
             PlayLists.get("").audio.addAll(nnw);
-            updateContent();
-            if (contentList.size() == 0) {
+            if (PlayLists.get("").audio.size() == 0) {
                 Log.e(LOG_TAG, "NO FILES FOUND");
+                filesfound = false;
+                updateContent();
+                mainActivity.notifyAAandOM();
+                return "ERROR:NOFILESFOUND";
+            } else {
+                filesfound = true;
             }
+            updateContent();
             sortContent(sortBy);
             try {
                 while (mainActivity.serv == null) {
@@ -692,6 +710,47 @@ public class PlayListManager {
             super.onPostExecute(result);
             taskIsRunning = false;
             Log.v(LOG_TAG, "LOAD ASYNC TASK EXIT: " + result);
+        }
+    }
+
+    public boolean pltaskrunning = false;
+
+    protected class LoadPlaylistsTask extends AsyncTask<String, Integer, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
+            tmp.put("", new data_playlist("", PlayLists.get("").audio));
+            PlayLists.clear();
+            PlayLists.putAll(tmp);
+            updateContent();
+            sortContent(sortBy);
+            if (params.length > 0) {
+                selectPlayList(params[0]);
+            }
+            if (searchTerm != null && !searchTerm.equals(""))
+                showFiltered(searchTerm, searchBy);
+            mainActivity.notifyAAandOM();
+            return "COMPLETE";
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (pltaskrunning) {
+                cancel(true);
+            } else {
+                Log.v(LOG_TAG, "PL TASK ENTRY: ");
+                pltaskrunning = true;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            pltaskrunning = false;
+            Log.v(LOG_TAG, "PL TASK EXIT: " + result);
+            mainActivity.notifyAAandOM();
         }
     }
 
@@ -764,47 +823,6 @@ public class PlayListManager {
             super.onPostExecute(result);
             searchtaskIsRunning = false;
             Log.v(LOG_TAG, "SEARCH ASYNC TASK EXIT: " + result);
-        }
-    }
-
-    public boolean pltaskrunning = false;
-
-    protected class LoadPlaylistsTask extends AsyncTask<String, Integer, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
-            tmp.put("", new data_playlist("", PlayLists.get("").audio));
-            PlayLists.clear();
-            PlayLists.putAll(tmp);
-            updateContent();
-            sortContent(sortBy);
-            if (params.length > 0) {
-                selectPlayList(params[0]);
-            }
-            if (searchTerm != null && !searchTerm.equals(""))
-                showFiltered(searchTerm, searchBy);
-            mainActivity.notifyAAandOM();
-            return "COMPLETE";
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            if (pltaskrunning) {
-                cancel(true);
-            } else {
-                Log.v(LOG_TAG, "PL TASK ENTRY: ");
-                pltaskrunning = true;
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            pltaskrunning = false;
-            Log.v(LOG_TAG, "PL TASK EXIT: " + result);
-            mainActivity.notifyAAandOM();
         }
     }
 }

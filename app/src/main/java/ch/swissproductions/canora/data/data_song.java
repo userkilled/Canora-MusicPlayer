@@ -32,6 +32,7 @@ public class data_song {
     private String LOG_TAG = "SONGITEM";
 
     public data_song() {
+        selected = false;
     }
 
     public data_song(data_song in) {
@@ -41,6 +42,7 @@ public class data_song {
         Artist = in.Artist;
         Album = in.Album;
         icon = in.icon;
+        selected = false;
     }
 
     public data_song(Context co, File f, int i, Bitmap defaultIcon) {

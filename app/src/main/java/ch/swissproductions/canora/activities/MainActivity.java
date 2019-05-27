@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             } else {
                 Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this,Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
+                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (readPerm == PermissionChecker.PERMISSION_GRANTED && writePerm == PermissionChecker.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this,Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
+                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
@@ -175,8 +175,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         //TODO#POLISHING: Options Menu Changes are still Visible
-        if (pl == null || arrayAdapter == null)
-        {
+        if (pl == null || arrayAdapter == null) {
             return false;
         }
         Menu m = menu;
@@ -314,6 +313,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+        if (!pl.filesfound)
+            return;
         ImageButton btn = findViewById(R.id.buttonPlay);
         if (serv != null) {
             if (serv.play(pl.viewList.get(position).id) == 0)
@@ -332,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERM GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this,Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
+                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
@@ -360,6 +361,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreateContextMenu(menu, v, menuInfo);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
         if (v.getId() == R.id.mainViewport) {
+            if (!pl.filesfound)
+                return;
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.list_menu, menu);
             arrayAdapter.setClicked(info.position);
@@ -922,7 +925,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         prevbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (serv != null && serv != null) {
+                if (serv != null && pl.filesfound) {
                     serv.previous();
                     updateSongDisplay();
                     handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
@@ -933,7 +936,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         nexbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (serv != null && serv != null) {
+                if (serv != null && pl.filesfound) {
                     serv.next();
                     updateSongDisplay();
                     handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
@@ -1328,7 +1331,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         @Override
         public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             View listItem = convertView;
-            if (listItem == null)
+            if (!pl.filesfound) {
+                listItem = LayoutInflater.from(mContext).inflate(R.layout.list_item_nofilesfound, parent, false);
+                return listItem;
+            }
+            if (listItem == null || listItem.findViewById(R.id.listsongname) == null)
                 listItem = LayoutInflater.from(mContext).inflate(R.layout.list_item_song, parent, false);
             if (viewList.get(position) == null)
                 return listItem;

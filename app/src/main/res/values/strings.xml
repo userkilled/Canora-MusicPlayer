@@ -62,6 +62,7 @@
     <string name="misc_createpl">Created Playlist</string>
     <string name="misc_addedto">Items Added to</string>
     <string name="misc_removed">Items Removed</string>
+    <string name="misc_nofilesfound">No Audio Files Found on this Device</string>
 
     <string name="misc_playlistexistsp1">A Playlist with the Name</string>
     <string name="misc_playlistexistsp2">Already Exists</string>

@@ -64,4 +64,5 @@
     <string name="misc_createpl">Playlist Erstellt</string>
     <string name="misc_addedto">Audiodateien Hinzugefügt zu</string>
     <string name="misc_removed">Audiodateien Gelöscht</string>
+    <string name="misc_nofilesfound">Keine Audiodateien auf diesem Gerät gefunden</string>
 </resources>
