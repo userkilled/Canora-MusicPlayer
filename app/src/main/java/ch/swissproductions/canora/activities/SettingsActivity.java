@@ -27,9 +27,9 @@ import ch.swissproductions.canora.data.Constants;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    MusicPlayerService serv;
-    SettingsManager sc;
-    ThemeManager thm;
+    private MusicPlayerService serv;
+    private SettingsManager sc;
+    private ThemeManager thm;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
