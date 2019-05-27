@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             } else {
                 Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this);
+                pl = new PlayListManager(getApplicationContext(), this,Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (readPerm == PermissionChecker.PERMISSION_GRANTED && writePerm == PermissionChecker.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this);
+                pl = new PlayListManager(getApplicationContext(), this,Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
@@ -332,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERM GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this);
+                pl = new PlayListManager(getApplicationContext(), this,Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
@@ -416,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     /* Theme Manager */
     private ThemeManager thm;
 
-    public int sortBy;
+    private int sortBy;
     private int searchBy;
 
     private boolean switchUI = false;
@@ -887,14 +887,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             });
             toggleKeyboardView(this, this.getCurrentFocus(), true);
-            pl.filtering = true;
+            pl.setFilter(true);
             if (searchTerm != null)
                 pl.showFiltered(searchTerm, searchBy);
         } else {
             toggleKeyboardView(this, this.getCurrentFocus(), false);
             ed.setVisibility(View.GONE);
             iv.setVisibility(View.GONE);
-            pl.filtering = false;
+            pl.setFilter(false);
             pl.showFiltered("", searchBy);
             findViewById(R.id.songDisplay).requestFocus();
         }

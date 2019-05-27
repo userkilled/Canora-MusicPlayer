@@ -33,11 +33,12 @@ public class PlayListManager {
     //Reference of the Currently Playing PlayList for the Service
     public List<data_song> contentList = new ArrayList<>();
 
-    public PlayListManager(Context c, MainActivity b) {
+    public PlayListManager(Context c, MainActivity b, int SORTBY) {
         gc = c;
         mainActivity = b;
         plPath = mainActivity.getFilesDir().getAbsolutePath() + "/PlayLists";
         Log.v(LOG_TAG, "PLAYLISTS FILE: " + plPath);
+        sortBy = SORTBY;
         setExtensionsAndSearchPaths();
     }
 
@@ -59,8 +60,6 @@ public class PlayListManager {
     public void loadContentFromFiles() {
         new LoadFilesTask().execute();
     }
-
-    public boolean filtering = false;
 
     public void showFiltered(String term, int srb) {
         try {
@@ -218,6 +217,11 @@ public class PlayListManager {
 
     public Map<String, data_playlist> getPlayLists() {
         return PlayLists;
+    }
+
+    //Notifies the PlayListManager of the Search Box State in the MainActivity, needed for the Async Tasks to correctly Filter after Processing
+    public void setFilter(boolean IsFiltering) {
+        filtering = IsFiltering;
     }
 
     //Private Globals
@@ -638,7 +642,9 @@ public class PlayListManager {
         }
     }
 
-    public boolean taskIsRunning = false;
+    private boolean taskIsRunning = false;
+
+    private boolean filtering = false;
 
     protected class LoadFilesTask extends AsyncTask<String, Integer, String> {
         @Override
@@ -652,7 +658,7 @@ public class PlayListManager {
             if (contentList.size() == 0) {
                 Log.e(LOG_TAG, "NO FILES FOUND");
             }
-            sortContent(mainActivity.sortBy);
+            sortContent(sortBy);
             try {
                 while (mainActivity.serv == null) {
                     Thread.sleep(100);
@@ -771,7 +777,7 @@ public class PlayListManager {
             PlayLists.clear();
             PlayLists.putAll(tmp);
             updateContent();
-            sortContent(mainActivity.sortBy);
+            sortContent(sortBy);
             if (params.length > 0) {
                 selectPlayList(params[0]);
             }
