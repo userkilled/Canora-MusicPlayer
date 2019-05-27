@@ -76,7 +76,7 @@ public class MusicPlayerService extends Service {
 
     //Binder
     public class LocalBinder extends Binder {
-        MusicPlayerService getService() {
+        public MusicPlayerService getService() {
             return MusicPlayerService.this;
         }
     }
