@@ -10,6 +10,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -42,29 +44,56 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "ONCREATE CALLED");
         super.onCreate(savedInstanceState);
         globT.start();
-        sc = new SettingsManager(getApplicationContext());
-        pl = new PlayListManager(getApplicationContext(), this);
-        thm = new ThemeManager(sc);
-        setTheme(thm.getThemeResourceID());
-        setContentView(R.layout.layout_main);
-        ListView lv = findViewById(R.id.mainViewport);
-        registerForContextMenu(lv);
-        setListAdapter();
-        setupActionBar();
-        findViewById(R.id.searchbox).setVisibility(View.GONE);
-        findViewById(R.id.searchbybtn).setVisibility(View.GONE);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                Log.v(LOG_TAG, "REQUESTING PERMISSION");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONID);
+            } else {
+                Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
+                sc = new SettingsManager(getApplicationContext());
+                pl = new PlayListManager(getApplicationContext(), this);
+                thm = new ThemeManager(sc);
+                setTheme(thm.getThemeResourceID());
+                setContentView(R.layout.layout_main);
+                ListView lv = findViewById(R.id.mainViewport);
+                registerForContextMenu(lv);
+                setListAdapter();
+                setupActionBar();
+                findViewById(R.id.searchbox).setVisibility(View.GONE);
+                findViewById(R.id.searchbybtn).setVisibility(View.GONE);
 
-        pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            Log.v(LOG_TAG, "REQUESTING PERMISSION");
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+                pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
+                startplayer();
+                registerReceiver();
+                setListeners();
+                colorControlWidgets();
+            }
         } else {
-            Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
-            startplayer();
-            registerReceiver();
-            setListeners();
-            colorControlWidgets();
+            int readPerm = PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+            int writePerm = PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (readPerm == PermissionChecker.PERMISSION_GRANTED && writePerm == PermissionChecker.PERMISSION_GRANTED) {
+                Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
+                sc = new SettingsManager(getApplicationContext());
+                pl = new PlayListManager(getApplicationContext(), this);
+                thm = new ThemeManager(sc);
+                setTheme(thm.getThemeResourceID());
+                setContentView(R.layout.layout_main);
+                ListView lv = findViewById(R.id.mainViewport);
+                registerForContextMenu(lv);
+                setListAdapter();
+                setupActionBar();
+                findViewById(R.id.searchbox).setVisibility(View.GONE);
+                findViewById(R.id.searchbybtn).setVisibility(View.GONE);
+
+                pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
+                startplayer();
+                registerReceiver();
+                setListeners();
+                colorControlWidgets();
+            } else {
+                Log.v(LOG_TAG, "REQUESTING PERMISSION");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONID);
+            }
         }
     }
 
@@ -210,7 +239,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
             }
         }
-
         switch (arrayAdapter.state) {
             case Constants.ARRAYADAPT_STATE_DEFAULT:
                 Log.v(LOG_TAG, "OPTIONS NORMAL MODE");
@@ -231,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     menu.findItem(R.id.action_deleteFromPlaylist).setVisible(true);
                 break;
         }
-
         menu.findItem(R.id.action_playlist_select).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         menu.findItem(R.id.action_addTo).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         menu.findItem(R.id.action_search).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
@@ -288,9 +315,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == MY_PERMISSIONS_REQUEST_READ_CONTACTS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == PERMISSIONID) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERM GRANTED");
+                sc = new SettingsManager(getApplicationContext());
+                pl = new PlayListManager(getApplicationContext(), this);
+                thm = new ThemeManager(sc);
+                setTheme(thm.getThemeResourceID());
+                setContentView(R.layout.layout_main);
+                ListView lv = findViewById(R.id.mainViewport);
+                registerForContextMenu(lv);
+                setListAdapter();
+                setupActionBar();
+                findViewById(R.id.searchbox).setVisibility(View.GONE);
+                findViewById(R.id.searchbybtn).setVisibility(View.GONE);
+                pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
                 startplayer();
                 registerReceiver();
                 setListeners();
@@ -385,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     ValueAnimator animator;
 
-    int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 42;
+    int PERMISSIONID = 42;
 
     public void handleProgressAnimation(int dur, int pos) {
         /* Creates a new ValueAnimator for the Duration Bar and the Digits, And Calls Update Song Display*/

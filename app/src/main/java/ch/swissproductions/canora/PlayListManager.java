@@ -30,7 +30,7 @@ public class PlayListManager {
     public PlayListManager(Context c, MainActivity b) {
         gc = c;
         mainActivity = b;
-        plPath = mainActivity.getExternalFilesDir(null).getAbsolutePath() + "/PlayLists";
+        plPath = mainActivity.getFilesDir().getAbsolutePath() + "/PlayLists";
         Log.v(LOG_TAG, "PLAYLISTS FILE: " + plPath);
         setExtensionsAndSearchPaths();
     }

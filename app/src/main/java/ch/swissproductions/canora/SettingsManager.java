@@ -18,7 +18,7 @@ import java.util.zip.GZIPOutputStream;
 public class SettingsManager {
     public SettingsManager(Context mA) {
         mainAct = mA;
-        settingsFile = new File(mainAct.getExternalCacheDir().getAbsolutePath() + "/settings");
+        settingsFile = new File(mainAct.getCacheDir().getAbsolutePath() + "/settings");
         Log.v(LOG_TAG, "SETTINGS FILE: " + settingsFile.getAbsolutePath());
         data = getDataAsMap(settingsFile.getAbsolutePath());
         if (!verifyData(data)) {
