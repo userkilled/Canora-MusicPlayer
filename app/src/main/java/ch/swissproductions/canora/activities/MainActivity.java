@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    //Callbacks
+    //Overrides
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(LOG_TAG, "ONCREATE CALLED");
@@ -405,39 +405,39 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private SongAdapter arrayAdapter;
 
-    NotificationManagerCompat notificationManager;
+    private NotificationManagerCompat notificationManager;
 
     /* Contains all the Song Data */
-    PlayListManager pl;
+    private PlayListManager pl;
 
     /* Settings Manager */
-    SettingsManager sc;
+    private SettingsManager sc;
 
     /* Theme Manager */
-    ThemeManager thm;
+    private ThemeManager thm;
 
     public int sortBy;
-    int searchBy;
+    private int searchBy;
 
     private boolean switchUI = false;
 
-    PerformanceTimer globT = new PerformanceTimer();
+    private PerformanceTimer globT = new PerformanceTimer();
 
-    String LOG_TAG = "main";
+    private String LOG_TAG = "main";
 
     private String searchTerm;
     private String pltemp = "";
 
-    View.OnClickListener playbutton_click;
-    View.OnClickListener prevbutton_click;
-    View.OnClickListener nexbutton_click;
-    View.OnClickListener shufbutton_click;
-    View.OnClickListener repbutton_click;
-    View.OnClickListener sortbybtn_click;
+    private View.OnClickListener playbutton_click;
+    private View.OnClickListener prevbutton_click;
+    private View.OnClickListener nexbutton_click;
+    private View.OnClickListener shufbutton_click;
+    private View.OnClickListener repbutton_click;
+    private View.OnClickListener sortbybtn_click;
 
-    ValueAnimator animator;
+    private ValueAnimator animator;
 
-    int PERMISSIONID = 42;
+    private int PERMISSIONID = 42;
 
     public void handleProgressAnimation(int dur, int pos) {
         /* Creates a new ValueAnimator for the Duration Bar and the Digits, And Calls Update Song Display*/
