@@ -1,7 +1,8 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.managers;
 
 import android.content.Context;
 import android.util.Log;
+import ch.swissproductions.canora.data.Constants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

@@ -1,7 +1,8 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.managers;
 
-import android.app.Activity;
 import android.util.Log;
+import ch.swissproductions.canora.data.Constants;
+import ch.swissproductions.canora.data.data_theme;
 
 import java.util.List;
 

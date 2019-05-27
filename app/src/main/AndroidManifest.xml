@@ -7,7 +7,7 @@
                  android:supportsRtl="true"
                  android:theme="@style/AppTheme.Blue">
 
-        <activity android:name="ch.swissproductions.canora.MainActivity"
+        <activity android:name="ch.swissproductions.canora.activities.MainActivity"
                   android:configChanges="orientation"
                   android:screenOrientation="portrait"
                   android:theme="@style/AppTheme.Blue"
@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="ch.swissproductions.canora.SettingsActivity"
+        <activity android:name="ch.swissproductions.canora.activities.SettingsActivity"
                   android:configChanges="orientation"
                   android:screenOrientation="portrait"
                   android:theme="@style/AppTheme.Blue"
@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="ch.swissproductions.canora.MusicPlayerService"/>
+        <service android:name="ch.swissproductions.canora.service.MusicPlayerService"/>
     </application>
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>

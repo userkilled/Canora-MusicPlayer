@@ -1,23 +1,25 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.service;
 
 import android.app.*;
 import android.content.*;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaMetadata;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.media.audiofx.Equalizer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+import ch.swissproductions.canora.tools.MediaPlayerEqualizer;
+import ch.swissproductions.canora.R;
+import ch.swissproductions.canora.activities.MainActivity;
+import ch.swissproductions.canora.data.data_song;
 
 import java.util.*;
 
-import static ch.swissproductions.canora.Constants.*;
+import static ch.swissproductions.canora.data.Constants.*;
 
 public class MusicPlayerService extends Service {
     //Callbacks

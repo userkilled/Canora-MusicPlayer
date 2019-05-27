@@ -1,4 +1,4 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.data;
 
 import android.content.ContentResolver;
 import android.content.Context;

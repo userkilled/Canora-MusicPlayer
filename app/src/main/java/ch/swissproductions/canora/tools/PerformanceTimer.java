@@ -1,4 +1,4 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.tools;
 
 import android.util.Log;
 

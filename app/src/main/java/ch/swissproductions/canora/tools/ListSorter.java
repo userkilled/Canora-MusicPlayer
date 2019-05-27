@@ -1,6 +1,8 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.tools;
 
 import android.content.Context;
+import ch.swissproductions.canora.data.Constants;
+import ch.swissproductions.canora.data.data_song;
 
 import java.util.Collections;
 import java.util.Comparator;

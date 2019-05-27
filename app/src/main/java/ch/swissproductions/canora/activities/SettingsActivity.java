@@ -1,6 +1,5 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.activities;
 
-import android.app.Activity;
 import android.content.*;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
@@ -10,18 +9,21 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import ch.swissproductions.canora.service.MusicPlayerService;
+import ch.swissproductions.canora.R;
+import ch.swissproductions.canora.managers.SettingsManager;
+import ch.swissproductions.canora.managers.ThemeManager;
+import ch.swissproductions.canora.data.Constants;
 
 public class SettingsActivity extends AppCompatActivity {
 

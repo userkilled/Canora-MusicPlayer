@@ -1,4 +1,6 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.data;
+
+import ch.swissproductions.canora.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;

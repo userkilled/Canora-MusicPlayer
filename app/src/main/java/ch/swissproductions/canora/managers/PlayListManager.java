@@ -1,4 +1,4 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.managers;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +8,12 @@ import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.util.Log;
+import ch.swissproductions.canora.tools.ListSorter;
+import ch.swissproductions.canora.R;
+import ch.swissproductions.canora.activities.MainActivity;
+import ch.swissproductions.canora.data.Constants;
+import ch.swissproductions.canora.data.data_playlist;
+import ch.swissproductions.canora.data.data_song;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

@@ -1,4 +1,4 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.data;
 
 import java.util.ArrayList;
 import java.util.List;

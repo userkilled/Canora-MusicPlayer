@@ -1,4 +1,4 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.activities;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
@@ -31,6 +31,15 @@ import android.view.*;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import ch.swissproductions.canora.*;
+import ch.swissproductions.canora.data.Constants;
+import ch.swissproductions.canora.data.data_playlist;
+import ch.swissproductions.canora.data.data_song;
+import ch.swissproductions.canora.managers.PlayListManager;
+import ch.swissproductions.canora.managers.SettingsManager;
+import ch.swissproductions.canora.managers.ThemeManager;
+import ch.swissproductions.canora.service.MusicPlayerService;
+import ch.swissproductions.canora.tools.PerformanceTimer;
 
 import java.util.ArrayList;
 import java.util.List;

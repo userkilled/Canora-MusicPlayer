@@ -1,4 +1,4 @@
-package ch.swissproductions.canora;
+package ch.swissproductions.canora.data;
 
 public class data_theme {
     public String title;
