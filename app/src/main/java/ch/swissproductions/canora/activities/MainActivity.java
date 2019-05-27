@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "ONCREATE CALLED");
         super.onCreate(savedInstanceState);
         globT.start();
+        pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "REQUESTING PERMISSION");
@@ -60,18 +61,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             } else {
                 Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
+                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
                 ListView lv = findViewById(R.id.mainViewport);
                 registerForContextMenu(lv);
                 setListAdapter();
-                setupActionBar();
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
                 findViewById(R.id.searchbybtn).setVisibility(View.GONE);
 
-                pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
                 startplayer();
                 registerReceiver();
                 setListeners();
@@ -83,18 +82,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (readPerm == PermissionChecker.PERMISSION_GRANTED && writePerm == PermissionChecker.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
+                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
                 ListView lv = findViewById(R.id.mainViewport);
                 registerForContextMenu(lv);
                 setListAdapter();
-                setupActionBar();
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
                 findViewById(R.id.searchbybtn).setVisibility(View.GONE);
 
-                pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
                 startplayer();
                 registerReceiver();
                 setListeners();
@@ -179,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             return false;
         }
         Menu m = menu;
-        final MainActivity mainActivity = this;
         m.findItem(R.id.action_addTo).getSubMenu().clear();
         m.findItem(R.id.action_addTo).getSubMenu().add(0, R.id.action_playlist_create, 0, R.string.menu_options_newplaylist);
         m.findItem(R.id.action_playlist_select).getSubMenu().clear();
@@ -192,10 +188,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 sub.findItem(plc).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        data_playlist t = new data_playlist(item.getTitle().toString(), mainActivity.getSelected());
-                        mainActivity.multiSelect();
+                        data_playlist t = new data_playlist(item.getTitle().toString(), getSelected());
+                        multiSelect();
                         pl.updatePlayList(item.getTitle().toString(), t);
-                        mainActivity.showToastMessage(t.audio.size() + " " + mainActivity.getString(R.string.misc_addedto) + " " + item.getTitle());
+                        showToastMessage(t.audio.size() + " " + getString(R.string.misc_addedto) + " " + item.getTitle());
                         return false;
                     }
                 });
@@ -238,17 +234,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 m.findItem(R.id.action_playlist_edit).setVisible(true);
                 getSupportActionBar().setDisplayShowHomeEnabled(false);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
+                String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
                 String t = "<font color='" + hexColor + "'>" + pl.getIndex() + "</font>";
-                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
+                getSupportActionBar().setTitle(Html.fromHtml(t));
+                Drawable d = getDrawable(R.drawable.icon_back);
+                d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+                getSupportActionBar().setHomeAsUpIndicator(d);
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
+                getSupportActionBar().setElevation(0);
             } else {
                 Log.v(LOG_TAG, "DEFAULT PLAYLIST");
                 m.findItem(R.id.action_playlist_edit).setVisible(false);
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                String hexColor = "#" + Integer.toHexString(mainActivity.getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-                String t = "<font color='" + hexColor + "'>" + mainActivity.getString(R.string.app_name) + "</font>";
-                mainActivity.getSupportActionBar().setTitle(Html.fromHtml(t));
+                String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
+                String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
+                getSupportActionBar().setTitle(Html.fromHtml(t));
+                Drawable mc = getDrawable(R.drawable.mainicon40x40);
+                mc.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+                getSupportActionBar().setIcon(mc);
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
+                getSupportActionBar().setElevation(0);
             }
         }
         switch (arrayAdapter.state) {
@@ -333,17 +339,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERM GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)));
+                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
                 ListView lv = findViewById(R.id.mainViewport);
                 registerForContextMenu(lv);
                 setListAdapter();
-                setupActionBar();
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
                 findViewById(R.id.searchbybtn).setVisibility(View.GONE);
-                pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
                 startplayer();
                 registerReceiver();
                 setListeners();
@@ -853,23 +857,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 plad.show();
                 break;
         }
-    }
-
-    private void setupActionBar() {
-        ActionBar actionbar = getSupportActionBar();
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
-        Drawable mc = getDrawable(R.drawable.mainicon40x40);
-        mc.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
-        getSupportActionBar().setIcon(mc);
-        getSupportActionBar().setLogo(mc);
-        actionbar.setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
-        String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-        String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
-        actionbar.setTitle(Html.fromHtml(t));
-        Drawable d = getDrawable(R.drawable.icon_back);
-        d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
-        actionbar.setHomeAsUpIndicator(d);
-        getSupportActionBar().setElevation(0);
     }
 
     private void handleSearch() {

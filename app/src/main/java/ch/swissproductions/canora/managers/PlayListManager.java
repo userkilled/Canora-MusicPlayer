@@ -33,9 +33,13 @@ public class PlayListManager {
     //Reference of the Currently Playing PlayList for the Service
     public List<data_song> contentList = new ArrayList<>();
 
-    public PlayListManager(Context c, MainActivity b, int SORTBY) {
+    public PlayListManager(Context c, MainActivity b, int SORTBY, String PlayListIndex) {
         gc = c;
         mainActivity = b;
+        if (PlayListIndex != null)
+            pli = PlayListIndex;
+        else
+            pli = "";
         plPath = mainActivity.getFilesDir().getAbsolutePath() + "/PlayLists";
         Log.v(LOG_TAG, "PLAYLISTS FILE: " + plPath);
         sortBy = SORTBY;
@@ -55,7 +59,8 @@ public class PlayListManager {
         Log.v(LOG_TAG, "FOUND " + ml.size() + " SONGS IN MEDIASTORE");
         data_playlist t = new data_playlist("", ml);
         PlayLists.put("", t);
-        updateContent();
+        if (t.audio.size() > 0)
+            updateContent();
     }
 
     public void loadContentFromFiles() {
@@ -240,7 +245,7 @@ public class PlayListManager {
 
     private String plPath;
 
-    private String pli = ""; //Current Index of PlayLists Indicating Currently Selected PlayList
+    private String pli; //Current Index of PlayLists Indicating Currently Selected PlayList
     private Map<String, data_playlist> PlayLists = new TreeMap<>(); //Holds ALL Content, Empty Index = All Files, otherwise Index = Name of PlayList
 
     private int GIDC = 0; //ID Counter for Song Items
@@ -629,7 +634,7 @@ public class PlayListManager {
                 }
             });
             return;
-        } else if (PlayLists.get(pli).audio != null) {
+        } else if (PlayLists.get(pli) != null && PlayLists.get(pli).audio != null) {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -641,16 +646,7 @@ public class PlayListManager {
             contentList.addAll(PlayLists.get(pli).audio);
             Log.v(LOG_TAG, "CONTENT LIST SET SIZE: " + contentList.size());
         } else {
-            mainActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    viewList.clear();
-                    viewList.addAll(PlayLists.get("").audio);
-                }
-            });
-            contentList.clear();
-            contentList.addAll(PlayLists.get("").audio);
-            Log.v(LOG_TAG, "CONTENT LIST SET SIZE: " + contentList.size());
+            Log.v(LOG_TAG, "ERROR: COULD NOT SELECT PLAYLIST / NULL");
         }
     }
 
