@@ -407,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     /* Theme Manager */
     ThemeManager thm;
 
-    int sortBy;
+    public int sortBy;
     int searchBy;
 
     private boolean switchUI = false;
