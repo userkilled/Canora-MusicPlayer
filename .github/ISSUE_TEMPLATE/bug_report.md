@@ -7,6 +7,9 @@ assignees: ''
 
 ---
 
+**Note**
+Please dont post Links to External Sources in your Issue, use the File Upload from Github instead.
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
