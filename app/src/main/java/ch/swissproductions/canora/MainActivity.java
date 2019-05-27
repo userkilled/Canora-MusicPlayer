@@ -166,6 +166,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         //TODO#POLISHING: Options Menu Changes are still Visible
+        if (pl == null || arrayAdapter == null)
+        {
+            return false;
+        }
         Menu m = menu;
         final MainActivity mainActivity = this;
         m.findItem(R.id.action_addTo).getSubMenu().clear();
