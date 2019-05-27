@@ -12,6 +12,7 @@ public class ThemeManager {
     1. In the strings.xml add your Theme Title to the Themes String Array.
     2. In the Constants.java File add your Theme Title String and a Entry in the Themes Enum.
     3. Add Theme to styles.xml
+    4. Done. Your Theme should now Show up under the Settings->Themes Spinner
      */
     public int getThemeResourceID() {
         for (int i = 0; i < themes.size(); i++) {
