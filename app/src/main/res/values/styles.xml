@@ -5,12 +5,12 @@
         <item name="colorViewPort">#001a33</item>
         <item name="colorFrame">#00172E</item>
         <item name="colorText">#ffffff</item>
-        <item name="colorHighlight">#42f486</item>
+        <item name="colorHighlight">#00ffff</item>
 
         <item name="colorDialogBackground">?colorViewPort</item>
         <item name="colorDialogFrame">?colorFrame</item>
-        <item name="colorDialogText">#ffffff</item>
-        <item name="colorDialogHighlight">#CC42f486</item>
+        <item name="colorDialogText">?colorText</item>
+        <item name="colorDialogHighlight">?colorHighlight</item>
 
         <item name="colorToolbar">?attr/colorFrame</item>
 
@@ -31,11 +31,11 @@
     </style>
 
     <!-- Additional Themes, Set Color Values Here -->
-    <style name="AppTheme.Mint" parent="Base.Theme.AppCompat.Light">
-        <item name="colorViewPort">#1b985f</item>
-        <item name="colorFrame">#178252</item>
+    <style name="AppTheme.LightBlue" parent="Base.Theme.AppCompat.Light">
+        <item name="colorViewPort">#ccffff</item>
+        <item name="colorFrame">#009999</item>
         <item name="colorText">#000000</item>
-        <item name="colorHighlight">#e68a00</item>
+        <item name="colorHighlight">#ff6600</item>
 
         <item name="colorDialogBackground">?colorViewPort</item>
         <item name="colorDialogFrame">?colorFrame</item>
@@ -95,7 +95,7 @@
         <item name="colorViewPort">#ffffff</item>
         <item name="colorFrame">#d9d9d9</item>
         <item name="colorText">#000000</item>
-        <item name="colorHighlight">#000099</item>
+        <item name="colorHighlight">#ff6600</item>
 
         <item name="colorDialogBackground">?colorViewPort</item>
         <item name="colorDialogFrame">?colorFrame</item>
