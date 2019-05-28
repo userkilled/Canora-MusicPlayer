@@ -50,8 +50,18 @@ public class PlayListManager {
     //Public Callbacks
     public void loadPlaylists(String selected) {
         if (selected == null)
-            selected = "";
-        new LoadPlaylistsTask().execute(selected);
+            pli = "";
+        else
+            pli = selected;
+        Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
+        tmp.put("", new data_playlist("", PlayLists.get("").audio));
+        PlayLists.clear();
+        PlayLists.putAll(tmp);
+        sortContent(sortBy);
+        selectPlayList(pli);
+        if (searchTerm != null && !searchTerm.equals(""))
+            showFiltered(searchTerm, searchBy);
+        mainActivity.notifyAAandOM();
     }
 
     public void loadContentFromMediaStore() {
@@ -173,14 +183,9 @@ public class PlayListManager {
 
     public int createPlayList(String name, data_playlist in) {
         Log.v(LOG_TAG, "CREATE PLAYLIST: " + name);
-        if (!pltaskrunning) {
             PlayLists.put(name, in);
             putLocalPlayLists(PlayLists);
             return 0;
-        } else {
-            Log.v(LOG_TAG, "CANNOT CREATE PLAYLIST TASK RUNNING");
-            return 1;
-        }
     }
 
     public int deletePlayList(String name) {
@@ -706,47 +711,6 @@ public class PlayListManager {
             super.onPostExecute(result);
             taskIsRunning = false;
             Log.v(LOG_TAG, "LOAD ASYNC TASK EXIT: " + result);
-        }
-    }
-
-    public boolean pltaskrunning = false;
-
-    protected class LoadPlaylistsTask extends AsyncTask<String, Integer, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
-            tmp.put("", new data_playlist("", PlayLists.get("").audio));
-            PlayLists.clear();
-            PlayLists.putAll(tmp);
-            updateContent();
-            sortContent(sortBy);
-            if (params.length > 0) {
-                selectPlayList(params[0]);
-            }
-            if (searchTerm != null && !searchTerm.equals(""))
-                showFiltered(searchTerm, searchBy);
-            mainActivity.notifyAAandOM();
-            return "COMPLETE";
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            if (pltaskrunning) {
-                cancel(true);
-            } else {
-                Log.v(LOG_TAG, "PL TASK ENTRY: ");
-                pltaskrunning = true;
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            pltaskrunning = false;
-            Log.v(LOG_TAG, "PL TASK EXIT: " + result);
-            mainActivity.notifyAAandOM();
         }
     }
 
