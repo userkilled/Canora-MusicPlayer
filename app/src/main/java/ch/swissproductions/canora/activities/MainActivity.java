@@ -242,7 +242,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
                 getSupportActionBar().setHomeAsUpIndicator(d);
                 getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
-                getSupportActionBar().setElevation(0);
             } else {
                 Log.v(LOG_TAG, "DEFAULT PLAYLIST");
                 m.findItem(R.id.action_playlist_edit).setVisible(false);
@@ -255,7 +254,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mc.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
                 getSupportActionBar().setIcon(mc);
                 getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
-                getSupportActionBar().setElevation(0);
             }
         }
         switch (arrayAdapter.state) {

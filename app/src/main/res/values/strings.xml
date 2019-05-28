@@ -37,7 +37,7 @@
     <string name="error_delfromempty">"Playlist must at least contain 1 item"</string>
 
     <!-- Misc -->
-    <string name="layout_main_searchPH">Search</string>
+    <string name="layout_main_searchPH">Search...</string>
 
     <string name="controls_by">by</string>
 

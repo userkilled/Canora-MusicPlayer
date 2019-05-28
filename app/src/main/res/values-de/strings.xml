@@ -37,7 +37,7 @@
     <string name="error_delfromempty">"Die Playlist muss mindestens eine Audiodatei beeinhalten"</string>
 
     <!-- Misc -->
-    <string name="layout_main_searchPH">Suche</string>
+    <string name="layout_main_searchPH">Suche...</string>
 
     <string name="controls_by">von</string>
 

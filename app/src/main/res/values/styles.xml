@@ -2,8 +2,8 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme.Blue" parent="Base.Theme.AppCompat.Light">
-        <item name="colorViewPort">#001a33</item>
-        <item name="colorFrame">#00172E</item>
+        <item name="colorViewPort">#0D2740</item>
+        <item name="colorFrame">#001a33</item>
         <item name="colorText">#ffffff</item>
         <item name="colorHighlight">#00ffff</item>
 
@@ -35,7 +35,7 @@
         <item name="colorViewPort">#ccffff</item>
         <item name="colorFrame">#009999</item>
         <item name="colorText">#000000</item>
-        <item name="colorHighlight">#ff6600</item>
+        <item name="colorHighlight">#00ffff</item>
 
         <item name="colorDialogBackground">?colorViewPort</item>
         <item name="colorDialogFrame">?colorFrame</item>
