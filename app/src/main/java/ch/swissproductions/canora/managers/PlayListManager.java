@@ -52,15 +52,7 @@ public class PlayListManager {
             pli = "";
         else
             pli = selected;
-        Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
-        tmp.put("", new data_playlist("", PlayLists.get("").audio));
-        PlayLists.clear();
-        PlayLists.putAll(tmp);
-        sortContent(sortBy);
-        selectPlayList(pli);
-        if (searchTerm != null && !searchTerm.equals(""))
-            showFiltered(searchTerm, searchBy);
-        mainActivity.notifyAAandOM();
+        new PlayListTask().execute();
     }
 
     public void loadContentFromMediaStore() {
@@ -327,7 +319,8 @@ public class PlayListManager {
                 NodeList sitm = pln.item(i).getChildNodes();
                 for (int y = 0; y < sitm.getLength(); y++) {
                     Log.v(LOG_TAG, "PATH: " + sitm.item(y).getTextContent());
-                    data_song t = getMetadata(new File(sitm.item(y).getTextContent()));
+                    data_song t = new data_song();
+                    t.file = new File(sitm.item(y).getTextContent());
                     tmp.add(t);
                 }
                 data_playlist p = new data_playlist(pln.item(i).getAttributes().item(0).getTextContent(), tmp);
@@ -702,6 +695,48 @@ public class PlayListManager {
             super.onPostExecute(result);
             taskIsRunning = false;
             Log.v(LOG_TAG, "LOAD ASYNC TASK EXIT: " + result);
+        }
+    }
+
+    public boolean playlisttaskIsRunning = false;
+
+    protected class PlayListTask extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... strings) {
+            Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
+            for (Map.Entry<String, data_playlist> entry : tmp.entrySet()) {
+                Log.v(LOG_TAG, "PROCESSING PLAYLIST: " + entry.getKey());
+                if (entry.getKey() == "")
+                    continue;
+                for (int i = 0; i < entry.getValue().audio.size(); i++) {
+                    entry.getValue().audio.set(i, getMetadata(entry.getValue().audio.get(i).file));
+                }
+                PlayLists.put(entry.getKey(), entry.getValue());
+                selectPlayList(pli);
+                sortContent(sortBy);
+                if (searchTerm != null && !searchTerm.equals(""))
+                    showFiltered(searchTerm, searchBy);
+                mainActivity.notifyAAandOM();
+            }
+            mainActivity.notifyAAandOM();
+            return "COMPLETE";
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (playlisttaskIsRunning)
+                cancel(true);
+            else
+                playlisttaskIsRunning = true;
+            Log.v(LOG_TAG, "PLAYLIST TASK ENTRY");
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            playlisttaskIsRunning = false;
+            Log.v(LOG_TAG, "PLAYLIST TASK EXIT RESULT: " + result);
         }
     }
 

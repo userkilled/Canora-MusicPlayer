@@ -44,6 +44,7 @@ import ch.swissproductions.canora.tools.PerformanceTimer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
@@ -182,8 +183,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         m.findItem(R.id.action_addTo).getSubMenu().clear();
         m.findItem(R.id.action_addTo).getSubMenu().add(0, R.id.action_playlist_create, 0, R.string.menu_options_newplaylist);
         m.findItem(R.id.action_playlist_select).getSubMenu().clear();
+        Map<String, data_playlist> playlist = new TreeMap<>(pl.getPlayLists());
         int plc = 0;
-        for (Map.Entry<String, data_playlist> entry : pl.getPlayLists().entrySet()) {
+        for (Map.Entry<String, data_playlist> entry : playlist.entrySet()) {
             //ADDTO
             SubMenu sub = m.findItem(R.id.action_addTo).getSubMenu();
             if (entry.getValue().Title.length() != 0) {
@@ -1262,7 +1264,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             updateSongDisplay();
             handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
+
+            notifyAAandOM();
+
             globT.printStep(LOG_TAG, "Service Initialization");
+
             //long l = globT.tdur;
             //showToastMessage(getString(R.string.misc_init) + ": " + l + " ms.");
         }
