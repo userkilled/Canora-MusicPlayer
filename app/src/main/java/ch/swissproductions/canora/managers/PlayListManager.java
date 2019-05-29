@@ -47,6 +47,7 @@ public class PlayListManager {
 
     //Public Callbacks
     public void loadPlaylists(String selected) {
+        //TODO: Optimize Playlists Loading / Storing
         if (selected == null)
             pli = "";
         else
