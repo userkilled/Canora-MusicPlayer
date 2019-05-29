@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setListAdapter();
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
                 findViewById(R.id.searchbybtn).setVisibility(View.GONE);
+                findViewById(R.id.songDisplay).requestFocus();
 
                 startplayer();
                 registerReceiver();
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setListAdapter();
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
                 findViewById(R.id.searchbybtn).setVisibility(View.GONE);
+                findViewById(R.id.songDisplay).requestFocus();
 
                 startplayer();
                 registerReceiver();
@@ -347,6 +349,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 setListAdapter();
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
                 findViewById(R.id.searchbybtn).setVisibility(View.GONE);
+                findViewById(R.id.songDisplay).requestFocus();
                 startplayer();
                 registerReceiver();
                 setListeners();
