@@ -13,15 +13,12 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 public class SettingsManager {
     public SettingsManager(Context mA) {
-        mainAct = mA;
-        settingsFile = new File(mainAct.getCacheDir().getAbsolutePath() + "/settings");
-        Log.v(LOG_TAG, "SETTINGS FILE: " + settingsFile.getAbsolutePath());
-        data = getDataAsMap(settingsFile.getAbsolutePath());
+        String sp = mA.getCacheDir().getAbsolutePath() + "/settings";
+        fsa = new FileSystemAccessManager(sp);
+        data = readData();
         if (!verifyData(data)) {
             Log.e(LOG_TAG, "NONE/CORRUPT LOCAL DATA FOUND");
             data.clear();
@@ -32,7 +29,7 @@ public class SettingsManager {
             data.put(Constants.SETTING_SHUFFLE, "false");
             data.put(Constants.SETTING_THEME, Constants.THEME_DEFAULT);
             data.put(Constants.SETTING_EQUALIZERPRESET, "0");
-            writeDataAsXML(settingsFile.getAbsolutePath(), data);
+            writeData(data);
         }
     }
 
@@ -45,95 +42,34 @@ public class SettingsManager {
 
     public void putSetting(String index, String dataS) {
         data.put(index, dataS);
-        writeDataAsXML(settingsFile.getAbsolutePath(), data);
+        writeData(data);
     }
 
-    private File settingsFile;
     private String LOG_TAG = "SETC";
-    private Context mainAct;
+
     private Map<String, String> data; //Key = Constants.SETTING_...
 
+    private FileSystemAccessManager fsa;
+
     //XML Abstraction Layer
-    private Map<String, String> getDataAsMap(String path) {
+    private Map<String, String> readData() {
         Map<String, String> ret = new HashMap<>();
-        String XMLSTR = readFromDisk(path);
+        String XMLSTR = new String(fsa.read());
         if (XMLSTR.length() > 0) {
-            ret = getMapFromXML(XMLSTR);
+            ret = convertXMLtoMAP(XMLSTR);
         }
         return ret;
     }
 
-    private void writeDataAsXML(String path, Map<String, String> data) {
+    private void writeData(Map<String, String> data) {
         if (data.size() > 0) {
-            String writeStr = getXmlFromMap(data);
-            writeToDisk(path, writeStr);
+            String writeStr = convertMAPtoXML(data);
+            fsa.write(writeStr.getBytes());
         }
-    }
-
-    //File System Abstraction Layer
-    private String readFromDisk(String path) {
-        File rf = new File(path);
-        if (!rf.exists())
-            return "";
-        byte[] bFile = new byte[(int) rf.length()];
-        String ret = "";
-        try {
-            //convert file into array of bytes
-            FileInputStream fileInputStream = new FileInputStream(rf);
-            fileInputStream.read(bFile);
-            fileInputStream.close();
-            ret = decompress(bFile);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ret;
-    }
-
-    private void writeToDisk(String path, String data) {
-        try {
-            FileOutputStream fos = new FileOutputStream(new File(path));
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
-            byte[] tdat = compress(data);
-            bos.write(tdat);
-            bos.flush();
-            bos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //Compression
-    public byte[] compress(String string) throws IOException {
-        Log.v(LOG_TAG, "SETTINGS DECOMPRESSED SIZE: " + string.getBytes().length + " BYTES");
-        ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
-        GZIPOutputStream gos = new GZIPOutputStream(os);
-        gos.write(string.getBytes());
-        gos.close();
-        byte[] compressed = os.toByteArray();
-        os.close();
-        Log.v(LOG_TAG, "SETTINGS COMPRESSED SIZE: " + compressed.length + " BYTES");
-        return compressed;
-    }
-
-    public String decompress(byte[] compressed) throws IOException {
-        Log.v(LOG_TAG, "SETTINGS COMPRESSED SIZE: " + compressed.length + " BYTES");
-        final int BUFFER_SIZE = 32;
-        ByteArrayInputStream is = new ByteArrayInputStream(compressed);
-        GZIPInputStream gis = new GZIPInputStream(is, BUFFER_SIZE);
-        StringBuilder string = new StringBuilder();
-        byte[] data = new byte[BUFFER_SIZE];
-        int bytesRead;
-        while ((bytesRead = gis.read(data)) != -1) {
-            string.append(new String(data, 0, bytesRead));
-        }
-        gis.close();
-        is.close();
-        Log.v(LOG_TAG, "SETTINGS DECOMPRESSED SIZE: " + string.toString().getBytes().length + " BYTES");
-        return string.toString();
     }
 
     //XML Conversion Methods
-    private Map<String, String> getMapFromXML(String xml) {
+    private Map<String, String> convertXMLtoMAP(String xml) {
         Map<String, String> ret = new HashMap<>();
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -153,13 +89,68 @@ public class SettingsManager {
         return ret;
     }
 
-    private String getXmlFromMap(Map<String, String> data) {
+    private String convertMAPtoXML(Map<String, String> data) {
         String ret = "<?xml version=\"1.0\"?><settings>";
         for (Map.Entry<String, String> entry : data.entrySet()) {
-            ret += "<" + entry.getKey() + ">" + entry.getValue() + "</" + entry.getKey() + ">";
+            ret += "<" + encodeXML(entry.getKey()) + ">" + encodeXML(entry.getValue()) + "</" + encodeXML(entry.getKey()) + ">";
         }
         ret += "</settings>";
         return ret;
+    }
+
+    public static String encodeXML(CharSequence s) {
+        StringBuilder sb = new StringBuilder();
+        int len = s.length();
+        for (int i = 0; i < len; i++) {
+            int c = s.charAt(i);
+            if (c >= 0xd800 && c <= 0xdbff && i + 1 < len) {
+                c = ((c - 0xd7c0) << 10) | (s.charAt(++i) & 0x3ff);    // UTF16 decode
+            }
+            if (c < 0x80) {      // ASCII range: test most common case first
+                if (c < 0x20 && (c != '\t' && c != '\r' && c != '\n')) {
+                    // Illegal XML character, even encoded. Skip or substitute
+                    sb.append("&#xfffd;");   // Unicode replacement character
+                } else {
+                    switch (c) {
+                        case '&':
+                            sb.append("&amp;");
+                            break;
+                        case '>':
+                            sb.append("&gt;");
+                            break;
+                        case '<':
+                            sb.append("&lt;");
+                            break;
+                        case '\'':
+                            sb.append("&apos;");
+                            break;
+                        case '\"':
+                            sb.append("&quot;");
+                            break;
+                        case '\n':
+                            sb.append("&#10;");
+                            break;
+                        case '\r':
+                            sb.append("&#13;");
+                            break;
+                        case '\t':
+                            sb.append("&#9;");
+                            break;
+
+                        default:
+                            sb.append((char) c);
+                    }
+                }
+            } else if ((c >= 0xd800 && c <= 0xdfff) || c == 0xfffe || c == 0xffff) {
+                // Illegal XML character, even encoded. Skip or substitute
+                sb.append("&#xfffd;");   // Unicode replacement character
+            } else {
+                sb.append("&#x");
+                sb.append(Integer.toHexString(c));
+                sb.append(';');
+            }
+        }
+        return sb.toString();
     }
 
     //Misc
