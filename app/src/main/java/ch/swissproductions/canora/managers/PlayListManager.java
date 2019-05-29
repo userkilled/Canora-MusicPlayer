@@ -67,12 +67,13 @@ public class PlayListManager {
     }
 
     public void showFiltered(String term, int srb) {
+        Log.v(LOG_TAG, "SHOWFILTERED");
         try {
             searchTerm = term;
             searchBy = srb;
             if (contentList.size() == 0 || !filesfound)
                 return;
-            if (!taskIsRunning) {
+            if (!loadtaskIsRunning && !playlisttaskIsRunning && !searchtaskIsRunning) {
                 new SearchFilesTask().execute(gc);
             } else {
                 List<data_song> cl = new ArrayList<>(contentList);
@@ -633,9 +634,8 @@ public class PlayListManager {
         }
     }
 
-    private boolean taskIsRunning = false;
-
     private boolean filtering = false;
+    private boolean loadtaskIsRunning = false;
 
     protected class LoadFilesTask extends AsyncTask<String, Integer, String> {
         @Override
@@ -675,11 +675,11 @@ public class PlayListManager {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (taskIsRunning) {
+            if (loadtaskIsRunning) {
                 Log.e(LOG_TAG, "LOAD ASYNC TASK ALREADY RUNNING, CANCELING");
                 cancel(false);
             } else {
-                taskIsRunning = true;
+                loadtaskIsRunning = true;
             }
             Log.v(LOG_TAG, "LOAD ASYNC TASK ENTRY");
         }
@@ -687,7 +687,7 @@ public class PlayListManager {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            taskIsRunning = false;
+            loadtaskIsRunning = false;
             Log.v(LOG_TAG, "LOAD ASYNC TASK EXIT: " + result);
         }
     }
@@ -698,12 +698,10 @@ public class PlayListManager {
         @Override
         protected String doInBackground(String... strings) {
             Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
-            if (tmp.containsKey(pli) && pli != "")
-            {
+            if (tmp.containsKey(pli) && pli != "") {
                 //Prioritize the Selected Playlist
-                for (int i = 0; i < tmp.get(pli).audio.size(); i++)
-                {
-                    tmp.get(pli).audio.set(i,getMetadata(tmp.get(pli).audio.get(i).file));
+                for (int i = 0; i < tmp.get(pli).audio.size(); i++) {
+                    tmp.get(pli).audio.set(i, getMetadata(tmp.get(pli).audio.get(i).file));
                 }
                 PlayLists.put(pli, tmp.get(pli));
                 selectPlayList(pli);

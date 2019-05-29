@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             pl.sortContent(sortBy);
             serv.setContent(pl.contentList);
             if (isSearching)
-                pl.showFiltered(searchTerm,searchBy);
+                pl.showFiltered(searchTerm, searchBy);
             notifyAAandOM();
             pl.loadContentFromFiles();
         }
@@ -221,9 +221,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             if (pl.selectPlayList(entry.getValue().Title) > 0) {
                                 Log.e(LOG_TAG, "ERROR SELECTING PLAYLIST");
                             }
-                            if (isSearching)
-                                pl.showFiltered(searchTerm,searchBy);
                             pl.sortContent(sortBy);
+                            if (isSearching)
+                                pl.showFiltered(searchTerm, searchBy);
                             notifyAAandOM();
                             return true;
                         }
