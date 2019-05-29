@@ -2,7 +2,6 @@ package ch.swissproductions.canora.managers;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
@@ -47,7 +46,6 @@ public class PlayListManager {
 
     //Public Callbacks
     public void loadPlaylists(String selected) {
-        //TODO: Optimize Playlists Loading / Storing
         if (selected == null)
             pli = "";
         else
@@ -313,12 +311,10 @@ public class PlayListManager {
             Document doc = builder.parse(input);
             Element root = doc.getDocumentElement();
             NodeList pln = root.getChildNodes();
-            Log.v(LOG_TAG, "FOUND " + pln.getLength() + " PLAYLISTS");
             for (int i = 0; i < pln.getLength(); i++) {
                 List<data_song> tmp = new ArrayList<>();
                 NodeList sitm = pln.item(i).getChildNodes();
                 for (int y = 0; y < sitm.getLength(); y++) {
-                    Log.v(LOG_TAG, "PATH: " + sitm.item(y).getTextContent());
                     data_song t = new data_song();
                     t.file = new File(sitm.item(y).getTextContent());
                     tmp.add(t);
@@ -553,7 +549,6 @@ public class PlayListManager {
     }
 
     private List<data_song> getPlayListAsItems(String rootPath) {
-        Bitmap dicon = BitmapFactory.decodeResource(gc.getResources(), R.drawable.icon_unsetsong);
         List<File> t = getPlayListFiles(rootPath);
         List<data_song> ret = new ArrayList<>();
         for (int i = 0; i < t.size(); i++) {
@@ -712,13 +707,10 @@ public class PlayListManager {
                     entry.getValue().audio.set(i, getMetadata(entry.getValue().audio.get(i).file));
                 }
                 PlayLists.put(entry.getKey(), entry.getValue());
-                selectPlayList(pli);
-                sortContent(sortBy);
-                if (searchTerm != null && !searchTerm.equals(""))
-                    showFiltered(searchTerm, searchBy);
+                if (entry.getKey().equals(pli))
+                    selectPlayList(pli);
                 mainActivity.notifyAAandOM();
             }
-            mainActivity.notifyAAandOM();
             return "COMPLETE";
         }
 
@@ -795,7 +787,6 @@ public class PlayListManager {
         protected void onPreExecute() {
             super.onPreExecute();
             if (searchtaskIsRunning) {
-                //TODO#POLISHING: Possible Race Condition
                 Log.e(LOG_TAG, "SEARCH ASYNC TASK ALREADY RUNNING, CANCELING");
                 cancel(false);
             } else {

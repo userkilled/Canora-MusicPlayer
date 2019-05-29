@@ -1255,11 +1255,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             pl.loadContentFromMediaStore();
             pl.sortContent(sortBy);
             serv.setContent(pl.contentList);
+
             pl.loadPlaylists(pltemp);
             pl.loadContentFromFiles();
-            pl.sortContent(sortBy);
 
-            serv.setContent(pl.contentList);
             serv.setEqualizerPreset(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
 
             updateSongDisplay();
