@@ -698,6 +698,17 @@ public class PlayListManager {
         @Override
         protected String doInBackground(String... strings) {
             Map<String, data_playlist> tmp = getLocalPlayLists();//TODO:Load Titles / Artist / Album in separate Playlists
+            if (tmp.containsKey(pli) && pli != "")
+            {
+                //Prioritize the Selected Playlist
+                for (int i = 0; i < tmp.get(pli).audio.size(); i++)
+                {
+                    tmp.get(pli).audio.set(i,getMetadata(tmp.get(pli).audio.get(i).file));
+                }
+                PlayLists.put(pli, tmp.get(pli));
+                selectPlayList(pli);
+                mainActivity.notifyAAandOM();
+            }
             for (Map.Entry<String, data_playlist> entry : tmp.entrySet()) {
                 Log.v(LOG_TAG, "PROCESSING PLAYLIST: " + entry.getKey());
                 if (entry.getKey() == "")
@@ -706,8 +717,6 @@ public class PlayListManager {
                     entry.getValue().audio.set(i, getMetadata(entry.getValue().audio.get(i).file));
                 }
                 PlayLists.put(entry.getKey(), entry.getValue());
-                if (entry.getKey().equals(pli))
-                    selectPlayList(pli);
                 mainActivity.notifyAAandOM();
             }
             return "COMPLETE";
