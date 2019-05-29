@@ -67,7 +67,7 @@
     <string name="misc_playlistexistsp1">A Playlist with the Name</string>
     <string name="misc_playlistexistsp2">Already Exists</string>
 
-    <string-array name="Themes">
+    <string-array translateable="false" name="Themes">
         <item>Blue</item>
         <item>Light Blue</item>
         <item>Dark</item>
