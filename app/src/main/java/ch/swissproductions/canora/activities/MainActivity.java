@@ -155,6 +155,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             pl.loadContentFromMediaStore();
             pl.sortContent(sortBy);
             serv.setContent(pl.contentList);
+            if (isSearching)
+                pl.showFiltered(searchTerm,searchBy);
             notifyAAandOM();
             pl.loadContentFromFiles();
         }
@@ -219,6 +221,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             if (pl.selectPlayList(entry.getValue().Title) > 0) {
                                 Log.e(LOG_TAG, "ERROR SELECTING PLAYLIST");
                             }
+                            if (isSearching)
+                                pl.showFiltered(searchTerm,searchBy);
                             pl.sortContent(sortBy);
                             notifyAAandOM();
                             return true;
@@ -757,7 +761,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
                         getSupportActionBar().setTitle(Html.fromHtml(t));
 
-                        invalidateOptionsMenu();
+                        notifyAAandOM();
                     }
                 });
                 builder.setNegativeButton(R.string.misc_no, new DialogInterface.OnClickListener() {
@@ -863,10 +867,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    private boolean isSearching = false;
+
     private void handleSearch() {
         EditText ed = findViewById(R.id.searchbox);
         ImageButton iv = findViewById(R.id.searchbybtn);
         if (ed.getVisibility() == View.GONE) {
+            isSearching = true;
             ed.setVisibility(View.VISIBLE);
             iv.setVisibility(View.VISIBLE);
             ed.setFocusableInTouchMode(true);
@@ -885,6 +892,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (searchTerm != null)
                 pl.showFiltered(searchTerm, searchBy);
         } else {
+            isSearching = false;
             toggleKeyboardView(this, this.getCurrentFocus(), false);
             ed.setVisibility(View.GONE);
             iv.setVisibility(View.GONE);

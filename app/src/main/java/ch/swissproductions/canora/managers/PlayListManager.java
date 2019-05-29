@@ -166,7 +166,6 @@ public class PlayListManager {
         sortContent(sortBy);
         if (contentList.size() > 0)
             mainActivity.serv.setContent(contentList);
-        mainActivity.notifyAAandOM();
         return 0;
     }
 
