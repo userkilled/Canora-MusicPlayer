@@ -518,6 +518,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         pl.sortContent(sortBy);
+                        if (isSearching)
+                            pl.showFiltered(searchTerm,searchBy);
                         notifyAAandOM();
                     }
                 });
@@ -638,6 +640,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             }
                         }
                         pl.sortContent(sortBy);
+                        if (isSearching)
+                            pl.showFiltered(searchTerm,searchBy);
                         notifyAAandOM();
                     }
                 });
@@ -689,6 +693,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             data_playlist tmp = new data_playlist(pl.getIndex(), nw);
                             pl.replacePlayList(pl.getIndex(), tmp);
                             pl.selectPlayList(pl.getIndex());
+                            if (isSearching)
+                                pl.showFiltered(searchTerm,searchBy);
                             multiSelect(false);
                             notifyAAandOM();
                             showToastMessage(t.size() + " " + getString(R.string.misc_removed));
@@ -760,6 +766,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
                         String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
                         getSupportActionBar().setTitle(Html.fromHtml(t));
+
+                        if (isSearching)
+                            pl.showFiltered(searchTerm,searchBy);
 
                         notifyAAandOM();
                     }
@@ -839,6 +848,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             Log.v(LOG_TAG, "ORIG: " + orig);
                             pl.deletePlayList(orig);
                             pl.loadPlaylists(t);
+                            if (isSearching)
+                                pl.showFiltered(searchTerm,searchBy);
                             notifyAAandOM();
                         }
                     }
