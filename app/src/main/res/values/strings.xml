@@ -3,9 +3,11 @@
     <!-- Dialogues -->
     <string name="dialog_file_deletefrom_t1">Do you really want to delete</string>
     <string name="dialog_file_deletefrom_t2">Files from the Playlist?</string>
+    <string name="dialog_file_deletefrom_title">Delete Files from Playlist</string>
     <string name="dialog_file_info_title">File Info</string>
     <string name="dialog_file_info_t1">Filepath</string>
     <string name="dialog_playlist_delete_t1">Do you really want to delete the Playlist:</string>
+    <string name="dialog_playlist_delete_title">Delete Playlist</string>
     <string name="dialog_playlist_create_title">Create Playlist</string>
     <string name="dialog_createpl_nameph">Name</string>
     <string name="dialog_settings_title">Settings</string>
@@ -16,7 +18,7 @@
 
     <!-- Menus -->
     <string name="menu_listitem_select">Select</string>
-    <string name="menu_listitem_info">Show info</string>
+    <string name="menu_listitem_info">Show Info</string>
     <string name="menu_listitem_delfrompl">Delete from Playlist</string>
 
     <string name="menu_options_delpl">Delete Playlist</string>

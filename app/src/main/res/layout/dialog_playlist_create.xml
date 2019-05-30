@@ -2,15 +2,39 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-    <EditText android:id="@+id/plname"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:hint="@string/dialog_createpl_nameph"
-              android:textColorHint="?colorGreyed"
-              android:textSize="20dp"
-              android:textColor="?colorDialogText"
-              android:backgroundTint="?colorDialogHighlight"
-              android:textCursorDrawable="@null"
-              android:layout_margin="10dp"
-    />
+    <LinearLayout android:id="@+id/plnamecont"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:background="?colorViewPort"
+                  android:paddingTop="10dp"
+                  android:paddingBottom="10dp">
+        <EditText android:id="@+id/plname"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:hint="@string/dialog_createpl_nameph"
+                  android:textColorHint="?colorGreyed"
+                  android:textSize="20dp"
+                  android:textColor="?colorDialogText"
+                  android:textCursorDrawable="@null"
+                  android:backgroundTint="?colorHighlight"
+        />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/footer"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+                  android:layout_below="@id/plnamecont"
+                  android:background="?colorViewPort">
+        <Button android:id="@+id/btnNeg" android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/misc_back"
+                android:background="?colorFrame"
+                android:layout_marginRight="2dp"/>
+        <Button android:id="@+id/btnPos" android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/misc_ok"
+                android:background="?colorFrame"/>
+    </LinearLayout>
 </RelativeLayout>

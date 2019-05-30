@@ -2,12 +2,14 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-    <LinearLayout android:layout_width="wrap_content"
+    <LinearLayout android:id="@+id/content"
+                  android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:layout_centerHorizontal="true"
                   android:orientation="vertical"
-                  android:padding="5dp"
-                  android:layout_margin="10dp">
+                  android:paddingTop="10dp"
+                  android:paddingBottom="10dp"
+                  android:background="?colorViewPort">
         <TextView android:id="@+id/filepathtitle"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
@@ -17,4 +19,11 @@
                   android:layout_height="wrap_content"
         />
     </LinearLayout>
+    <Button android:id="@+id/okbtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/misc_ok"
+            android:textSize="15dp"
+            android:background="?colorFrame"
+            android:layout_below="@id/content"/>
 </RelativeLayout>

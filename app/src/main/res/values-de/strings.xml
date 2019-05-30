@@ -3,9 +3,11 @@
     <!-- Dialogues -->
     <string name="dialog_file_deletefrom_t1">Möchten sie</string>
     <string name="dialog_file_deletefrom_t2">Dateien von dieser Playlist Löschen?</string>
+    <string name="dialog_file_deletefrom_title">Delete Files from Playlist</string>
     <string name="dialog_file_info_title">Datei Info</string>
     <string name="dialog_file_info_t1">Dateipfad</string>
     <string name="dialog_playlist_delete_t1">Möchten sie folgende Playlist Löschen:</string>
+    <string name="dialog_playlist_delete_title">Delete Playlist</string>
     <string name="dialog_playlist_create_title">Playlist Erstellen</string>
     <string name="dialog_createpl_nameph">Name</string>
     <string name="dialog_settings_title">Einstellungen</string>
@@ -52,7 +54,6 @@
     <string name="misc_title">Titel</string>
     <string name="misc_artist">Interpret</string>
     <string name="misc_both">Beide</string>
-
     <string name="misc_unknown">Unbekannt</string>
 
     <string name="misc_themes">Themen</string>

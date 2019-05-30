@@ -2,6 +2,7 @@ package ch.swissproductions.canora.activities;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager;
@@ -512,7 +513,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         switch (m) {
             case Constants.DIALOG_SORT:
                 AlertDialog.Builder b = new AlertDialog.Builder(this, R.style.DialogStyle);
-                View sortitle = LayoutInflater.from(this).inflate(R.layout.dialog_title, null);
+                View sortitle = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
+                View e = LayoutInflater.from(this).inflate(R.layout.dialog_sort, null);
                 TextView tsor = sortitle.findViewById(R.id.diatitle);
                 tsor.setText(R.string.dialog_sortby_title);
                 b.setCustomTitle(sortitle);
@@ -536,10 +538,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 });
                 final AlertDialog sortdia = b.create();
-                sortdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorViewPort)));
+                sortdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
                 sortdia.getListView().setDividerHeight(5);
-                LayoutInflater l = LayoutInflater.from(this);
-                View e = l.inflate(R.layout.dialog_singleokbutton, null);
                 e.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -551,12 +551,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 });
                 sortdia.setView(e);
-                sortdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
+                sortdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
                 sortdia.show();
                 break;
             case Constants.DIALOG_SEARCHBY:
                 AlertDialog.Builder b1 = new AlertDialog.Builder(this, R.style.DialogStyle);
-                View title = LayoutInflater.from(this).inflate(R.layout.dialog_title, null);
+                View title = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
                 TextView t = title.findViewById(R.id.diatitle);
                 t.setText(R.string.dialog_searchby_title);
                 b1.setCustomTitle(title);
@@ -583,81 +583,94 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 });
                 final AlertDialog serdia = b1.create();
                 LayoutInflater l1 = LayoutInflater.from(this);
-                View e1 = l1.inflate(R.layout.dialog_singleokbutton, null);
+                View e1 = l1.inflate(R.layout.dialog_searchby, null);
                 e1.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         serdia.dismiss();
                     }
                 });
-                serdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorViewPort)));
+                serdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
                 serdia.getListView().setDividerHeight(5);
                 serdia.setView(e1);
-                serdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
+                serdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
                 serdia.show();
                 break;
-            case Constants.DIALOG_PLAYLIST_CREATE:
-                LayoutInflater lif = LayoutInflater.from(this);
-                View vi = lif.inflate(R.layout.dialog_playlist_create, null);
-                AlertDialog.Builder buil = new AlertDialog.Builder(this, R.style.DialogStyle);
-                buil.setTitle(R.string.dialog_playlist_create_title);
-                final EditText ip = vi.findViewById(R.id.plname);
-                buil.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
+
+            case Constants.DIALOG_PLAYLIST_EDIT:
+                LayoutInflater plli = LayoutInflater.from(this);
+                View plv = plli.inflate(R.layout.dialog_playlist_edit, null);
+                final AlertDialog.Builder plbuild = new AlertDialog.Builder(this, R.style.DialogStyle);
+                final EditText et = plv.findViewById(R.id.plname);
+                final String orig = pl.getIndex();
+                et.setText(pl.getIndex());
+
+                View edTitle = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
+                TextView edT = edTitle.findViewById(R.id.diatitle);
+                edT.setText(getString(R.string.menu_options_editpl) + " " + orig);
+                plbuild.setCustomTitle(edTitle);
+
+                final AlertDialog plad = plbuild.create();
+
+                plv.findViewById(R.id.btnok).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.v(LOG_TAG, "CREATING PLAYLIST");
-                        List<data_song> t = getSelected();
-                        multiSelect();
-                        for (int i = 0; i < t.size(); i++) {
-                            Log.v(LOG_TAG, "ITEM: " + t.get(i).file.getAbsolutePath());
-                        }
-                        if (ip.getText().toString().length() == 0) {
+                    public void onClick(View v) {
+                        String t = et.getText().toString();
+                        if (t.equals(orig)) {
+                        } else if (t.length() <= 0) {
                             showToastMessage(getString(R.string.error_emptyplname));
-                        } else if (pl.checkPlayList(ip.getText().toString())) {
-                            pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
-                            showToastMessage(t.size() + " " + getString(R.string.misc_addedto) + ip.getText().toString());
+                        } else if (pl.checkPlayList(t)) {
+                            showToastMessage(getString(R.string.misc_playlistexistsp1) + " " + t + " " + getString(R.string.misc_playlistexistsp2));
                         } else {
-                            if (t.size() <= 0) {
-                                showToastMessage(getString(R.string.error_createempty));
-                            } else {
-                                String in = ip.getText().toString();
-                                pl.createPlayList(in, getPlayList(ip.getText().toString(), t));
-                                showToastMessage(getString(R.string.misc_createpl) + ": " + in);
-                            }
+                            data_playlist r = pl.getPlayLists().get(orig);
+                            r.Title = t;
+                            pl.createPlayList(t, r);
+                            pl.selectPlayList(t);
+                            Log.v(LOG_TAG, "ORIG: " + orig);
+                            pl.deletePlayList(orig);
+                            pl.loadPlaylists(t);
+                            if (isSearching)
+                                pl.showFiltered(searchTerm, searchBy);
+                            notifyAAandOM();
                         }
-                        pl.sortContent(sortBy);
-                        if (isSearching)
-                            pl.showFiltered(searchTerm, searchBy);
-                        notifyAAandOM();
+                        plad.dismiss();
                     }
                 });
-                buil.setNegativeButton(R.string.misc_back, new DialogInterface.OnClickListener() {
+
+                plv.findViewById(R.id.btnback).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Do Nothing
+                    public void onClick(View v) {
+                        plad.dismiss();
                     }
                 });
-                final AlertDialog plcdia = buil.create();
-                plcdia.setOnShowListener(new DialogInterface.OnShowListener() {
+
+                plv.findViewById(R.id.btnDel).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onShow(DialogInterface dialog) {
-                        plcdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                        plcdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                    public void onClick(View v) {
+                        plad.dismiss();
+                        displayDialog(Constants.DIALOG_WARNING_PLAYLIST_DELETE);
                     }
                 });
-                plcdia.setView(vi);
-                plcdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
-                plcdia.show();
+                plad.setView(plv);
+                plad.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
+                plad.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                plad.show();
+                et.requestFocus();
                 break;
+
             case Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST:
-                LayoutInflater liff = LayoutInflater.from(this);
-                View viv = liff.inflate(R.layout.dialog_file_delete, null);
                 AlertDialog.Builder build = new AlertDialog.Builder(this, R.style.DialogStyle);
-                TextView tv = viv.findViewById(R.id.ays);
-                tv.setText(getString(R.string.dialog_file_deletefrom_t1) + " " + getSelected().size() + " " + getString(R.string.dialog_file_deletefrom_t2));
-                build.setPositiveButton(R.string.misc_yes, new DialogInterface.OnClickListener() {
+                View viv = LayoutInflater.from(this).inflate(R.layout.dialog_file_delete, null);
+                View dlft = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
+                TextView dltex = dlft.findViewById(R.id.diatitle);
+                dltex.setText(R.string.dialog_file_deletefrom_title);
+                build.setCustomTitle(dlft);
+
+                final AlertDialog eddia = build.create();
+
+                viv.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(View v) {
                         if (pl.getIndex().equals("")) {
                             showToastMessage(getString(R.string.error_delfromdef));
                         } else if (pl.contentList.size() <= getSelected().size()) {
@@ -685,64 +698,43 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             notifyAAandOM();
                             showToastMessage(t.size() + " " + getString(R.string.misc_removed));
                         }
+                        eddia.dismiss();
                     }
                 });
-                build.setNegativeButton(R.string.misc_no, new DialogInterface.OnClickListener() {
+                viv.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Do Nothing
+                    public void onClick(View v) {
+                        eddia.dismiss();
                     }
                 });
-                final AlertDialog eddia = build.create();
-                eddia.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        eddia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                        eddia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                    }
-                });
+                TextView tv = viv.findViewById(R.id.ays);
+                tv.setText(getString(R.string.dialog_file_deletefrom_t1) + " " + getSelected().size() + " " + getString(R.string.dialog_file_deletefrom_t2));
+
                 eddia.setView(viv);
-                eddia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
+                eddia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
                 eddia.show();
                 break;
-            case Constants.DIALOG_FILE_INFO:
-                //TODO:POPULATE FILE INFO DIALOGE
-                LayoutInflater lifff = LayoutInflater.from(this);
-                View vive = lifff.inflate(R.layout.dialog_file_info, null);
-                TextView fp = vive.findViewById(R.id.filepathtitle);
-                fp.setText(getString(R.string.dialog_file_info_t1) + ":");
-
-                fp = vive.findViewById(R.id.filepathtext);
-                fp.setText(pl.viewList.get(arrayAdapter.clicked).file.getAbsolutePath());
-
-                AlertDialog.Builder builde = new AlertDialog.Builder(this, R.style.DialogStyle);
-                builde.setTitle(R.string.dialog_file_info_title);
-                builde.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-                final AlertDialog eddiae = builde.create();
-                eddiae.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        eddiae.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                        eddiae.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                    }
-                });
-                eddiae.setView(vive);
-                eddiae.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
-                eddiae.show();
-                break;
             case Constants.DIALOG_WARNING_PLAYLIST_DELETE:
-                LayoutInflater laf = LayoutInflater.from(this);
-                View vivef = laf.inflate(R.layout.dialog_playlist_delete, null);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.DialogStyle);
+                View pldltit = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
+                View vivef = LayoutInflater.from(this).inflate(R.layout.dialog_playlist_delete, null);
+                TextView tex = pldltit.findViewById(R.id.diatitle);
+                tex.setText(R.string.dialog_playlist_delete_title);
+                builder.setCustomTitle(pldltit);
+
                 TextView fpf = vivef.findViewById(R.id.playlisttext);
                 fpf.setText(pl.getIndex());
-                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.DialogStyle);
-                builder.setPositiveButton(R.string.misc_yes, new DialogInterface.OnClickListener() {
+                final AlertDialog eddiaet = builder.create();
+                vivef.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(View v) {
+                        eddiaet.dismiss();
+
+                    }
+                });
+                vivef.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
                         pl.deletePlayList(pl.getIndex());
                         pl.selectPlayList("");
 
@@ -757,109 +749,126 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             pl.showFiltered(searchTerm, searchBy);
 
                         notifyAAandOM();
-                    }
-                });
-                builder.setNegativeButton(R.string.misc_no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                        eddiaet.dismiss();
 
                     }
                 });
-                final AlertDialog eddiaet = builder.create();
-                eddiaet.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        eddiaet.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                        eddiaet.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                    }
-                });
+
                 eddiaet.setView(vivef);
-                eddiaet.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
+                eddiaet.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
                 eddiaet.show();
                 break;
-            case Constants.DIALOG_EXIT_CONFIRM:
-                LayoutInflater exli = LayoutInflater.from(this);
-                View exv = exli.inflate(R.layout.dialog_exit, null);
-                AlertDialog.Builder exbuild = new AlertDialog.Builder(this, R.style.DialogStyle);
-                exbuild.setTitle(R.string.misc_exit);
-                exbuild.setPositiveButton(R.string.misc_yes, new DialogInterface.OnClickListener() {
+            case Constants.DIALOG_PLAYLIST_CREATE:
+                AlertDialog.Builder buil = new AlertDialog.Builder(this, R.style.DialogStyle);
+                View vi = LayoutInflater.from(this).inflate(R.layout.dialog_playlist_create, null);
+                View vi2 = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
+                TextView tetx = vi2.findViewById(R.id.diatitle);
+                tetx.setText(R.string.dialog_playlist_create_title);
+                buil.setCustomTitle(vi2);
+                final EditText ip = vi.findViewById(R.id.plname);
+                final AlertDialog plcdia = buil.create();
+                vi.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(View v) {
+                        Log.v(LOG_TAG, "CREATING PLAYLIST");
+                        List<data_song> t = getSelected();
+                        multiSelect();
+                        for (int i = 0; i < t.size(); i++) {
+                            Log.v(LOG_TAG, "ITEM: " + t.get(i).file.getAbsolutePath());
+                        }
+                        if (ip.getText().toString().length() == 0) {
+                            showToastMessage(getString(R.string.error_emptyplname));
+                        } else if (pl.checkPlayList(ip.getText().toString())) {
+                            pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
+                            showToastMessage(t.size() + " " + getString(R.string.misc_addedto) + ip.getText().toString());
+                        } else {
+                            if (t.size() <= 0) {
+                                showToastMessage(getString(R.string.error_createempty));
+                            } else {
+                                String in = ip.getText().toString();
+                                pl.createPlayList(in, getPlayList(ip.getText().toString(), t));
+                                showToastMessage(getString(R.string.misc_createpl) + ": " + in);
+                            }
+                        }
+                        pl.sortContent(sortBy);
+                        if (isSearching)
+                            pl.showFiltered(searchTerm, searchBy);
+                        notifyAAandOM();
+                        plcdia.dismiss();
+                    }
+                });
+                vi.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        plcdia.dismiss();
+                    }
+                });
+                plcdia.setView(vi);
+                plcdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
+                plcdia.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                plcdia.show();
+                ip.requestFocus();
+                break;
+            case Constants.DIALOG_EXIT_CONFIRM:
+                AlertDialog.Builder exbuild = new AlertDialog.Builder(this, R.style.DialogStyle);
+                View exv = LayoutInflater.from(this).inflate(R.layout.dialog_exit, null);
+                View ext = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
+                TextView extt = ext.findViewById(R.id.diatitle);
+                extt.setText(R.string.misc_exit);
+
+                exbuild.setCustomTitle(ext);
+                final AlertDialog exad = exbuild.create();
+
+                exv.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        exad.dismiss();
+                    }
+                });
+                exv.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
                         finish();
                     }
                 });
-                exbuild.setNegativeButton(R.string.misc_no, null);
-                exbuild.setNeutralButton(R.string.misc_minimize,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                moveTaskToBack(true);
-                            }
-                        });
-                final AlertDialog exad = exbuild.create();
-                exad.setOnShowListener(new DialogInterface.OnShowListener() {
+                exv.findViewById(R.id.btnNeut).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onShow(DialogInterface dialog) {
-                        exad.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                        exad.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                        exad.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                    public void onClick(View v) {
+                        exad.dismiss();
+                        moveTaskToBack(true);
                     }
                 });
                 exad.setView(exv);
-                exad.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
+                exad.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
                 exad.show();
                 break;
-            case Constants.DIALOG_PLAYLIST_EDIT:
-                LayoutInflater plli = LayoutInflater.from(this);
-                View plv = plli.inflate(R.layout.dialog_playlist_edit, null);
-                AlertDialog.Builder plbuild = new AlertDialog.Builder(this, R.style.DialogStyle);
-                final EditText et = plv.findViewById(R.id.plname);
-                final String orig = pl.getIndex();
-                et.setText(pl.getIndex());
-                plbuild.setTitle(R.string.menu_options_editpl);
-                plbuild.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String t = et.getText().toString();
-                        if (t.equals(orig)) {
-                            return;
-                        } else if (t.length() <= 0) {
-                            showToastMessage(getString(R.string.error_emptyplname));
-                        } else if (pl.checkPlayList(t)) {
-                            showToastMessage(getString(R.string.misc_playlistexistsp1) + " " + t + " " + getString(R.string.misc_playlistexistsp2));
-                        } else {
-                            data_playlist r = pl.getPlayLists().get(orig);
-                            r.Title = t;
-                            pl.createPlayList(t, r);
-                            pl.selectPlayList(t);
-                            Log.v(LOG_TAG, "ORIG: " + orig);
-                            pl.deletePlayList(orig);
-                            pl.loadPlaylists(t);
-                            if (isSearching)
-                                pl.showFiltered(searchTerm, searchBy);
-                            notifyAAandOM();
-                        }
-                    }
-                });
-                plbuild.setNegativeButton(R.string.misc_back, null);
-                plbuild.setNeutralButton(R.string.menu_options_delpl,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                displayDialog(Constants.DIALOG_WARNING_PLAYLIST_DELETE);
-                            }
-                        });
-                final AlertDialog plad = plbuild.create();
-                plad.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        plad.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                        plad.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                        plad.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+            case Constants.DIALOG_FILE_INFO:
+                //TODO:POPULATE FILE INFO DIALOGE
+                AlertDialog.Builder builde = new AlertDialog.Builder(this, R.style.DialogStyle);
+                View vive = LayoutInflater.from(this).inflate(R.layout.dialog_file_info, null);
+                View fiti = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
+                TextView fitex = fiti.findViewById(R.id.diatitle);
+                fitex.setText(R.string.dialog_file_info_title);
+                builde.setCustomTitle(fiti);
 
+                TextView fp = vive.findViewById(R.id.filepathtitle);
+                fp.setText(getString(R.string.dialog_file_info_t1) + ":");
+
+                fp = vive.findViewById(R.id.filepathtext);
+                fp.setText(pl.viewList.get(arrayAdapter.clicked).file.getAbsolutePath());
+
+                final AlertDialog eddiae = builde.create();
+
+                vive.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        eddiae.dismiss();
                     }
                 });
-                plad.setView(plv);
-                plad.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
-                plad.show();
+
+                eddiae.setView(vive);
+                eddiae.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
+                eddiae.show();
                 break;
             case Constants.DIALOG_SETTINGS:
                 switchUI = true;

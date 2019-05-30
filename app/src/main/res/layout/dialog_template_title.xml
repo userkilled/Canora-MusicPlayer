@@ -10,5 +10,6 @@
               android:layout_centerHorizontal="true"
               android:textSize="22dp"
               android:background="?colorFrame"
-              android:padding="5dp"/>
+              android:padding="5dp"
+              android:maxLines="1"/>
 </RelativeLayout>
