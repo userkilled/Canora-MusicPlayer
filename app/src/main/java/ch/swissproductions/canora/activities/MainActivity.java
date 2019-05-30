@@ -607,7 +607,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 View edTitle = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
                 TextView edT = edTitle.findViewById(R.id.diatitle);
-                edT.setText(getString(R.string.menu_options_editpl) + " " + orig);
+                edT.setText(getString(R.string.menu_options_editpl));
                 plbuild.setCustomTitle(edTitle);
 
                 final AlertDialog plad = plbuild.create();
