@@ -50,7 +50,10 @@ public class PlayListManager {
             pli = "";
         else
             pli = selected;
-        new PlayListTask().execute();
+        if (!playlisttaskIsRunning) {
+            plt = new PlayListTask();
+            plt.execute();
+        }
     }
 
     public void loadContentFromMediaStore() {
@@ -63,7 +66,10 @@ public class PlayListManager {
     }
 
     public void loadContentFromFiles() {
-        new LoadFilesTask().execute();
+        if (!loadtaskIsRunning) {
+            lft = new LoadFilesTask();
+            lft.execute();
+        }
     }
 
     public void showFiltered(String term, int srb) {
@@ -74,7 +80,8 @@ public class PlayListManager {
             if (contentList.size() == 0 || !filesfound)
                 return;
             if (!loadtaskIsRunning && !playlisttaskIsRunning && !searchtaskIsRunning) {
-                new SearchFilesTask().execute(gc);
+                sft = new SearchFilesTask();
+                sft.execute();
             } else {
                 List<data_song> cl = new ArrayList<>(contentList);
                 Log.v(LOG_TAG, "CONTENT SIZE:" + cl.size());
@@ -212,7 +219,6 @@ public class PlayListManager {
     }
 
     public String getIndex() {
-        Log.v(LOG_TAG,"RETURNING: " + pli);
         return pli;
     }
 
@@ -223,6 +229,15 @@ public class PlayListManager {
     //Notifies the PlayListManager of the Search Box State in the MainActivity, needed for the Async Tasks to correctly Filter after Processing
     public void setFilter(boolean IsFiltering) {
         filtering = IsFiltering;
+    }
+
+    public void cancelTasks() {
+        if (plt != null)
+            plt.cancel(true);
+        if (sft != null)
+            sft.cancel(true);
+        if (lft != null)
+            lft.cancel(true);
     }
 
     public boolean filesfound;
@@ -470,17 +485,6 @@ public class PlayListManager {
         return ret;
     }
 
-    private List<data_song> getSongsfromFiles() {
-        List<data_song> ret = new ArrayList<>();
-        for (String str : searchPaths) {
-            Log.v(LOG_TAG, "Searching in Directory: " + str);
-            List<data_song> te = getPlayListAsItems(str);
-            if (te != null)
-                ret.addAll(te);
-        }
-        return ret;
-    }
-
     private data_playlist mergePlayLists(data_playlist orig, data_playlist adding) {
         Log.v(LOG_TAG, "MERGING PLAYLIST " + orig.Title + " WITH " + adding.Title);
         List<data_song> lst = new ArrayList<>();
@@ -505,38 +509,6 @@ public class PlayListManager {
         return ret;
     }
 
-    private List<data_song> mergeLists(List<data_song> a, List<data_song> b) {
-        List<data_song> ret = new ArrayList<>();
-        if (a.size() > b.size()) {
-            ret.addAll(a);
-            for (int i = 0; i < b.size(); i++) {
-                boolean ex = false;
-                for (int y = 0; y < a.size(); y++) {
-                    if (b.get(i).file.getAbsolutePath().equals(a.get(y).file.getAbsolutePath())) {
-                        ex = true;
-                    }
-                }
-                if (!ex) {
-                    ret.add(b.get(i));
-                }
-            }
-        } else {
-            ret.addAll(b);
-            for (int i = 0; i < a.size(); i++) {
-                boolean ex = false;
-                for (int y = 0; y < b.size(); y++) {
-                    if (a.get(i).file.getAbsolutePath().equals(b.get(y).file.getAbsolutePath())) {
-                        ex = true;
-                    }
-                }
-                if (!ex) {
-                    ret.add(a.get(i));
-                }
-            }
-        }
-        return ret;
-    }
-
     private void setExtensionsAndSearchPaths() {
         validExtensions.add(".mp3");
         validExtensions.add(".mp4");
@@ -547,56 +519,6 @@ public class PlayListManager {
         validExtensions.add(".wav");
         searchPaths.add("/storage/emulated/0/Music");
         searchPaths.add("/storage/emulated/0/Download");
-    }
-
-    private List<data_song> getPlayListAsItems(String rootPath) {
-        List<File> t = getPlayListFiles(rootPath);
-        List<data_song> ret = new ArrayList<>();
-        for (int i = 0; i < t.size(); i++) {
-            data_song s = getMetadata(t.get(i));
-            ret.add(s);
-        }
-        return ret;
-    }
-
-    private ArrayList<File> getPlayListFiles(String rootPath) {
-        ArrayList<File> fileList = new ArrayList<>();
-        try {
-            File rootFolder = new File(rootPath);
-            File[] files = rootFolder.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        if (getPlayListFiles(file.getAbsolutePath()) != null) {
-                            fileList.addAll(getPlayListFiles(file.getAbsolutePath()));
-                        } else {
-                            break;
-                        }
-                    } else if (validExtensions.contains(getFileExtension(file))) {
-                        fileList.add(file);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return fileList;
-    }
-
-    private static String getFileExtension(File file) {
-        String extension = "";
-
-        try {
-            if (file != null && file.exists()) {
-                String name = file.getName();
-                extension = name.substring(name.lastIndexOf("."));
-            }
-        } catch (Exception e) {
-            extension = "";
-        }
-
-        return extension;
-
     }
 
     private void updateContent(data_playlist in) {
@@ -637,13 +559,18 @@ public class PlayListManager {
 
     private boolean filtering = false;
     private boolean loadtaskIsRunning = false;
+    private LoadFilesTask lft;
 
     protected class LoadFilesTask extends AsyncTask<String, Integer, String> {
         @Override
         protected String doInBackground(String... params) {
             List<data_song> nw = getSongsfromFiles();
+            if (isCancelled())
+                return "Cancelled";
             Log.v(LOG_TAG, "FOUND " + nw.size() + " AUDIO FILES ON DISK");
             List<data_song> nnw = mergeLists(PlayLists.get("").audio, nw);
+            if (isCancelled())
+                return "Cancelled";
             PlayLists.get("").audio.clear();
             PlayLists.get("").audio.addAll(nnw);
             if (PlayLists.get("").audio.size() == 0) {
@@ -691,9 +618,125 @@ public class PlayListManager {
             loadtaskIsRunning = false;
             Log.v(LOG_TAG, "LOAD ASYNC TASK EXIT: " + result);
         }
+
+        private List<data_song> getSongsfromFiles() {
+            List<data_song> ret = new ArrayList<>();
+            for (String str : searchPaths) {
+                if (isCancelled())
+                    return null;
+                Log.v(LOG_TAG, "Searching in Directory: " + str);
+                List<data_song> te = getPlayListAsItems(str);
+                if (isCancelled())
+                    return null;
+                if (te != null)
+                    ret.addAll(te);
+            }
+            return ret;
+        }
+
+        private List<data_song> mergeLists(List<data_song> a, List<data_song> b) {
+            List<data_song> ret = new ArrayList<>();
+            if (a.size() > b.size()) {
+                ret.addAll(a);
+                for (int i = 0; i < b.size(); i++) {
+                    if (isCancelled())
+                        return null;
+                    boolean ex = false;
+                    for (int y = 0; y < a.size(); y++) {
+                        if (isCancelled())
+                            return null;
+                        if (b.get(i).file.getAbsolutePath().equals(a.get(y).file.getAbsolutePath())) {
+                            ex = true;
+                        }
+                    }
+                    if (!ex) {
+                        ret.add(b.get(i));
+                    }
+                }
+            } else {
+                ret.addAll(b);
+                for (int i = 0; i < a.size(); i++) {
+                    if (isCancelled())
+                        return null;
+                    boolean ex = false;
+                    for (int y = 0; y < b.size(); y++) {
+                        if (isCancelled())
+                            return null;
+                        if (a.get(i).file.getAbsolutePath().equals(b.get(y).file.getAbsolutePath())) {
+                            ex = true;
+                        }
+                    }
+                    if (!ex) {
+                        ret.add(a.get(i));
+                    }
+                }
+            }
+            return ret;
+        }
+
+        private List<data_song> getPlayListAsItems(String rootPath) {
+            List<File> t = getPlayListFiles(rootPath);
+            if (isCancelled())
+                return null;
+            List<data_song> ret = new ArrayList<>();
+            for (int i = 0; i < t.size(); i++) {
+                if (isCancelled())
+                    return null;
+                data_song s = getMetadata(t.get(i));
+                ret.add(s);
+            }
+            return ret;
+        }
+
+        private ArrayList<File> getPlayListFiles(String rootPath) {
+            ArrayList<File> fileList = new ArrayList<>();
+            try {
+                File rootFolder = new File(rootPath);
+                File[] files = rootFolder.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (isCancelled())
+                            return null;
+                        if (file.isDirectory()) {
+                            if (getPlayListFiles(file.getAbsolutePath()) != null) {
+                                fileList.addAll(getPlayListFiles(file.getAbsolutePath()));
+                            } else {
+                                if (isCancelled())
+                                    return null;
+                                break;
+                            }
+                        } else if (validExtensions.contains(getFileExtension(file))) {
+                            if (isCancelled())
+                                return null;
+                            fileList.add(file);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return fileList;
+        }
+
+        private String getFileExtension(File file) {
+            String extension = "";
+
+            try {
+                if (file != null && file.exists()) {
+                    String name = file.getName();
+                    extension = name.substring(name.lastIndexOf("."));
+                }
+            } catch (Exception e) {
+                extension = "";
+            }
+
+            return extension;
+
+        }
     }
 
     public boolean playlisttaskIsRunning = false;
+    private PlayListTask plt;
 
     protected class PlayListTask extends AsyncTask<String, String, String> {
         @Override
@@ -740,6 +783,7 @@ public class PlayListManager {
     }
 
     public boolean searchtaskIsRunning = false;
+    private SearchFilesTask sft;
 
     protected class SearchFilesTask extends AsyncTask<Context, Integer, String> {
         @Override

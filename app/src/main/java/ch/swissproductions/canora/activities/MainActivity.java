@@ -117,6 +117,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         if (notificationManager != null)
             notificationManager.cancelAll();
+        if (pl != null)
+            pl.cancelTasks();
     }
 
     @Override
