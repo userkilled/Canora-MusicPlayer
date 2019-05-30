@@ -745,6 +745,8 @@ public class PlayListManager {
             if (tmp.containsKey(pli) && pli != "") {
                 //Prioritize the Selected Playlist
                 for (int i = 0; i < tmp.get(pli).audio.size(); i++) {
+                    if (isCancelled())
+                        return "CANCELLED";
                     tmp.get(pli).audio.set(i, getMetadata(tmp.get(pli).audio.get(i).file));
                 }
                 PlayLists.put(pli, tmp.get(pli));
@@ -752,10 +754,14 @@ public class PlayListManager {
                 mainActivity.notifyAAandOM();
             }
             for (Map.Entry<String, data_playlist> entry : tmp.entrySet()) {
+                if (isCancelled())
+                    return "CANCELLED";
                 Log.v(LOG_TAG, "PROCESSING PLAYLIST: " + entry.getKey());
                 if (entry.getKey() == "")
                     continue;
                 for (int i = 0; i < entry.getValue().audio.size(); i++) {
+                    if (isCancelled())
+                        return "CANCELLED";
                     entry.getValue().audio.set(i, getMetadata(entry.getValue().audio.get(i).file));
                 }
                 PlayLists.put(entry.getKey(), entry.getValue());
