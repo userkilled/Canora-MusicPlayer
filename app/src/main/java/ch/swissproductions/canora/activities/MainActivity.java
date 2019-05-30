@@ -19,7 +19,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -513,19 +512,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         switch (m) {
             case Constants.DIALOG_SORT:
                 AlertDialog.Builder b = new AlertDialog.Builder(this, R.style.DialogStyle);
-                b.setTitle(R.string.dialog_sortby_title);
-                b.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        pl.sortContent(sortBy);
-                        if (isSearching)
-                            pl.showFiltered(searchTerm,searchBy);
-                        notifyAAandOM();
-                    }
-                });
-                b.setNegativeButton(R.string.misc_back, null);
-                CharSequence[] arr = {getString(R.string.misc_title), getString(R.string.misc_artist)};
-                b.setSingleChoiceItems(arr, sortBy, new DialogInterface.OnClickListener() {
+                View sortitle = LayoutInflater.from(this).inflate(R.layout.dialog_title, null);
+                TextView tsor = sortitle.findViewById(R.id.diatitle);
+                tsor.setText(R.string.dialog_sortby_title);
+                b.setCustomTitle(sortitle);
+                List<String> items = new ArrayList<>();
+                items.add(getString(R.string.misc_title));
+                items.add(getString(R.string.misc_artist));
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item_singlechoice, items);
+                b.setSingleChoiceItems(adapter, sortBy, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
@@ -541,43 +536,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 });
                 final AlertDialog sortdia = b.create();
+                sortdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorViewPort)));
+                sortdia.getListView().setDividerHeight(5);
                 LayoutInflater l = LayoutInflater.from(this);
-                View e = l.inflate(R.layout.dialog_sort, null);
-                sortdia.setOnShowListener(new DialogInterface.OnShowListener() {
+                View e = l.inflate(R.layout.dialog_singleokbutton, null);
+                e.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onShow(DialogInterface dialog) {
-                        sortdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                        sortdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                    public void onClick(View v) {
+                        pl.sortContent(sortBy);
+                        if (isSearching)
+                            pl.showFiltered(searchTerm, searchBy);
+                        notifyAAandOM();
+                        sortdia.dismiss();
                     }
                 });
-
                 sortdia.setView(e);
                 sortdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 sortdia.show();
                 break;
-            case Constants.DIALOG_SETTINGS:
-                switchUI = true;
-                Intent i = new Intent(this, SettingsActivity.class);
-                i.putExtra(Constants.PARAMETER_PLAYLIST, pl.getIndex());
-                startActivity(i);
-                finish();
-                break;
             case Constants.DIALOG_SEARCHBY:
                 AlertDialog.Builder b1 = new AlertDialog.Builder(this, R.style.DialogStyle);
-                b1.setTitle(R.string.dialog_searchby_title);
-                b1.setPositiveButton(R.string.misc_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-                b1.setNegativeButton(R.string.misc_back, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Do Nothing
-                    }
-                });
+                View title = LayoutInflater.from(this).inflate(R.layout.dialog_title, null);
+                TextView t = title.findViewById(R.id.diatitle);
+                t.setText(R.string.dialog_searchby_title);
+                b1.setCustomTitle(title);
                 CharSequence[] arr1 = {getString(R.string.misc_title), getString(R.string.misc_artist), getString(R.string.misc_both)};
-                b1.setSingleChoiceItems(arr1, searchBy, new DialogInterface.OnClickListener() {
+                ArrayAdapter<CharSequence> ada = new ArrayAdapter<>(this, R.layout.list_item_singlechoice, arr1);
+                b1.setSingleChoiceItems(ada, searchBy, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
@@ -598,14 +583,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 });
                 final AlertDialog serdia = b1.create();
                 LayoutInflater l1 = LayoutInflater.from(this);
-                View e1 = l1.inflate(R.layout.dialog_sort, null);
-                serdia.setOnShowListener(new DialogInterface.OnShowListener() {
+                View e1 = l1.inflate(R.layout.dialog_singleokbutton, null);
+                e1.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onShow(DialogInterface dialog) {
-                        serdia.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
-                        serdia.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColorFromAtt(R.attr.colorDialogText));
+                    public void onClick(View v) {
+                        serdia.dismiss();
                     }
                 });
+                serdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorViewPort)));
+                serdia.getListView().setDividerHeight(5);
                 serdia.setView(e1);
                 serdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 serdia.show();
@@ -641,7 +627,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         }
                         pl.sortContent(sortBy);
                         if (isSearching)
-                            pl.showFiltered(searchTerm,searchBy);
+                            pl.showFiltered(searchTerm, searchBy);
                         notifyAAandOM();
                     }
                 });
@@ -694,7 +680,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             pl.replacePlayList(pl.getIndex(), tmp);
                             pl.selectPlayList(pl.getIndex());
                             if (isSearching)
-                                pl.showFiltered(searchTerm,searchBy);
+                                pl.showFiltered(searchTerm, searchBy);
                             multiSelect(false);
                             notifyAAandOM();
                             showToastMessage(t.size() + " " + getString(R.string.misc_removed));
@@ -768,7 +754,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         getSupportActionBar().setTitle(Html.fromHtml(t));
 
                         if (isSearching)
-                            pl.showFiltered(searchTerm,searchBy);
+                            pl.showFiltered(searchTerm, searchBy);
 
                         notifyAAandOM();
                     }
@@ -849,7 +835,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             pl.deletePlayList(orig);
                             pl.loadPlaylists(t);
                             if (isSearching)
-                                pl.showFiltered(searchTerm,searchBy);
+                                pl.showFiltered(searchTerm, searchBy);
                             notifyAAandOM();
                         }
                     }
@@ -874,6 +860,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 plad.setView(plv);
                 plad.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 plad.show();
+                break;
+            case Constants.DIALOG_SETTINGS:
+                switchUI = true;
+                Intent i = new Intent(this, SettingsActivity.class);
+                i.putExtra(Constants.PARAMETER_PLAYLIST, pl.getIndex());
+                startActivity(i);
+                finish();
                 break;
         }
     }

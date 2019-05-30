@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:id="@+id/checktext"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:minHeight="?android:attr/listPreferredItemHeight"
+                 android:background="?colorFrame"
+                 android:textColor="?colorText"
+                 android:text="TEST"
+                 android:textSize="20dp"
+                 android:paddingLeft="20dp"
+                 android:gravity="center"
+                 android:ellipsize="marquee"
+                 android:checkMark="?android:attr/listChoiceIndicatorSingle"
+                 android:checkMarkTint="?colorHighlight"/>
