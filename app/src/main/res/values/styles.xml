@@ -28,6 +28,7 @@
 
         <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
         <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="android:textColorPrimary">?colorText</item>
     </style>
 
     <!-- Additional Themes, Set Color Values Here -->
@@ -59,6 +60,7 @@
 
         <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
         <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="android:textColorPrimary">?colorText</item>
     </style>
 
     <style name="AppTheme.Dark" parent="Base.Theme.AppCompat.Light">
@@ -89,6 +91,7 @@
 
         <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
         <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="android:textColorPrimary">?colorText</item>
     </style>
 
     <style name="AppTheme.Light" parent="Base.Theme.AppCompat.Light">
@@ -119,6 +122,7 @@
 
         <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
         <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="android:textColorPrimary">?colorText</item>
     </style>
 
     <!-- Other Styles, Not Customized -->

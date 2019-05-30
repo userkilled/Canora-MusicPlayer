@@ -7,5 +7,6 @@
             android:layout_height="wrap_content"
             android:text="@string/misc_ok"
             android:textSize="15dp"
-            android:background="?colorFrame"/>
+            android:background="?colorFrame"
+            android:paddingBottom="10dp"/>
 </RelativeLayout>

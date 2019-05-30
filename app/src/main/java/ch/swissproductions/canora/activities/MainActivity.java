@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
@@ -243,9 +244,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 m.findItem(R.id.action_playlist_edit).setVisible(true);
                 getSupportActionBar().setDisplayShowHomeEnabled(false);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-                String t = "<font color='" + hexColor + "'>" + pl.getIndex() + "</font>";
-                getSupportActionBar().setTitle(Html.fromHtml(t));
+                getSupportActionBar().setTitle(pl.getIndex());
                 Drawable d = getDrawable(R.drawable.icon_back);
                 d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
                 getSupportActionBar().setHomeAsUpIndicator(d);
@@ -255,9 +254,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 m.findItem(R.id.action_playlist_edit).setVisible(false);
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-                String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
-                getSupportActionBar().setTitle(Html.fromHtml(t));
+                getSupportActionBar().setTitle(R.string.app_name);
                 Drawable mc = getDrawable(R.drawable.mainicon40x40);
                 mc.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
                 getSupportActionBar().setIcon(mc);
@@ -886,7 +883,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         EditText ed = findViewById(R.id.searchbox);
         ImageButton iv = findViewById(R.id.searchbybtn);
         if (ed.getVisibility() == View.GONE) {
-            isSearching = true;
             ed.setVisibility(View.VISIBLE);
             iv.setVisibility(View.VISIBLE);
             ed.setFocusableInTouchMode(true);
@@ -896,8 +892,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     searchTerm = target.getText().toString();
                     Log.v(LOG_TAG, "SEARCHTEXT: " + searchTerm);
                     if (searchTerm != "") {
+                        isSearching = true;
                         pl.showFiltered(searchTerm, searchBy);
                     }
+                    else
+                        isSearching = false;
                 }
             });
             toggleKeyboardView(this, this.getCurrentFocus(), true);

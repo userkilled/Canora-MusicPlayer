@@ -22,7 +22,7 @@
                   android:textColorHint="?colorGreyed"
                   android:textSize="20dp"
                   android:textColor="?colorDialogText"
-                  android:backgroundTint="?colorDialogHighlight"
+                  android:backgroundTint="?colorText"
                   android:textCursorDrawable="@null"
                   android:layout_below="@id/nam"
                   android:layout_marginLeft="10dp"

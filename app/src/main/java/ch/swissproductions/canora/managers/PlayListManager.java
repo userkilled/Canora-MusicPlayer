@@ -212,6 +212,7 @@ public class PlayListManager {
     }
 
     public String getIndex() {
+        Log.v(LOG_TAG,"RETURNING: " + pli);
         return pli;
     }
 
