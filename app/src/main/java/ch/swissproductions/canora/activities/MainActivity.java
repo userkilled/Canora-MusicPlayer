@@ -896,8 +896,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     if (searchTerm != "") {
                         isSearching = true;
                         pl.showFiltered(searchTerm, searchBy);
-                    }
-                    else
+                    } else
                         isSearching = false;
                 }
             });
@@ -1041,6 +1040,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
         sb.getProgressDrawable().setColorFilter(getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
         sb.getThumb().setColorFilter(getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
+
+        ImageButton imb = findViewById(R.id.btnswitchcontrolsvis);
+        imb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchControlsVisibility();
+            }
+        });
     }
 
     private void colorControlWidgets() {
@@ -1196,6 +1203,32 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Resources.Theme theme = getTheme();
         theme.resolveAttribute(v, tv, true);
         return tv.data;
+    }
+
+    public void switchControlsVisibility(boolean state) {
+        View hideable = findViewById(R.id.part1);
+        ImageButton imb = findViewById(R.id.btnswitchcontrolsvis);
+        if (state) {
+            hideable.setVisibility(View.VISIBLE);
+            imb.setImageResource(R.drawable.main_btnclosecontrols);
+            findViewById(R.id.songDisplay).requestFocus();
+        } else {
+            hideable.setVisibility(View.GONE);
+            imb.setImageResource(R.drawable.main_btnopencontrols);
+        }
+    }
+
+    public void switchControlsVisibility() {
+        View hideable = findViewById(R.id.part1);
+        ImageButton imb = findViewById(R.id.btnswitchcontrolsvis);
+        if (hideable.getVisibility() == View.GONE) {
+            hideable.setVisibility(View.VISIBLE);
+            imb.setImageResource(R.drawable.main_btnclosecontrols);
+            findViewById(R.id.songDisplay).requestFocus();
+        } else {
+            hideable.setVisibility(View.GONE);
+            imb.setImageResource(R.drawable.main_btnopencontrols);
+        }
     }
 
     //Tools
