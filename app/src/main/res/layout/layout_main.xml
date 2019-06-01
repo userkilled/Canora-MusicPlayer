@@ -43,11 +43,11 @@
                                   android:orientation="horizontal" android:layout_centerHorizontal="true">
                 <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
                               android:orientation="horizontal">
-                    <RelativeLayout android:layout_width="75dp"
-                                    android:layout_height="75dp"
+                    <RelativeLayout android:layout_width="70dp"
+                                    android:layout_height="70dp"
                                     android:layout_marginRight="5dp">
-                        <ImageButton android:layout_width="75dp"
-                                     android:layout_height="75dp"
+                        <ImageButton android:layout_width="match_parent"
+                                     android:layout_height="match_parent"
                                      android:src="@drawable/main_btn_nc_tracks"
                                      android:tint="?colorText"
                                      android:background="?attr/selectableItemBackgroundBorderless"/>
@@ -59,11 +59,11 @@
                                   android:layout_centerHorizontal="true"
                                   android:layout_alignParentBottom="true"/>
                     </RelativeLayout>
-                    <RelativeLayout android:layout_width="75dp"
-                                    android:layout_height="75dp"
+                    <RelativeLayout android:layout_width="70dp"
+                                    android:layout_height="70dp"
                                     android:layout_marginRight="5dp">
-                        <ImageButton android:layout_width="75dp"
-                                     android:layout_height="75dp"
+                        <ImageButton android:layout_width="70dp"
+                                     android:layout_height="70dp"
                                      android:src="@drawable/main_btn_nc_playlists"
                                      android:tint="?colorText"
                                      android:background="?attr/selectableItemBackgroundBorderless"/>
@@ -75,11 +75,11 @@
                                   android:layout_centerHorizontal="true"
                                   android:layout_alignParentBottom="true"/>
                     </RelativeLayout>
-                    <RelativeLayout android:layout_width="75dp"
-                                    android:layout_height="75dp"
+                    <RelativeLayout android:layout_width="70dp"
+                                    android:layout_height="70dp"
                                     android:layout_marginRight="5dp">
-                        <ImageButton android:layout_width="75dp"
-                                     android:layout_height="75dp"
+                        <ImageButton android:layout_width="70dp"
+                                     android:layout_height="70dp"
                                      android:src="@drawable/main_btn_nc_artists"
                                      android:tint="?colorText"
                                      android:background="?attr/selectableItemBackgroundBorderless"/>
@@ -91,11 +91,11 @@
                                   android:layout_centerHorizontal="true"
                                   android:layout_alignParentBottom="true"/>
                     </RelativeLayout>
-                    <RelativeLayout android:layout_width="75dp"
-                                    android:layout_height="75dp"
+                    <RelativeLayout android:layout_width="70dp"
+                                    android:layout_height="70dp"
                                     android:layout_marginRight="5dp">
-                        <ImageButton android:layout_width="75dp"
-                                     android:layout_height="75dp"
+                        <ImageButton android:layout_width="70dp"
+                                     android:layout_height="70dp"
                                      android:src="@drawable/main_btn_nc_albums"
                                      android:tint="?colorText"
                                      android:background="?attr/selectableItemBackgroundBorderless"/>
@@ -107,10 +107,10 @@
                                   android:layout_centerHorizontal="true"
                                   android:layout_alignParentBottom="true"/>
                     </RelativeLayout>
-                    <RelativeLayout android:layout_width="75dp"
-                                    android:layout_height="75dp">
-                        <ImageButton android:layout_width="75dp"
-                                     android:layout_height="75dp"
+                    <RelativeLayout android:layout_width="70dp"
+                                    android:layout_height="70dp">
+                        <ImageButton android:layout_width="70dp"
+                                     android:layout_height="70dp"
                                      android:src="@drawable/main_btn_nc_genres"
                                      android:tint="?colorText"
                                      android:background="?attr/selectableItemBackgroundBorderless"/>
@@ -126,6 +126,7 @@
             </HorizontalScrollView>
         </RelativeLayout>
     </LinearLayout>
+    <View android:layout_width="match_parent" android:layout_height="4dp" android:background="?colorFrame"/>
     <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
         <RelativeLayout android:id="@+id/songdisplay"
                         android:layout_width="match_parent"
