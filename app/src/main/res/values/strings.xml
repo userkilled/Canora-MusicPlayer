@@ -55,6 +55,12 @@
     <string name="misc_both">Both</string>
     <string name="misc_unknown">Unknown</string>
 
+    <string name="misc_tracks">Tracks</string>
+    <string name="misc_albums">Albums</string>
+    <string name="misc_artists">Artists</string>
+    <string name="misc_genres">Genres</string>
+    <string name="misc_playlists">Playlists</string>
+
     <string name="misc_themes">Themes</string>
     <string name="misc_equalizerpreset">Equalizer Presets</string>
 
