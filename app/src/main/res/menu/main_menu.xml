@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <!-- Actions -->
-    <item android:id="@+id/action_deleteFromPlaylist"
+    <item android:id="@+id/action_delete"
           app:showAsAction="always"
           android:icon="@drawable/action_remfrompl"
           android:visible="false"/>
@@ -15,12 +15,6 @@
                   android:title="@string/menu_options_newplaylist"
                   app:showAsAction="never"/>
         </menu>
-    </item>
-    <item android:id="@+id/action_playlist_select"
-          android:title="@string/menu_options_playlists"
-          app:showAsAction="always"
-          android:icon="@drawable/action_playlists">
-        <menu></menu>
     </item>
     <item android:id="@+id/action_search"
           android:title="@string/menu_options_search"

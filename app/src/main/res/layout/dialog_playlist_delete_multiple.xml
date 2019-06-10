@@ -6,22 +6,17 @@
     <TextView android:id="@+id/ayss"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="@string/dialog_playlist_delete_t1"
+              android:text="PLACEHOLDER"
+              android:textColor="?colorDialogText"
               android:layout_centerHorizontal="true"
               android:layout_marginTop="20dp"
-    />
-    <TextView android:id="@+id/playlisttext"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_below="@+id/ayss"
-              android:layout_centerHorizontal="true"
-              android:layout_margin="10dp"
+              android:layout_marginBottom="20dp"
     />
     <LinearLayout android:id="@+id/footer"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal"
-                  android:layout_below="@id/playlisttext">
+                  android:layout_below="@id/ayss">
         <Button android:id="@+id/btnNeg" android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

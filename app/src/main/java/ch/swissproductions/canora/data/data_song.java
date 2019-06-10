@@ -20,6 +20,7 @@ public class data_song {
     public String Title;
     public String Artist;
     public String Album;
+    public String Genre;
     public Bitmap icon;
     public long length;
 

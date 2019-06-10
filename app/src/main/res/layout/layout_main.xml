@@ -3,7 +3,7 @@
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:background="?attr/colorViewPort"
+              android:background="?attr/backgroundTexture"
               app:layout_behavior="@string/appbar_scrolling_view_behavior"
               android:orientation="vertical"
               android:animateLayoutChanges="true">
@@ -11,7 +11,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="visible"
-                    android:layout_weight="0">
+                    android:layout_weight="0"
+                    android:background="?colorViewPort">
         <EditText android:id="@+id/searchbox"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
@@ -36,20 +37,22 @@
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
-                  android:layout_weight="0">
+                  android:layout_weight="0"
+                  android:background="?colorSubMenuBackground">
         <RelativeLayout android:layout_width="match_parent"
                         android:layout_height="wrap_content">
             <HorizontalScrollView android:layout_width="wrap_content" android:layout_height="wrap_content"
                                   android:orientation="horizontal" android:layout_centerHorizontal="true">
-                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                <LinearLayout android:id="@+id/btnMainControls" android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
                               android:orientation="horizontal">
                     <RelativeLayout android:layout_width="70dp"
                                     android:layout_height="70dp"
                                     android:layout_marginRight="5dp">
-                        <ImageButton android:layout_width="match_parent"
+                        <ImageButton android:id="@+id/btnTracks"
+                                     android:layout_width="match_parent"
                                      android:layout_height="match_parent"
                                      android:src="@drawable/main_btn_nc_tracks"
-                                     android:tint="?colorText"
                                      android:background="?attr/selectableItemBackgroundBorderless"/>
                         <TextView android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
@@ -62,10 +65,10 @@
                     <RelativeLayout android:layout_width="70dp"
                                     android:layout_height="70dp"
                                     android:layout_marginRight="5dp">
-                        <ImageButton android:layout_width="70dp"
+                        <ImageButton android:id="@+id/btnPlaylists"
+                                     android:layout_width="70dp"
                                      android:layout_height="70dp"
                                      android:src="@drawable/main_btn_nc_playlists"
-                                     android:tint="?colorText"
                                      android:background="?attr/selectableItemBackgroundBorderless"/>
                         <TextView android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
@@ -78,10 +81,10 @@
                     <RelativeLayout android:layout_width="70dp"
                                     android:layout_height="70dp"
                                     android:layout_marginRight="5dp">
-                        <ImageButton android:layout_width="70dp"
+                        <ImageButton android:id="@+id/btnArtists"
+                                     android:layout_width="70dp"
                                      android:layout_height="70dp"
                                      android:src="@drawable/main_btn_nc_artists"
-                                     android:tint="?colorText"
                                      android:background="?attr/selectableItemBackgroundBorderless"/>
                         <TextView android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
@@ -94,10 +97,10 @@
                     <RelativeLayout android:layout_width="70dp"
                                     android:layout_height="70dp"
                                     android:layout_marginRight="5dp">
-                        <ImageButton android:layout_width="70dp"
+                        <ImageButton android:id="@+id/btnAlbums"
+                                     android:layout_width="70dp"
                                      android:layout_height="70dp"
                                      android:src="@drawable/main_btn_nc_albums"
-                                     android:tint="?colorText"
                                      android:background="?attr/selectableItemBackgroundBorderless"/>
                         <TextView android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
@@ -109,10 +112,10 @@
                     </RelativeLayout>
                     <RelativeLayout android:layout_width="70dp"
                                     android:layout_height="70dp">
-                        <ImageButton android:layout_width="70dp"
+                        <ImageButton android:id="@+id/btnGenres"
+                                     android:layout_width="70dp"
                                      android:layout_height="70dp"
                                      android:src="@drawable/main_btn_nc_genres"
-                                     android:tint="?colorText"
                                      android:background="?attr/selectableItemBackgroundBorderless"/>
                         <TextView android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
@@ -126,7 +129,7 @@
             </HorizontalScrollView>
         </RelativeLayout>
     </LinearLayout>
-    <View android:layout_width="match_parent" android:layout_height="4dp" android:background="?colorFrame"/>
+    <View android:layout_width="match_parent" android:layout_height="4dp" android:background="?colorBorder"/>
     <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
         <RelativeLayout android:id="@+id/songdisplay"
                         android:layout_width="match_parent"
@@ -154,7 +157,7 @@
         <RelativeLayout android:id="@+id/PlayerControls"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="?attr/colorFrame"
+                        android:background="?colorPlayerControlsBackground"
                         android:layout_marginLeft="0dp"
                         android:layout_marginRight="0dp"
                         android:paddingTop="5dp"

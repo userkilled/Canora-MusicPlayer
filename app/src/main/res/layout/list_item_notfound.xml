@@ -3,11 +3,12 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="?selectableItemBackground">
-    <TextView android:layout_width="wrap_content"
+                android:background="?colorViewPort">
+    <TextView android:id="@+id/centerText"
+              android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_centerInParent="true"
-              android:text="@string/misc_nofilesfound"
+              android:text="PLACEHOLDER"
+              android:textSize="20dp"
               android:textColor="?colorText"
-              android:textSize="15dp"/>
+              android:layout_centerInParent="true"/>
 </RelativeLayout>

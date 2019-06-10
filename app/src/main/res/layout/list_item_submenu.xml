@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                android:background="?android:selectableItemBackground">
+    <RelativeLayout android:id="@+id/hitbox" android:layout_width="match_parent" android:layout_height="match_parent">
+        <CheckBox android:id="@+id/checkbox"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_centerVertical="true"
+                  android:buttonTint="?attr/colorHighlight"/>
+        <TextView android:id="@+id/subMenuTitle"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="PLACEHOLDER"
+                  android:textSize="20dp"
+                  android:textColor="?colorText"
+                  android:maxLines="1"
+                  android:layout_marginLeft="10dp"
+                  android:layout_centerVertical="true"
+                  android:layout_toRightOf="@id/checkbox"/>
+        <ImageView android:id="@+id/arrow"
+                   android:layout_width="50dp"
+                   android:layout_height="50dp"
+                   android:layout_alignParentRight="true"
+                   android:layout_centerVertical="true"
+                   android:background="@null"
+                   android:src="@drawable/main_list_back"
+                   android:tint="?colorText"
+                   android:layout_marginRight="5dp"/>
+    </RelativeLayout>
+</RelativeLayout>

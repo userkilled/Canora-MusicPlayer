@@ -3,14 +3,14 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="?colorViewPort">
+                android:background="?backgroundTexture">
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:orientation="vertical">
         <RelativeLayout android:id="@+id/volBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="?colorFrame"
+                        android:background="?colorViewPort"
                         android:layout_marginTop="2dp">
             <TextView
                     android:id="@+id/textView"
@@ -36,7 +36,7 @@
         <RelativeLayout android:id="@+id/themeBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="?colorFrame"
+                        android:background="?colorViewPort"
                         android:layout_marginTop="2dp">
             <TextView
                     android:id="@+id/textView1"
@@ -52,7 +52,7 @@
                      android:layout_width="match_parent"
                      android:layout_height="wrap_content"
                      android:backgroundTint="?colorDialogText"
-                     android:popupBackground="?colorDialogBackground"
+                     android:popupBackground="?colorDialogFrame"
                      android:layout_below="@id/textView1"
                      android:layout_centerHorizontal="true"
                      android:layout_marginBottom="20dp"
@@ -61,7 +61,7 @@
         </RelativeLayout>
         <RelativeLayout android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="?colorFrame"
+                        android:background="?colorViewPort"
                         android:layout_below="@id/themeBox"
                         android:layout_marginTop="2dp">
             <TextView
@@ -78,7 +78,7 @@
                      android:layout_width="match_parent"
                      android:layout_height="wrap_content"
                      android:backgroundTint="?colorDialogText"
-                     android:popupBackground="?colorDialogBackground"
+                     android:popupBackground="?colorDialogFrame"
                      android:layout_below="@id/TitleEqualizer"
                      android:layout_centerHorizontal="true"
                      android:layout_marginBottom="20dp"

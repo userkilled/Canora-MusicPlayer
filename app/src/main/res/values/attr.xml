@@ -10,10 +10,18 @@
     <attr name="colorDialogText" format="reference|color"/>
     <attr name="colorDialogHighlight" format="reference|color"/>
 
+    <attr name="colorPlayerControlsBackground" format="reference|color"/>
+
+    <attr name="colorSubMenuBackground" format="reference|color"/>
+
+    <attr name="colorBorder" format="reference|color"/>
+
     <attr name="colorToolbar" format="reference|color"/>
 
     <attr name="colorSnackbarText" format="reference|color"/>
     <attr name="colorSnackbarBackground" format="reference|color"/>
 
     <attr name="colorGreyed" format="reference|color"/>
+
+    <attr name="backgroundTexture" format="reference"/>
 </resources>

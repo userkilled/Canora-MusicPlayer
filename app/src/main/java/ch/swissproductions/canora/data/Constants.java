@@ -38,9 +38,17 @@ public final class Constants {
     public static final int DIALOG_WARNING_PLAYLIST_DELETE = 7;
     public static final int DIALOG_PLAYLIST_EDIT = 8;
     public static final int DIALOG_EXIT_CONFIRM = 9;
+    public static final int DIALOG_WARNING_PLAYLIST_DELETE_MULTIPLE = 69;
 
     public static final int ARRAYADAPT_STATE_DEFAULT = 0;
     public static final int ARRAYADAPT_STATE_SELECT = 1;
+
+    public static final int DATA_SELECTOR_PLAYLISTS = 0;
+    public static final int DATA_SELECTOR_STATICPLAYLISTS_TRACKS = 1;
+    public static final int DATA_SELECTOR_STATICPLAYLISTS_ARTISTS = 2;
+    public static final int DATA_SELECTOR_STATICPLAYLISTS_ALBUMS = 3;
+    public static final int DATA_SELECTOR_STATICPLAYLISTS_GENRES = 4;
+    public static final int DATA_SELECTOR_NONE = 5;
 
     //Themes
     public enum Themes {
@@ -53,6 +61,8 @@ public final class Constants {
             themes.add(new data_theme(Constants.THEME_LIGHTBLUE, R.style.AppTheme_LightBlue));
             themes.add(new data_theme(Constants.THEME_DARK, R.style.AppTheme_Dark));
             themes.add(new data_theme(Constants.THEME_LIGHT, R.style.AppTheme_Light));
+            themes.add(new data_theme(Constants.THEME_CAMO,R.style.AppTheme_Camo));
+
         }
 
         public List<data_theme> get() {
@@ -64,6 +74,7 @@ public final class Constants {
     public static final String THEME_LIGHTBLUE = "Light Blue";
     public static final String THEME_DARK = "Dark";
     public static final String THEME_LIGHT = "Light";
+    public static final String THEME_CAMO = "Camo";
 
     public static final String THEME_DEFAULT = THEME_BLUE;
 

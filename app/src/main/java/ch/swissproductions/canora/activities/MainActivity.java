@@ -2,21 +2,18 @@ package ch.swissproductions.canora.activities;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
@@ -36,9 +33,10 @@ import ch.swissproductions.canora.*;
 import ch.swissproductions.canora.data.Constants;
 import ch.swissproductions.canora.data.data_playlist;
 import ch.swissproductions.canora.data.data_song;
-import ch.swissproductions.canora.managers.PlayListManager;
+import ch.swissproductions.canora.managers.DataManager;
 import ch.swissproductions.canora.managers.SettingsManager;
 import ch.swissproductions.canora.managers.ThemeManager;
+import ch.swissproductions.canora.managers.ViewPortManager;
 import ch.swissproductions.canora.service.MusicPlayerService;
 import ch.swissproductions.canora.tools.PerformanceTimer;
 
@@ -46,7 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     //Overrides
@@ -63,13 +60,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             } else {
                 Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
+                dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
                 ListView lv = findViewById(R.id.mainViewport);
                 registerForContextMenu(lv);
-                setListAdapter();
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
                 findViewById(R.id.searchbybtn).setVisibility(View.GONE);
                 findViewById(R.id.songDisplay).requestFocus();
@@ -85,13 +81,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (readPerm == PermissionChecker.PERMISSION_GRANTED && writePerm == PermissionChecker.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
+                dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
                 ListView lv = findViewById(R.id.mainViewport);
                 registerForContextMenu(lv);
-                setListAdapter();
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
                 findViewById(R.id.searchbybtn).setVisibility(View.GONE);
                 findViewById(R.id.songDisplay).requestFocus();
@@ -117,8 +112,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         if (notificationManager != null)
             notificationManager.cancelAll();
-        if (pl != null)
-            pl.cancelTasks();
+        if (dm != null)
+            dm.cancelTasks();
     }
 
     @Override
@@ -155,13 +150,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onRestart();
         Log.v(LOG_TAG, "ONRESTART CALLED");
         if (serv != null) {
-            pl.loadContentFromMediaStore();
-            pl.sortContent(sortBy);
-            serv.setContent(pl.contentList);
+            dm.loadContentFromMediaStore();
+            serv.setContent(dm.dataout);
             if (isSearching)
-                pl.showFiltered(searchTerm, searchBy);
+                vpm.showFiltered(searchTerm, searchBy);
             notifyAAandOM();
-            pl.loadContentFromFiles();
+            dm.loadContentFromFiles();
         }
     }
 
@@ -180,15 +174,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        Log.v(LOG_TAG, "ONPREPAREOPTIONS");
         //TODO#POLISHING: Options Menu Changes are still Visible
-        if (pl == null || arrayAdapter == null) {
+        if (vpm == null)
             return false;
-        }
         Menu m = menu;
         m.findItem(R.id.action_addTo).getSubMenu().clear();
         m.findItem(R.id.action_addTo).getSubMenu().add(0, R.id.action_playlist_create, 0, R.string.menu_options_newplaylist);
-        m.findItem(R.id.action_playlist_select).getSubMenu().clear();
-        Map<String, data_playlist> playlist = new TreeMap<>(pl.getPlayLists());
+        Map<String, data_playlist> playlist = new TreeMap<>(dm.getPlayListsAsMap());
         int plc = 0;
         for (Map.Entry<String, data_playlist> entry : playlist.entrySet()) {
             //ADDTO
@@ -200,92 +193,128 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     public boolean onMenuItemClick(MenuItem item) {
                         data_playlist t = new data_playlist(item.getTitle().toString(), getSelected());
                         multiSelect();
-                        pl.updatePlayList(item.getTitle().toString(), t);
+                        dm.updatePlayList(item.getTitle().toString(), t);
                         showToastMessage(t.audio.size() + " " + getString(R.string.misc_addedto) + " " + item.getTitle());
                         return false;
                     }
                 });
             }
-            entry.getValue().resid = plc;
-            //SELECT
             plc++;
-            sub = m.findItem(R.id.action_playlist_select).getSubMenu();
-            if (entry.getValue().Title.length() == 0) {
-                sub.add(0, plc, 0, R.string.misc_allfiles);//DEFAULT PLAYLIST
-            } else {
-                sub.add(0, plc, 1, entry.getValue().Title);
-            }
-            entry.getValue().resid2 = plc;
-            sub.findItem(plc).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    for (Map.Entry<String, data_playlist> entry : pl.getPlayLists().entrySet()) {
-                        if (item.getItemId() == entry.getValue().resid2) {
-                            if (pl.selectPlayList(entry.getValue().Title) > 0) {
-                                Log.e(LOG_TAG, "ERROR SELECTING PLAYLIST");
-                            }
-                            pl.sortContent(sortBy);
-                            if (isSearching)
-                                pl.showFiltered(searchTerm, searchBy);
-                            notifyAAandOM();
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-            });
-            //HIGHLIGHT
-            if (entry.getKey().equals(pl.getIndex())) {
-                sub.findItem(plc).setCheckable(true).setChecked(true);
-            } else {
-                sub.findItem(plc).setCheckable(false).setChecked(false);
-            }
-            plc++;
-            if (!pl.getIndex().equals("")) {
-                Log.v(LOG_TAG, "NON DEFAULT PLAYLIST");
-                m.findItem(R.id.action_playlist_edit).setVisible(true);
-                getSupportActionBar().setDisplayShowHomeEnabled(false);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setTitle(pl.getIndex());
-                Drawable d = getDrawable(R.drawable.icon_back);
-                d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
-                getSupportActionBar().setHomeAsUpIndicator(d);
-                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
-            } else {
-                Log.v(LOG_TAG, "DEFAULT PLAYLIST");
-                m.findItem(R.id.action_playlist_edit).setVisible(false);
-                getSupportActionBar().setDisplayShowHomeEnabled(true);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                getSupportActionBar().setTitle(R.string.app_name);
-                Drawable mc = getDrawable(R.drawable.mainicon40x40);
-                mc.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
-                getSupportActionBar().setIcon(mc);
-                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
-            }
         }
-        switch (arrayAdapter.state) {
+        if (vpm.subMenu == Constants.DATA_SELECTOR_NONE) {
+            if (dm.getSelector() == (Constants.DATA_SELECTOR_PLAYLISTS))
+                m.findItem(R.id.action_playlist_edit).setVisible(true);
+            else
+                m.findItem(R.id.action_playlist_edit).setVisible(false);
+
+            String tmp23 = dm.getIndex();
+            if (tmp23.equals(""))
+                tmp23 = "Tracks";
+            getSupportActionBar().setTitle("   " + tmp23);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            Drawable ic;
+            switch (dm.getSelector()) {
+                case Constants.DATA_SELECTOR_PLAYLISTS:
+                    ic = getDrawable(R.drawable.icon_playlists);
+                    break;
+                case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
+                    ic = getDrawable(R.drawable.icon_album);
+                    break;
+                case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
+                    ic = getDrawable(R.drawable.icon_interpret);
+                    break;
+                case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
+                    ic = getDrawable(R.drawable.icon_genre);
+                    break;
+                case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
+                    ic = getDrawable(R.drawable.icon_tracks);
+                    break;
+                default:
+                    ic = getDrawable(R.drawable.mainicon40x40);
+            }
+            ic.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+            getSupportActionBar().setIcon(ic);
+            Drawable d = getDrawable(R.drawable.icon_back);
+            d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+            getSupportActionBar().setHomeAsUpIndicator(d);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
+        } else if (vpm.subMenu == (Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS)) {
+            Log.v(LOG_TAG, "ARTISTS");
+            m.findItem(R.id.action_playlist_edit).setVisible(false);
+            getSupportActionBar().setDisplayShowHomeEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.misc_artists);
+            Drawable d = getDrawable(R.drawable.icon_back);
+            d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+            getSupportActionBar().setHomeAsUpIndicator(d);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
+        } else if (vpm.subMenu == (Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS)) {
+            Log.v(LOG_TAG, "ALBUMS");
+            m.findItem(R.id.action_playlist_edit).setVisible(false);
+            getSupportActionBar().setDisplayShowHomeEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.misc_albums);
+            Drawable d = getDrawable(R.drawable.icon_back);
+            d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+            getSupportActionBar().setHomeAsUpIndicator(d);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
+        } else if (vpm.subMenu == (Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES)) {
+            Log.v(LOG_TAG, "GENRES");
+            m.findItem(R.id.action_playlist_edit).setVisible(false);
+            getSupportActionBar().setDisplayShowHomeEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.misc_genres);
+            Drawable d = getDrawable(R.drawable.icon_back);
+            d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+            getSupportActionBar().setHomeAsUpIndicator(d);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
+        } else if (vpm.subMenu == (Constants.DATA_SELECTOR_PLAYLISTS)) {
+            Log.v(LOG_TAG, "PLAYLISTS");
+            m.findItem(R.id.action_playlist_edit).setVisible(false);
+            getSupportActionBar().setDisplayShowHomeEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.misc_playlists);
+            Drawable d = getDrawable(R.drawable.icon_back);
+            d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+            getSupportActionBar().setHomeAsUpIndicator(d);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
+        }
+        switch (vpm.state) {
             case Constants.ARRAYADAPT_STATE_DEFAULT:
                 Log.v(LOG_TAG, "OPTIONS NORMAL MODE");
                 menu.findItem(R.id.action_addTo).setVisible(false);
                 menu.findItem(R.id.action_cancel).setVisible(false);
-                menu.findItem(R.id.action_select).setVisible(true);
-                menu.findItem(R.id.action_playlist_select).setVisible(true);
-                menu.findItem(R.id.action_deleteFromPlaylist).setVisible(false);
+                if (vpm.subMenu == Constants.DATA_SELECTOR_PLAYLISTS || vpm.subMenu == Constants.DATA_SELECTOR_NONE)
+                    menu.findItem(R.id.action_select).setVisible(true);
+                else
+                    menu.findItem(R.id.action_select).setVisible(false);
+                menu.findItem(R.id.action_delete).setVisible(false);
                 break;
             case Constants.ARRAYADAPT_STATE_SELECT:
                 Log.v(LOG_TAG, "OPTIONS SELECT MODE");
                 closeOptionsMenu();
-                menu.findItem(R.id.action_addTo).setVisible(true);
                 menu.findItem(R.id.action_cancel).setVisible(true);
                 menu.findItem(R.id.action_select).setVisible(false);
-                menu.findItem(R.id.action_playlist_select).setVisible(false);
-                if (!pl.getIndex().equals(""))
-                    menu.findItem(R.id.action_deleteFromPlaylist).setVisible(true);
+                if (vpm.subMenu == Constants.DATA_SELECTOR_NONE) {
+                    menu.findItem(R.id.action_addTo).setVisible(true);
+                    if (dm.getSelector() == (Constants.DATA_SELECTOR_PLAYLISTS))
+                        menu.findItem(R.id.action_delete).setVisible(true);
+                    else
+                        menu.findItem(R.id.action_delete).setVisible(false);
+                } else {
+                    menu.findItem(R.id.action_addTo).setVisible(false);
+                    menu.findItem(R.id.action_delete).setVisible(true);
+                }
                 break;
         }
-        menu.findItem(R.id.action_playlist_select).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+        if (vpm.subMenu == Constants.DATA_SELECTOR_NONE)
+            menu.findItem(R.id.action_sortby).setVisible(true);
+        else
+            menu.findItem(R.id.action_sortby).setVisible(false);
         menu.findItem(R.id.action_addTo).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         menu.findItem(R.id.action_search).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
+        Log.v(LOG_TAG, "EXIT OPTIONS");
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -309,8 +338,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.action_cancel:
                 multiSelect();
                 return true;
-            case R.id.action_deleteFromPlaylist:
-                displayDialog(Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST);
+            case R.id.action_delete:
+                if (vpm.subMenu == Constants.DATA_SELECTOR_NONE)
+                    displayDialog(Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST);
+                else if (vpm.subMenu == Constants.DATA_SELECTOR_PLAYLISTS)
+                    displayDialog(Constants.DIALOG_WARNING_PLAYLIST_DELETE_MULTIPLE);
                 return true;
             case R.id.action_playlist_edit:
                 displayDialog(Constants.DIALOG_PLAYLIST_EDIT);
@@ -325,11 +357,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-        if (!pl.filesfound)
+        if (!dm.filesfound)
             return;
         ImageButton btn = findViewById(R.id.buttonPlay);
         if (serv != null) {
-            if (serv.play(pl.viewList.get(position).id) == 0)
+            if (serv.play(dm.dataout.get(position).id) == 0)
                 setPlayButton(btn, true);
             else
                 setPlayButton(btn, false);
@@ -345,13 +377,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERM GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                pl = new PlayListManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
+                dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
                 ListView lv = findViewById(R.id.mainViewport);
                 registerForContextMenu(lv);
-                setListAdapter();
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
                 findViewById(R.id.searchbybtn).setVisibility(View.GONE);
                 findViewById(R.id.songDisplay).requestFocus();
@@ -371,12 +402,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        if (v.getId() == R.id.mainViewport) {
-            if (!pl.filesfound)
+        if (v.getId() == R.id.mainViewport && vpm.subMenu == Constants.DATA_SELECTOR_NONE) {
+            if (!dm.filesfound)
                 return;
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.list_menu, menu);
-            arrayAdapter.setClicked(info.position);
+            vpm.setClicked(info.position);
         }
     }
 
@@ -386,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         switch (item.getItemId()) {
             case R.id.sel:
                 multiSelect();
-                pl.viewList.get(info.position).selected = true;
+                dm.dataout.get(info.position).selected = true;
                 notifyAAandOM();
                 return true;
             case R.id.info:
@@ -399,15 +430,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onSupportNavigateUp() {
-        if (!pl.getIndex().equals(""))
-            pl.selectPlayList("");
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-        String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-        String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
-        getSupportActionBar().setTitle(Html.fromHtml(t));
-
+        switch (dm.getSelector()) {
+            case Constants.DATA_SELECTOR_PLAYLISTS:
+                vpm.showPlaylist(dm.getIndex());
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
+                vpm.showAlbum(dm.getIndex());
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
+                vpm.showArtist(dm.getIndex());
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
+                vpm.showGenre(dm.getIndex());
+                break;
+            default:
+                vpm.showTracks();
+                break;
+        }
         notifyAAandOM();
         return true;
     }
@@ -417,18 +456,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private BroadcastReceiver brcv;
 
-    private SongAdapter arrayAdapter;
-
     private NotificationManagerCompat notificationManager;
 
     /* Contains all the Song Data */
-    private PlayListManager pl;
+    private DataManager dm;
 
     /* Settings Manager */
-    private SettingsManager sc;
+    public SettingsManager sc;
 
     /* Theme Manager */
     private ThemeManager thm;
+
+    public ViewPortManager vpm;
 
     private int sortBy;
     private int searchBy;
@@ -508,7 +547,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void displayDialog(int m) {
-        /*Toolbar Menu Item Dialoges*/
+        /*Various Dialogues*/
         switch (m) {
             case Constants.DIALOG_SORT:
                 AlertDialog.Builder b = new AlertDialog.Builder(this, R.style.DialogStyle);
@@ -537,20 +576,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 });
                 final AlertDialog sortdia = b.create();
-                sortdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
+                sortdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorDialogFrame)));
                 sortdia.getListView().setDividerHeight(5);
                 e.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        pl.sortContent(sortBy);
+                        dm.sortContent(sortBy);
                         if (isSearching)
-                            pl.showFiltered(searchTerm, searchBy);
+                            vpm.showFiltered(searchTerm, searchBy);
                         notifyAAandOM();
                         sortdia.dismiss();
                     }
                 });
                 sortdia.setView(e);
-                sortdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
+                sortdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 sortdia.show();
                 break;
             case Constants.DIALOG_SEARCHBY:
@@ -589,10 +628,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         serdia.dismiss();
                     }
                 });
-                serdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
+                serdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorDialogFrame)));
                 serdia.getListView().setDividerHeight(5);
                 serdia.setView(e1);
-                serdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
+                serdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
                 serdia.show();
                 break;
 
@@ -601,12 +640,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 View plv = plli.inflate(R.layout.dialog_playlist_edit, null);
                 final AlertDialog.Builder plbuild = new AlertDialog.Builder(this, R.style.DialogStyle);
                 final EditText et = plv.findViewById(R.id.plname);
-                final String orig = pl.getIndex();
-                et.setText(pl.getIndex());
+                final String orig = dm.getIndex();
+                et.setText(dm.getIndex());
 
                 View edTitle = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
                 TextView edT = edTitle.findViewById(R.id.diatitle);
-                edT.setText(getString(R.string.menu_options_editpl));
+                edT.setText(getString(R.string.dialog_playlist_edit_title));
                 plbuild.setCustomTitle(edTitle);
 
                 final AlertDialog plad = plbuild.create();
@@ -618,18 +657,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         if (t.equals(orig)) {
                         } else if (t.length() <= 0) {
                             showToastMessage(getString(R.string.error_emptyplname));
-                        } else if (pl.checkPlayList(t)) {
+                        } else if (dm.checkPlayList(t)) {
                             showToastMessage(getString(R.string.misc_playlistexistsp1) + " " + t + " " + getString(R.string.misc_playlistexistsp2));
                         } else {
-                            data_playlist r = pl.getPlayLists().get(orig);
+                            data_playlist r = dm.getPlayListsAsMap().get(orig);
                             r.Title = t;
-                            pl.createPlayList(t, r);
-                            pl.selectPlayList(t);
+                            dm.createPlayList(t, r);
+                            dm.selectPlayList(t);
                             Log.v(LOG_TAG, "ORIG: " + orig);
-                            pl.deletePlayList(orig);
-                            pl.loadPlaylists(t);
+                            dm.deletePlayList(orig);
+                            dm.loadPlaylists(t);
                             if (isSearching)
-                                pl.showFiltered(searchTerm, searchBy);
+                                vpm.showFiltered(searchTerm, searchBy);
                             notifyAAandOM();
                         }
                         plad.dismiss();
@@ -670,29 +709,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 viv.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (pl.getIndex().equals("")) {
+                        if (dm.getSelector() != (Constants.DATA_SELECTOR_PLAYLISTS)) {
                             showToastMessage(getString(R.string.error_delfromdef));
-                        } else if (pl.contentList.size() <= getSelected().size()) {
+                        } else if (dm.dataout.size() <= getSelected().size()) {
                             showToastMessage(getString(R.string.error_delfromempty));
                         } else {
                             List<data_song> t = getSelected();
                             List<data_song> nw = new ArrayList<>();
-                            for (int i = 0; i < pl.contentList.size(); i++) {
+                            for (int i = 0; i < dm.dataout.size(); i++) {
                                 boolean ex = false;
                                 for (int y = 0; y < t.size(); y++) {
-                                    if (t.get(y).file.getAbsolutePath().equals(pl.contentList.get(i).file.getAbsolutePath())) {
+                                    if (t.get(y).file.getAbsolutePath().equals(dm.dataout.get(i).file.getAbsolutePath())) {
                                         ex = true;
                                         break;
                                     }
                                 }
                                 if (!ex)
-                                    nw.add(pl.contentList.get(i));
+                                    nw.add(dm.dataout.get(i));
                             }
-                            data_playlist tmp = new data_playlist(pl.getIndex(), nw);
-                            pl.replacePlayList(pl.getIndex(), tmp);
-                            pl.selectPlayList(pl.getIndex());
+                            data_playlist tmp = new data_playlist(dm.getIndex(), nw);
+                            dm.replacePlayList(dm.getIndex(), tmp);
+                            dm.selectPlayList(dm.getIndex());
                             if (isSearching)
-                                pl.showFiltered(searchTerm, searchBy);
+                                vpm.showFiltered(searchTerm, searchBy);
                             multiSelect(false);
                             notifyAAandOM();
                             showToastMessage(t.size() + " " + getString(R.string.misc_removed));
@@ -722,7 +761,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 builder.setCustomTitle(pldltit);
 
                 TextView fpf = vivef.findViewById(R.id.playlisttext);
-                fpf.setText(pl.getIndex());
+                fpf.setText(dm.getIndex());
                 final AlertDialog eddiaet = builder.create();
                 vivef.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -734,8 +773,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 vivef.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        pl.deletePlayList(pl.getIndex());
-                        pl.selectPlayList("");
+                        dm.deletePlayList(dm.getIndex());
+                        dm.selectPlayList("");
 
                         getSupportActionBar().setDisplayShowHomeEnabled(true);
                         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -745,7 +784,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         getSupportActionBar().setTitle(Html.fromHtml(t));
 
                         if (isSearching)
-                            pl.showFiltered(searchTerm, searchBy);
+                            vpm.showFiltered(searchTerm, searchBy);
 
                         notifyAAandOM();
                         eddiaet.dismiss();
@@ -777,21 +816,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         }
                         if (ip.getText().toString().length() == 0) {
                             showToastMessage(getString(R.string.error_emptyplname));
-                        } else if (pl.checkPlayList(ip.getText().toString())) {
-                            pl.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
+                        } else if (dm.checkPlayList(ip.getText().toString())) {
+                            dm.updatePlayList(ip.getText().toString(), getPlayList(ip.getText().toString(), t));
                             showToastMessage(t.size() + " " + getString(R.string.misc_addedto) + ip.getText().toString());
                         } else {
                             if (t.size() <= 0) {
                                 showToastMessage(getString(R.string.error_createempty));
                             } else {
                                 String in = ip.getText().toString();
-                                pl.createPlayList(in, getPlayList(ip.getText().toString(), t));
+                                dm.createPlayList(in, getPlayList(ip.getText().toString(), t));
                                 showToastMessage(getString(R.string.misc_createpl) + ": " + in);
                             }
                         }
-                        pl.sortContent(sortBy);
+                        dm.sortContent(sortBy);
                         if (isSearching)
-                            pl.showFiltered(searchTerm, searchBy);
+                            vpm.showFiltered(searchTerm, searchBy);
                         notifyAAandOM();
                         plcdia.dismiss();
                     }
@@ -854,7 +893,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 fp.setText(getString(R.string.dialog_file_info_t1) + ":");
 
                 fp = vive.findViewById(R.id.filepathtext);
-                fp.setText(pl.viewList.get(arrayAdapter.clicked).file.getAbsolutePath());
+                fp.setText(dm.dataout.get(vpm.getClicked()).file.getAbsolutePath());
 
                 final AlertDialog eddiae = builde.create();
 
@@ -872,14 +911,45 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case Constants.DIALOG_SETTINGS:
                 switchUI = true;
                 Intent i = new Intent(this, SettingsActivity.class);
-                i.putExtra(Constants.PARAMETER_PLAYLIST, pl.getIndex());
+                i.putExtra(Constants.PARAMETER_PLAYLIST, dm.getIndex());
                 startActivity(i);
                 finish();
+                break;
+            case Constants.DIALOG_WARNING_PLAYLIST_DELETE_MULTIPLE:
+                AlertDialog.Builder delbuil = new AlertDialog.Builder(this, R.style.DialogStyle);
+                View delv = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
+                View delview = LayoutInflater.from(this).inflate(R.layout.dialog_playlist_delete_multiple, null);
+                TextView deltext = delview.findViewById(R.id.ayss);
+                TextView deltitle = delv.findViewById(R.id.diatitle);
+                deltitle.setText(R.string.misc_delmultitle);
+                deltext.setText(getString(R.string.misc_delmul1) + " " + vpm.getSelected().size() + " " + getString(R.string.misc_delmul2));
+                delbuil.setCustomTitle(delv);
+                final AlertDialog delmuldia = delbuil.create();
+                delview.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        delmuldia.dismiss();
+                        multiSelect(false);
+                    }
+                });
+                delview.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        vpm.deleteSelectedPlaylists();
+                        notifyAAandOM();
+                        delmuldia.dismiss();
+                        multiSelect(false);
+                    }
+                });
+
+                delmuldia.setView(delview);
+                delmuldia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
+                delmuldia.show();
                 break;
         }
     }
 
-    private boolean isSearching = false;
+    public boolean isSearching = false;
 
     private void handleSearch() {
         EditText ed = findViewById(R.id.searchbox);
@@ -895,22 +965,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     Log.v(LOG_TAG, "SEARCHTEXT: " + searchTerm);
                     if (searchTerm != "") {
                         isSearching = true;
-                        pl.showFiltered(searchTerm, searchBy);
+                        vpm.showFiltered(searchTerm, searchBy);
                     } else
                         isSearching = false;
                 }
             });
             toggleKeyboardView(this, this.getCurrentFocus(), true);
-            pl.setFilter(true);
             if (searchTerm != null)
-                pl.showFiltered(searchTerm, searchBy);
+                vpm.showFiltered(searchTerm, searchBy);
         } else {
             isSearching = false;
             toggleKeyboardView(this, this.getCurrentFocus(), false);
             ed.setVisibility(View.GONE);
             iv.setVisibility(View.GONE);
-            pl.setFilter(false);
-            pl.showFiltered("", searchBy);
+            vpm.showFiltered("", searchBy);
             findViewById(R.id.songDisplay).requestFocus();
         }
     }
@@ -937,7 +1005,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         prevbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (serv != null && pl.filesfound) {
+                if (serv != null && dm.filesfound) {
                     serv.previous();
                     updateSongDisplay();
                     handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
@@ -948,7 +1016,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         nexbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (serv != null && pl.filesfound) {
+                if (serv != null && dm.filesfound) {
                     serv.next();
                     updateSongDisplay();
                     handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
@@ -1048,6 +1116,88 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 switchControlsVisibility();
             }
         });
+
+        ImageButton trackBtn = findViewById(R.id.btnTracks);
+        trackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                class trackAsync extends AsyncTask<String, String, String> {
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        vpm.showTracks();
+                        notifyAAandOM();
+                        return "Complete";
+                    }
+                }
+                multiSelect(false);
+                new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+        });
+        ImageButton playlistBtn = findViewById(R.id.btnPlaylists);
+        playlistBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                class trackAsync extends AsyncTask<String, String, String> {
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        vpm.showPlaylists();
+                        notifyAAandOM();
+                        return "Complete";
+                    }
+                }
+                multiSelect(false);
+                new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+        });
+        ImageButton artistBtn = findViewById(R.id.btnArtists);
+        artistBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                class trackAsync extends AsyncTask<String, String, String> {
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        vpm.showArtists();
+                        notifyAAandOM();
+                        return "Complete";
+                    }
+                }
+                multiSelect(false);
+                new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+            }
+        });
+        ImageButton albumBtn = findViewById(R.id.btnAlbums);
+        albumBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                class trackAsync extends AsyncTask<String, String, String> {
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        vpm.showAlbums();
+                        notifyAAandOM();
+                        return "Complete";
+                    }
+                }
+                multiSelect(false);
+                new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+        });
+        ImageButton genreBtn = findViewById(R.id.btnGenres);
+        genreBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                class trackAsync extends AsyncTask<String, String, String> {
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        vpm.showGenres();
+                        notifyAAandOM();
+                        return "Complete";
+                    }
+                }
+                multiSelect(false);
+                new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+        });
     }
 
     private void colorControlWidgets() {
@@ -1073,13 +1223,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             btn = findViewById(R.id.buttonRep);
             btn.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         }
-    }
-
-    private void setListAdapter() {
-        ListView lv = (ListView) findViewById(R.id.mainViewport);
-        arrayAdapter = new SongAdapter(this, pl.viewList);
-        lv.setAdapter(arrayAdapter);
-        lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     }
 
     private void registerReceiver() {
@@ -1126,36 +1269,34 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void multiSelect() {
-        if (arrayAdapter.state == Constants.ARRAYADAPT_STATE_DEFAULT) {
+        if (vpm.state == Constants.ARRAYADAPT_STATE_DEFAULT) {
             Log.v(LOG_TAG, "SWITCHING TO SELECT MODE");
-            arrayAdapter.state = Constants.ARRAYADAPT_STATE_SELECT;
-            invalidateOptionsMenu();
-            for (int i = 0; i < pl.contentList.size(); i++) {
-                pl.contentList.get(i).selected = false;
+            vpm.state = Constants.ARRAYADAPT_STATE_SELECT;
+            for (int i = 0; i < dm.dataout.size(); i++) {
+                dm.dataout.get(i).selected = false;
             }
         } else {
             Log.v(LOG_TAG, "SWITCHING TO NORMAL MODE");
-            arrayAdapter.state = Constants.ARRAYADAPT_STATE_DEFAULT;
-            invalidateOptionsMenu();
-            for (int i = 0; i < pl.contentList.size(); i++) {
-                pl.contentList.get(i).selected = false;
+            vpm.state = Constants.ARRAYADAPT_STATE_DEFAULT;
+            for (int i = 0; i < dm.dataout.size(); i++) {
+                dm.dataout.get(i).selected = false;
             }
         }
-        arrayAdapter.notifyDataSetChanged();
+        notifyAAandOM();
     }
 
     public void multiSelect(boolean state) {
         if (state) {
-            arrayAdapter.state = Constants.ARRAYADAPT_STATE_SELECT;
+            vpm.state = Constants.ARRAYADAPT_STATE_SELECT;
             invalidateOptionsMenu();
-            for (int i = 0; i < pl.contentList.size(); i++) {
-                pl.contentList.get(i).selected = false;
+            for (int i = 0; i < dm.dataout.size(); i++) {
+                dm.dataout.get(i).selected = false;
             }
         } else {
-            arrayAdapter.state = Constants.ARRAYADAPT_STATE_DEFAULT;
+            vpm.state = Constants.ARRAYADAPT_STATE_DEFAULT;
             invalidateOptionsMenu();
-            for (int i = 0; i < pl.contentList.size(); i++) {
-                pl.contentList.get(i).selected = false;
+            for (int i = 0; i < dm.dataout.size(); i++) {
+                dm.dataout.get(i).selected = false;
             }
         }
     }
@@ -1166,22 +1307,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public List<data_song> getSelected() {
         List<data_song> ret = new ArrayList<>();
-        for (int i = 0; i < pl.contentList.size(); i++) {
-            if (pl.contentList.get(i).selected) {
-                ret.add(pl.contentList.get(i));
+        for (int i = 0; i < dm.dataout.size(); i++) {
+            if (dm.dataout.get(i).selected) {
+                ret.add(dm.dataout.get(i));
             }
         }
         return ret;
     }
 
     public void notifyAAandOM() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                arrayAdapter.notifyDataSetChanged();
-                invalidateOptionsMenu();
-            }
-        });
+        if (vpm != null)
+            vpm.notifyAA();
+        invalidateOptionsMenu();
     }
 
     private void getSettings() {
@@ -1307,12 +1444,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         public void onServiceConnected(ComponentName className, IBinder service) {
             serv = ((MusicPlayerService.LocalBinder) service).getService();
             getSettings();
-            pl.loadContentFromMediaStore();
-            pl.sortContent(sortBy);
-            serv.setContent(pl.contentList);
+            dm.loadContentFromMediaStore();
+            dm.sortContent(sortBy);
 
-            pl.loadPlaylists(pltemp);
-            pl.loadContentFromFiles();
+            dm.loadPlaylists(pltemp);
+            vpm = new ViewPortManager(MainActivity.this, (ListView) findViewById(R.id.mainViewport), findViewById(R.id.btnMainControls), dm);
+            vpm.showTracks();
+            dm.loadContentFromFiles();
 
             serv.setEqualizerPreset(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
 
@@ -1355,77 +1493,5 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         public abstract void onTextChanged(T target, Editable s);
-    }
-
-    //ArrayAdapter of Song List Display
-    public class SongAdapter extends ArrayAdapter<data_song> {
-
-        public int state = Constants.ARRAYADAPT_STATE_DEFAULT;
-
-        private Context mContext;
-        private List<data_song> viewList;
-
-        public SongAdapter(@NonNull Context context, List<data_song> list) {
-            super(context, 0, list);
-            mContext = context;
-            viewList = list;
-        }
-
-        @Override
-        public void notifyDataSetChanged() {
-            super.notifyDataSetChanged();
-        }
-
-        @NonNull
-        @Override
-        public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            View listItem = convertView;
-            if (!pl.filesfound) {
-                listItem = LayoutInflater.from(mContext).inflate(R.layout.list_item_nofilesfound, parent, false);
-                return listItem;
-            }
-            if (listItem == null || listItem.findViewById(R.id.listsongname) == null)
-                listItem = LayoutInflater.from(mContext).inflate(R.layout.list_item_song, parent, false);
-            if (viewList.get(position) == null)
-                return listItem;
-            TextView sn = listItem.findViewById(R.id.listsongname);
-            TextView in = listItem.findViewById(R.id.listinterpret);
-            TextView ln = listItem.findViewById(R.id.songlength);
-            sn.setText(viewList.get(position).Title);
-            in.setText(viewList.get(position).Artist);
-            String lstr = "" + leftpadZero(safeLongToInt(TimeUnit.MILLISECONDS.toMinutes(viewList.get(position).length))) + ":" + leftpadZero(safeLongToInt(TimeUnit.MILLISECONDS.toSeconds(viewList.get(position).length - TimeUnit.MILLISECONDS.toMinutes(viewList.get(position).length) * 60000)));
-            ln.setText(lstr);
-            final CheckBox mcb = listItem.findViewById(R.id.checkbox);
-            final View exp = listItem.findViewById(R.id.hitbox);
-            switch (state) {
-                case Constants.ARRAYADAPT_STATE_SELECT:
-                    mcb.setVisibility(View.VISIBLE);
-                    final ListView lv = findViewById(R.id.mainViewport);
-                    mcb.setChecked(viewList.get(position).selected);
-                    mcb.setOnClickListener(new View.OnClickListener() {
-                        public void onClick(View v) {
-                            if (((CheckBox) v).isChecked()) {
-                                viewList.get(position).selected = true;
-
-                            } else {
-                                viewList.get(position).selected = false;
-                            }
-                        }
-                    });
-                    expandTouchArea(exp, (View) mcb, 1000);
-                    break;
-                default:
-                    mcb.setVisibility(View.GONE);
-                    expandTouchArea(exp, (View) mcb, 0);
-                    break;
-            }
-            return listItem;
-        }
-
-        public int clicked;
-
-        public void setClicked(int pos) {
-            clicked = pos;
-        }
     }
 }

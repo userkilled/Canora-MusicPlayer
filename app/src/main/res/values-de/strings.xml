@@ -9,6 +9,7 @@
     <string name="dialog_playlist_delete_t1">Möchten sie folgende Playlist Löschen:</string>
     <string name="dialog_playlist_delete_title">Playlist Löschen</string>
     <string name="dialog_playlist_create_title">Playlist Erstellen</string>
+    <string name="dialog_playlist_edit_title">Playlist Bearbeiten</string>
     <string name="dialog_createpl_nameph">Name</string>
     <string name="dialog_settings_title">Einstellungen</string>
     <string name="dialog_settings_t1">Interne Lautstärke</string>
@@ -22,7 +23,7 @@
     <string name="menu_listitem_delfrompl">Von Playlist löschen</string>
 
     <string name="menu_options_delpl">Playlist löschen</string>
-    <string name="menu_options_editpl">Playlist Bearbeiten</string>
+    <string name="menu_options_editpl">Bearbeiten</string>
     <string name="menu_options_search">Suchen</string>
     <string name="menu_options_settings">Einstellungen</string>
     <string name="menu_options_sort">Sortieren</string>
@@ -35,7 +36,7 @@
     <!-- Snackbars -->
     <string name="error_emptyplname">Der Playlist Name darf nicht leer sein</string>
     <string name="error_createempty">Bitte mindestens eine Audiodatei Auswählen</string>
-    <string name="error_delfromdef">Kann die Default Playlist nicht bearbeiten</string>
+    <string name="error_delfromdef">Kann die Default Playlisten nicht bearbeiten</string>
     <string name="error_delfromempty">"Die Playlist muss mindestens eine Audiodatei beeinhalten"</string>
 
     <!-- Misc -->
@@ -56,11 +57,11 @@
     <string name="misc_both">Beide</string>
     <string name="misc_unknown">Unbekannt</string>
 
-    <string name="misc_tracks">Tracks</string>
-    <string name="misc_albums">Albums</string>
+    <string name="misc_tracks">Titel</string>
+    <string name="misc_albums">Alben</string>
     <string name="misc_artists">Künstler</string>
     <string name="misc_genres">Genres</string>
-    <string name="misc_playlists">Playlists</string>
+    <string name="misc_playlists">Playlisten</string>
 
     <string name="misc_themes">Themen</string>
     <string name="misc_equalizerpreset">Equalizer Voreinstellungen</string>
@@ -73,6 +74,16 @@
     <string name="misc_removed">Audiodateien Gelöscht</string>
     <string name="misc_nofilesfound">Keine Audiodateien auf diesem Gerät gefunden</string>
 
+    <string name="misc_delmultitle">Playlisten Löschen</string>
+    <string name="misc_delmul1">Möchten sie wirklich</string>
+    <string name="misc_delmul2">Playlisten löschen?</string>
+
     <string name="misc_playlistexistsp1">Eine Playlist mit dem Namen</string>
     <string name="misc_playlistexistsp2">Existiert bereits.</string>
+
+    <string name="misc_noplaylistfound">Keine Playlisten gefunden</string>
+    <string name="misc_notracksfound">Keine Tracks gefunden</string>
+    <string name="misc_noAlbumfound">Keine Alben gefunden</string>
+    <string name="misc_noArtistfound">Keine Künstler gefunden</string>
+    <string name="misc_nogenresfound">Keine Genren gefunden</string>
 </resources>

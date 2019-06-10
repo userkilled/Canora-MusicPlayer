@@ -7,7 +7,7 @@
               android:layout_height="wrap_content"
               android:text="@string/dialog_file_deletefrom_t1"
               android:gravity="center"
-              android:background="?colorViewPort"
+              android:background="?colorDialogBackground"
               android:paddingTop="10dp"
               android:paddingBottom="10dp"
     />
@@ -16,17 +16,17 @@
                   android:layout_height="wrap_content"
                   android:orientation="horizontal"
                   android:layout_below="@id/ays"
-                  android:background="?colorViewPort">
+                  android:background="?colorDialogBackground">
         <Button android:id="@+id/btnNeg" android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/misc_no"
-                android:background="?colorFrame"
+                android:background="?colorDialogFrame"
                 android:layout_marginRight="2dp"/>
         <Button android:id="@+id/btnPos" android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/misc_yes"
-                android:background="?colorFrame"/>
+                android:background="?colorDialogFrame"/>
     </LinearLayout>
 </RelativeLayout>
