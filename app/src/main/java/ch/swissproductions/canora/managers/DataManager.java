@@ -873,7 +873,7 @@ public class DataManager {
             switch (sortBy) {
                 case Constants.SORT_BYARTIST:
                     Log.v(LOG_TAG, "SORTING BY ARTIST");
-                    srted = sortSongsByArtist(dataout);
+                    srted = sortSongsByArtist(new ArrayList<>(dataout));
                     final List<data_song> uit = srted;
                     mainActivity.runOnUiThread(new Runnable() {
                         @Override
@@ -885,7 +885,7 @@ public class DataManager {
                     break;
                 case Constants.SORT_BYTITLE:
                     Log.v(LOG_TAG, "SORTING BY TITLE");
-                    srted = sortSongsByTitle(dataout);
+                    srted = sortSongsByTitle(new ArrayList<>(dataout));
                     final List<data_song> uit2 = srted;
                     mainActivity.runOnUiThread(new Runnable() {
                         @Override
