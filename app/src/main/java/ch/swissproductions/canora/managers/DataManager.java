@@ -383,12 +383,15 @@ public class DataManager {
                 List<data_song> tmp = new ArrayList<>();
                 NodeList sitm = pln.item(i).getChildNodes();
                 for (int y = 0; y < sitm.getLength(); y++) {
+                    if (!new File(sitm.item(y).getTextContent()).exists())
+                        break;
                     data_song t = new data_song();
                     t.file = new File(sitm.item(y).getTextContent());
                     tmp.add(t);
                 }
                 data_playlist p = new data_playlist(pln.item(i).getAttributes().item(0).getTextContent(), tmp);
-                ret.put(p.Title, p);
+                if (p != null)
+                    ret.put(p.Title, p);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -454,6 +457,8 @@ public class DataManager {
     //END Local Playlists
     //Other
     private data_song getMetadata(File f) {
+        if (!f.exists())
+            return null;
         data_song t = new data_song();
         //Log.v(LOG_TAG, "Getting Metadata for File: " + f.getAbsolutePath());
         Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
@@ -811,7 +816,8 @@ public class DataManager {
                 if (isCancelled())
                     return null;
                 data_song s = getMetadata(t.get(i));
-                ret.add(s);
+                if (s != null)
+                    ret.add(s);
             }
             return ret;
         }
@@ -920,7 +926,13 @@ public class DataManager {
                 for (int i = 0; i < entry.getValue().audio.size(); i++) {
                     if (isCancelled())
                         return "CANCELLED";
-                    entry.getValue().audio.set(i, getMetadata(entry.getValue().audio.get(i).file));
+                    if (entry.getValue().audio.get(i).file.exists())
+                        entry.getValue().audio.set(i, getMetadata(entry.getValue().audio.get(i).file));
+                    else {
+                        Log.e(LOG_TAG, "ERROR: PLAYLIST FILENOTFOUND " + tmp.get(index).audio.get(i).file.getAbsolutePath());
+                        entry.getValue().audio.remove(i);
+                        i--;
+                    }
                 }
                 PlayLists.put(entry.getKey(), entry.getValue());
                 mainActivity.notifyAAandOM();
