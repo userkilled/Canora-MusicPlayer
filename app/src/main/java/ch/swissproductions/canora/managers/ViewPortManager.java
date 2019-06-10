@@ -641,24 +641,29 @@ public class ViewPortManager {
         });
     }
 
-    private void colorSelectedMenu(int sel) {
-        LinearLayout root = (LinearLayout) controlButtons;
-        Log.v(LOG_TAG, "COLOR: " + sel + " CHILD COUNT: " + root.getChildCount());
-        //Colors the Active SubMenu Button on Top of the Listview
-        for (int i = 0; i < root.getChildCount(); i++) {
-            RelativeLayout child = (RelativeLayout) root.getChildAt(i);
-            ImageButton imb = (ImageButton) child.getChildAt(0);
-            TextView tmb = (TextView) child.getChildAt(1);
-            if (i == sel) {
-                Log.v(LOG_TAG, "HIGHLIGHTING " + i);
-                imb.getDrawable().mutate().setColorFilter(ma.getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
-                tmb.setTextColor(ma.getColorFromAtt(R.attr.colorHighlight));
-            } else {
-                Log.v(LOG_TAG, "NORMAL " + i);
-                imb.getDrawable().mutate().setColorFilter(ma.getColorFromAtt(R.attr.colorText), PorterDuff.Mode.SRC_ATOP);
-                tmb.setTextColor(ma.getColorFromAtt(R.attr.colorText));
+    private void colorSelectedMenu(int selpar) {
+        final int sel = selpar;
+        ma.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LinearLayout root = (LinearLayout) controlButtons;
+                //Colors the Active SubMenu Button on Top of the Listview
+                for (int i = 0; i < root.getChildCount(); i++) {
+                    RelativeLayout child = (RelativeLayout) root.getChildAt(i);
+                    ImageButton imb = (ImageButton) child.getChildAt(0);
+                    TextView tmb = (TextView) child.getChildAt(1);
+                    if (i == sel) {
+                        Log.v(LOG_TAG, "HIGHLIGHTING " + i);
+                        imb.getDrawable().mutate().setColorFilter(ma.getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
+                        tmb.setTextColor(ma.getColorFromAtt(R.attr.colorHighlight));
+                    } else {
+                        Log.v(LOG_TAG, "NORMAL " + i);
+                        imb.getDrawable().mutate().setColorFilter(ma.getColorFromAtt(R.attr.colorText), PorterDuff.Mode.SRC_ATOP);
+                        tmb.setTextColor(ma.getColorFromAtt(R.attr.colorText));
+                    }
+                }
             }
-        }
+        });
     }
 
     //Arrayadapter of Submenu List
