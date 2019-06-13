@@ -383,7 +383,7 @@ public class MusicPlayerService extends Service {
                 nb.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mainicon));
             }
         }
-        nb.setSmallIcon(R.drawable.mainicon40x40)
+        nb.setSmallIcon(R.drawable.notificationbaricon)
                 .setContentTitle(md.get("TITLE"))
                 .setContentText(md.get("ARTIST"))
                 .addAction(R.drawable.main_btnprev, "prev", retrievePlaybackAction(3));

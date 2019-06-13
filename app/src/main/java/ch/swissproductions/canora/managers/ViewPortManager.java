@@ -37,90 +37,83 @@ public class ViewPortManager {
         songAdapt = new SongAdapter(ma, songAdaptContentRef);
         stringAdaptContentRef = new ArrayList<>();
         stringAdapt = new StringAdapter(ma, stringAdaptContentRef);
-    }
 
-    public void showCustom(List<data_song> inp) {
-        final List<data_song> input = inp;
-        subMenu = Constants.DATA_SELECTOR_NONE;
-        ma.runOnUiThread(new Runnable() {
+        dataitemclick = new AdapterView.OnItemClickListener() {
             @Override
-            public void run() {
-                songAdaptContentRef.clear();
-                songAdaptContentRef.addAll(input);
-                viewPort.setAdapter(songAdapt);
-                songAdapt.notifyDataSetChanged();
-                if (input.size() == 0) {
-                    viewPort.setOnItemClickListener(null);
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.v(LOG_TAG, "POSITION: " + position + " ID " + dm.dataout.get(position).id + " NAME " + dm.dataout.get(position).Title);
+                if (!dm.filesfound)
                     return;
+                ImageButton btn = ma.findViewById(R.id.buttonPlay);
+                if (ma.serv != null) {
+                    if (ma.serv.play(dm.dataout.get(position).id) == 0)
+                        ma.setPlayButton(btn, true);
+                    else
+                        ma.setPlayButton(btn, false);
+                    ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
+                    ma.updateSongDisplay();
+                    ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
                 }
-                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Log.v(LOG_TAG, "POSITION: " + position + " ID " + dm.dataout.get(position).id + " NAME " + dm.dataout.get(position).Title);
-                        if (!dm.filesfound)
-                            return;
-                        ImageButton btn = ma.findViewById(R.id.buttonPlay);
-                        if (ma.serv != null) {
-                            if (ma.serv.play(dm.dataout.get(position).id) == 0)
-                                ma.setPlayButton(btn, true);
-                            else
-                                ma.setPlayButton(btn, false);
-                            ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                            ma.updateSongDisplay();
-                            ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
-                        }
-                    }
-                });
-                viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             }
-        });
-    }
-
-    public void showTracks() {
-        subMenu = Constants.DATA_SELECTOR_NONE;
-        ma.runOnUiThread(new Runnable() {
+        };
+        submenuclick = new AdapterView.OnItemClickListener() {
             @Override
-            public void run() {
-                colorSelectedMenu(0);
-                dm.selectTracks();
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                switch (subMenu) {
+                    case Constants.DATA_SELECTOR_PLAYLISTS:
+                        dm.selectPlayList(dm.getPlaylists().get(position));
+                        break;
+                    case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
+                        dm.selectAlbum(dm.getAlbums().get(position));
+                        break;
+                    case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
+                        dm.selectArtist(dm.getArtists().get(position));
+                        break;
+                    case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
+                        dm.selectGenre(dm.getGenres().get(position));
+                        break;
+                }
+                subMenu = Constants.DATA_SELECTOR_NONE;
                 songAdaptContentRef.clear();
-                Log.v(LOG_TAG, "DATAOUTSIZE: " + dm.dataout.size());
                 songAdaptContentRef.addAll(dm.dataout);
                 ma.serv.setContent(dm.dataout);
-                viewPort.setAdapter(songAdapt);
-                songAdapt.notifyDataSetChanged();
-                if (dm.dataout.size() == 0) {
-                    viewPort.setOnItemClickListener(null);
-                    return;
-                }
-                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                ma.runOnUiThread(new Runnable() {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Log.v(LOG_TAG, "POSITION: " + position + " ID " + dm.dataout.get(position).id + " NAME " + dm.dataout.get(position).Title);
-                        if (!dm.filesfound)
-                            return;
-                        ImageButton btn = ma.findViewById(R.id.buttonPlay);
-                        if (ma.serv != null) {
-                            if (ma.serv.play(dm.dataout.get(position).id) == 0)
-                                ma.setPlayButton(btn, true);
-                            else
-                                ma.setPlayButton(btn, false);
-                            ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                            ma.updateSongDisplay();
-                            ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
-                        }
+                    public void run() {
+                        viewPort.setAdapter(songAdapt);
+                        songAdapt.notifyDataSetChanged();
+                        viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                if (!dm.filesfound)
+                                    return;
+                                ImageButton btn = ma.findViewById(R.id.buttonPlay);
+                                if (ma.serv != null) {
+                                    if (ma.serv.play(dm.dataout.get(position).id) == 0)
+                                        ma.setPlayButton(btn, true);
+                                    else
+                                        ma.setPlayButton(btn, false);
+                                    ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
+                                    ma.updateSongDisplay();
+                                    ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
+                                }
+                            }
+                        });
+                        viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                        ma.notifyAAandOM();
                     }
                 });
-                viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             }
-        });
+        };
     }
 
-    public void showPlaylists() {
-        subMenu = Constants.DATA_SELECTOR_PLAYLISTS;
-        ma.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+    private AdapterView.OnItemClickListener submenuclick;
+    private AdapterView.OnItemClickListener dataitemclick;
+
+    public void showSubmenu(int menu) {
+        switch (menu) {
+            case Constants.DATA_SELECTOR_PLAYLISTS:
+                subMenu = Constants.DATA_SELECTOR_PLAYLISTS;
                 colorSelectedMenu(1);
                 stringAdaptContentRef.clear();
                 stringAdaptContentRef.addAll(dm.getPlaylists());
@@ -128,368 +121,146 @@ public class ViewPortManager {
                 stringAdapt.notifyDataSetChanged();
                 if (dm.getPlaylists().size() == 0) {
                     viewPort.setOnItemClickListener(null);
-                    return;
+                } else {
+                    viewPort.setOnItemClickListener(submenuclick);
                 }
-                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        subMenu = Constants.DATA_SELECTOR_NONE;
-                        dm.selectPlayList(dm.getPlaylists().get(position));
-                        songAdaptContentRef.clear();
-                        songAdaptContentRef.addAll(dm.dataout);
-                        ma.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                viewPort.setAdapter(songAdapt);
-                                songAdapt.notifyDataSetChanged();
-                                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                        if (!dm.filesfound)
-                                            return;
-                                        ImageButton btn = ma.findViewById(R.id.buttonPlay);
-                                        if (ma.serv != null) {
-                                            if (ma.serv.play(dm.dataout.get(position).id) == 0)
-                                                ma.setPlayButton(btn, true);
-                                            else
-                                                ma.setPlayButton(btn, false);
-                                            ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                                            ma.updateSongDisplay();
-                                            ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
-                                        }
-                                    }
-                                });
-                                viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                                ma.notifyAAandOM();
-                            }
-                        });
-                        ma.serv.setContent(dm.dataout);
-                    }
-                });
-            }
-        });
-    }
-
-    public void showPlaylist(String name) {
-        colorSelectedMenu(1);
-        subMenu = Constants.DATA_SELECTOR_NONE;
-        dm.selectPlayList(name);
-        songAdaptContentRef.clear();
-        songAdaptContentRef.addAll(dm.dataout);
-        ma.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                viewPort.setAdapter(songAdapt);
-                songAdapt.notifyDataSetChanged();
-                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        if (!dm.filesfound)
-                            return;
-                        ImageButton btn = ma.findViewById(R.id.buttonPlay);
-                        if (ma.serv != null) {
-                            if (ma.serv.play(dm.dataout.get(position).id) == 0)
-                                ma.setPlayButton(btn, true);
-                            else
-                                ma.setPlayButton(btn, false);
-                            ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                            ma.updateSongDisplay();
-                            ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
-                        }
-                    }
-                });
-                viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                ma.notifyAAandOM();
-            }
-        });
-        ma.serv.setContent(dm.dataout);
-    }
-
-    public void showArtists() {
-        subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS;
-        ma.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                stringAdaptContentRef.clear();
-                stringAdaptContentRef.addAll(dm.getArtists());
-                colorSelectedMenu(2);
-                viewPort.setAdapter(stringAdapt);
-                stringAdapt.notifyDataSetChanged();
-                if (dm.getArtists().size() == 0) {
-                    viewPort.setOnItemClickListener(null);
-                    return;
-                }
-                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        subMenu = Constants.DATA_SELECTOR_NONE;
-                        dm.selectArtist(dm.getArtists().get(position));
-                        songAdaptContentRef.clear();
-                        songAdaptContentRef.addAll(dm.dataout);
-                        ma.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                viewPort.setAdapter(songAdapt);
-                                songAdapt.notifyDataSetChanged();
-                                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                        if (!dm.filesfound)
-                                            return;
-                                        ImageButton btn = ma.findViewById(R.id.buttonPlay);
-                                        if (ma.serv != null) {
-                                            if (ma.serv.play(dm.dataout.get(position).id) == 0)
-                                                ma.setPlayButton(btn, true);
-                                            else
-                                                ma.setPlayButton(btn, false);
-                                            ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                                            ma.updateSongDisplay();
-                                            ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
-                                        }
-                                    }
-                                });
-                                ma.notifyAAandOM();
-                            }
-                        });
-                        viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                        ma.serv.setContent(dm.dataout);
-                    }
-                });
-            }
-        });
-    }
-
-    public void showArtist(String name) {
-        colorSelectedMenu(2);
-        subMenu = Constants.DATA_SELECTOR_NONE;
-        dm.selectArtist(name);
-        songAdaptContentRef.clear();
-        songAdaptContentRef.addAll(dm.dataout);
-        ma.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                viewPort.setAdapter(songAdapt);
-                songAdapt.notifyDataSetChanged();
-                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        if (!dm.filesfound)
-                            return;
-                        ImageButton btn = ma.findViewById(R.id.buttonPlay);
-                        if (ma.serv != null) {
-                            if (ma.serv.play(dm.dataout.get(position).id) == 0)
-                                ma.setPlayButton(btn, true);
-                            else
-                                ma.setPlayButton(btn, false);
-                            ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                            ma.updateSongDisplay();
-                            ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
-                        }
-                    }
-                });
-                viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                ma.notifyAAandOM();
-            }
-        });
-        ma.serv.setContent(dm.dataout);
-    }
-
-    public void showAlbums() {
-        subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS;
-        ma.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
+                subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS;
+                colorSelectedMenu(3);
                 stringAdaptContentRef.clear();
                 stringAdaptContentRef.addAll(dm.getAlbums());
                 viewPort.setAdapter(stringAdapt);
                 stringAdapt.notifyDataSetChanged();
-                colorSelectedMenu(3);
                 if (dm.getAlbums().size() == 0) {
                     viewPort.setOnItemClickListener(null);
-                    return;
+                } else {
+                    viewPort.setOnItemClickListener(submenuclick);
                 }
-                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        subMenu = Constants.DATA_SELECTOR_NONE;
-                        dm.selectAlbum(dm.getAlbums().get(position));
-                        songAdaptContentRef.clear();
-                        songAdaptContentRef.addAll(dm.dataout);
-                        ma.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                viewPort.setAdapter(songAdapt);
-                                songAdapt.notifyDataSetChanged();
-                                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                        if (!dm.filesfound)
-                                            return;
-                                        ImageButton btn = ma.findViewById(R.id.buttonPlay);
-                                        if (ma.serv != null) {
-                                            if (ma.serv.play(dm.dataout.get(position).id) == 0)
-                                                ma.setPlayButton(btn, true);
-                                            else
-                                                ma.setPlayButton(btn, false);
-                                            ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                                            ma.updateSongDisplay();
-                                            ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
-                                        }
-                                    }
-                                });
-                                viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                                ma.notifyAAandOM();
-                            }
-                        });
-                        ma.serv.setContent(dm.dataout);
-                    }
-                });
-            }
-        });
-    }
-
-    public void showAlbum(String album) {
-        colorSelectedMenu(3);
-        subMenu = Constants.DATA_SELECTOR_NONE;
-        dm.selectAlbum(album);
-        songAdaptContentRef.clear();
-        songAdaptContentRef.addAll(dm.dataout);
-        ma.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                viewPort.setAdapter(songAdapt);
-                songAdapt.notifyDataSetChanged();
-                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        if (!dm.filesfound)
-                            return;
-                        ImageButton btn = ma.findViewById(R.id.buttonPlay);
-                        if (ma.serv != null) {
-                            if (ma.serv.play(dm.dataout.get(position).id) == 0)
-                                ma.setPlayButton(btn, true);
-                            else
-                                ma.setPlayButton(btn, false);
-                            ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                            ma.updateSongDisplay();
-                            ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
-                        }
-                    }
-                });
-                viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                ma.notifyAAandOM();
-            }
-        });
-        ma.serv.setContent(dm.dataout);
-    }
-
-    public void showGenres() {
-        subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES;
-        ma.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
+                subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS;
+                colorSelectedMenu(2);
+                stringAdaptContentRef.clear();
+                stringAdaptContentRef.addAll(dm.getArtists());
+                viewPort.setAdapter(stringAdapt);
+                stringAdapt.notifyDataSetChanged();
+                if (dm.getArtists().size() == 0) {
+                    viewPort.setOnItemClickListener(null);
+                } else {
+                    viewPort.setOnItemClickListener(submenuclick);
+                }
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
+                subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES;
+                colorSelectedMenu(4);
                 stringAdaptContentRef.clear();
                 stringAdaptContentRef.addAll(dm.getGenres());
                 viewPort.setAdapter(stringAdapt);
-                colorSelectedMenu(4);
                 stringAdapt.notifyDataSetChanged();
                 if (dm.getGenres().size() == 0) {
                     viewPort.setOnItemClickListener(null);
-                    return;
+                } else {
+                    viewPort.setOnItemClickListener(submenuclick);
                 }
-                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        subMenu = Constants.DATA_SELECTOR_NONE;
-                        dm.selectGenre(dm.getGenres().get(position));
-                        songAdaptContentRef.clear();
-                        songAdaptContentRef.addAll(dm.dataout);
-                        ma.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                viewPort.setAdapter(songAdapt);
-                                songAdapt.notifyDataSetChanged();
-                                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                        if (!dm.filesfound)
-                                            return;
-                                        ImageButton btn = ma.findViewById(R.id.buttonPlay);
-                                        if (ma.serv != null) {
-                                            if (ma.serv.play(dm.dataout.get(position).id) == 0)
-                                                ma.setPlayButton(btn, true);
-                                            else
-                                                ma.setPlayButton(btn, false);
-                                            ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                                            ma.updateSongDisplay();
-                                            ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
-                                        }
-                                    }
-                                });
-                                viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                                ma.notifyAAandOM();
-                            }
-                        });
-                        ma.serv.setContent(dm.dataout);
-                    }
-                });
-            }
-        });
+                break;
+        }
     }
 
-    public void showGenre(String name) {
-        colorSelectedMenu(4);
+    public void showData() {
+        switch (dm.getSelector()) {
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
+                colorSelectedMenu(0);
+                break;
+            case Constants.DATA_SELECTOR_PLAYLISTS:
+                colorSelectedMenu(1);
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
+                colorSelectedMenu(2);
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
+                colorSelectedMenu(3);
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
+                colorSelectedMenu(4);
+                break;
+        }
         subMenu = Constants.DATA_SELECTOR_NONE;
-        dm.selectGenre(name);
         songAdaptContentRef.clear();
         songAdaptContentRef.addAll(dm.dataout);
-        ma.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                viewPort.setAdapter(songAdapt);
-                songAdapt.notifyDataSetChanged();
-                viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        if (!dm.filesfound)
-                            return;
-                        ImageButton btn = ma.findViewById(R.id.buttonPlay);
-                        if (ma.serv != null) {
-                            if (ma.serv.play(dm.dataout.get(position).id) == 0)
-                                ma.setPlayButton(btn, true);
-                            else
-                                ma.setPlayButton(btn, false);
-                            ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
-                            ma.updateSongDisplay();
-                            ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
-                        }
+        viewPort.setAdapter(songAdapt);
+        songAdapt.notifyDataSetChanged();
+        if (songAdaptContentRef.size() == 0) {
+            viewPort.setOnItemClickListener(null);
+        } else {
+            viewPort.setOnItemClickListener(dataitemclick);
+        }
+    }
+
+
+    private List<data_song> customList = new ArrayList<>();
+
+    public void showCustom(List<data_song> in) {
+        //Display Custom List of data_songs , Used in the Search Functionality
+        customList = in;
+        songAdaptContentRef.clear();
+        songAdaptContentRef.addAll(customList);
+        viewPort.setAdapter(songAdapt);
+        songAdapt.notifyDataSetChanged();
+        if (songAdaptContentRef.size() == 0) {
+            viewPort.setOnItemClickListener(null);
+        } else {
+            viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Log.v(LOG_TAG, "POSITION: " + position + " ID " + customList.get(position).id + " NAME " + customList.get(position).Title);
+                    if (!dm.filesfound)
+                        return;
+                    ImageButton btn = ma.findViewById(R.id.buttonPlay);
+                    if (ma.serv != null) {
+                        if (ma.serv.play(customList.get(position).id) == 0)
+                            ma.setPlayButton(btn, true);
+                        else
+                            ma.setPlayButton(btn, false);
+                        ma.serv.setEqualizerPreset(Integer.parseInt(ma.sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
+                        ma.updateSongDisplay();
+                        ma.handleProgressAnimation(ma.serv.getDuration(), ma.serv.getCurrentPosition());
                     }
-                });
-                viewPort.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                ma.notifyAAandOM();
-            }
-        });
-        ma.serv.setContent(dm.dataout);
+                }
+            });
+        }
+    }
+
+    public void showEmpty(int state) {
+        //Show Empty List before switching Content for smoother Transition
+        viewPort.setAdapter(null);
+        switch (state) {
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
+                colorSelectedMenu(0);
+                break;
+            case Constants.DATA_SELECTOR_PLAYLISTS:
+                colorSelectedMenu(1);
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
+                colorSelectedMenu(2);
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
+                colorSelectedMenu(3);
+                break;
+            case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
+                colorSelectedMenu(4);
+                break;
+        }
     }
 
     public void reload() {
-        switch (dm.getSelector()) {
-            case Constants.DATA_SELECTOR_PLAYLISTS:
-                showPlaylist(dm.getIndex());
-                break;
-            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
-                showAlbum(dm.getIndex());
-                break;
-            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
-                showArtist(dm.getIndex());
-                break;
-            case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
-                showGenre(dm.getIndex());
-                break;
-            case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
-                showTracks();
-                break;
+        int pos = viewPort.getFirstVisiblePosition();
+        if (subMenu != Constants.DATA_SELECTOR_NONE) {
+            showSubmenu(subMenu);
+        } else {
+            showData();
         }
+        viewPort.setSelection(pos);
     }
 
     public String searchTerm = "";

@@ -168,7 +168,7 @@
         <item name="colorDialogText">?colorText</item>
         <item name="colorDialogHighlight">?colorHighlight</item>
 
-        <item name="colorPlayerControlsBackground">@null</item>
+        <item name="colorPlayerControlsBackground">#000000</item>
 
         <item name="colorSubMenuBackground">@null</item>
 

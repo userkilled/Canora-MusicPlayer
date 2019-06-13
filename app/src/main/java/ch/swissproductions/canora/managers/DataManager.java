@@ -603,49 +603,24 @@ public class DataManager {
                 case Constants.DATA_SELECTOR_PLAYLISTS:
                     if (PlayLists.get(index) == null || PlayLists.get(index).audio == null)
                         break;
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dataout.clear();
-                            dataout.addAll(PlayLists.get(index).audio);
-                        }
-                    });
+                    dataout.clear();
+                    dataout.addAll(PlayLists.get(index).audio);
                     break;
                 case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dataout.clear();
-                            dataout.addAll(Tracks.audio);
-                        }
-                    });
+                    dataout.clear();
+                    dataout.addAll(Tracks.audio);
                     break;
                 case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dataout.clear();
-                            dataout.addAll(Artists.get(index).audio);
-                        }
-                    });
+                    dataout.clear();
+                    dataout.addAll(Artists.get(index).audio);
                     break;
                 case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dataout.clear();
-                            dataout.addAll(Albums.get(index).audio);
-                        }
-                    });
+                    dataout.clear();
+                    dataout.addAll(Albums.get(index).audio);
                     break;
                 case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dataout.clear();
-                            dataout.addAll(Genres.get(index).audio);
-                        }
-                    });
+                    dataout.clear();
+                    dataout.addAll(Genres.get(index).audio);
                     break;
                 default:
                     Log.v(LOG_TAG, "ERROR: SELECTOR INVALID");
@@ -729,7 +704,12 @@ public class DataManager {
                     Genres.put(tr.Genre, art);
                 }
             }
-            mainActivity.vpm.reload();
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mainActivity.vpm.reload();
+                }
+            });
             return "COMPLETE!";
         }
 
@@ -779,6 +759,8 @@ public class DataManager {
                         if (isCancelled())
                             return null;
                         if (b.get(i).file.getAbsolutePath().equals(a.get(y).file.getAbsolutePath())) {
+                            if (a.get(y).selected)
+                                b.get(i).selected = true;
                             ex = true;
                         }
                     }
@@ -796,6 +778,8 @@ public class DataManager {
                         if (isCancelled())
                             return null;
                         if (a.get(i).file.getAbsolutePath().equals(b.get(y).file.getAbsolutePath())) {
+                            if (b.get(y).selected)
+                                a.get(i).selected = true;
                             ex = true;
                         }
                     }

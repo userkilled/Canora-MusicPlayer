@@ -10,9 +10,6 @@ import android.provider.MediaStore;
 import java.io.File;
 
 public class data_song {
-
-    //TODO: Load Album Cover via MediaStore
-
     //Outputs
     public int id;
 

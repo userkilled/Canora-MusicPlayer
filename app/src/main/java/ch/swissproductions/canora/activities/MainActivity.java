@@ -175,7 +175,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         Log.v(LOG_TAG, "ONPREPAREOPTIONS");
-        //TODO#POLISHING: Options Menu Changes are still Visible
         if (vpm == null)
             return false;
         Menu m = menu;
@@ -231,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     ic = getDrawable(R.drawable.icon_tracks);
                     break;
                 default:
-                    ic = getDrawable(R.drawable.mainicon40x40);
+                    ic = getDrawable(R.drawable.notificationbaricon);
             }
             ic.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
             getSupportActionBar().setIcon(ic);
@@ -430,23 +429,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onSupportNavigateUp() {
-        switch (dm.getSelector()) {
-            case Constants.DATA_SELECTOR_PLAYLISTS:
-                vpm.showPlaylist(dm.getIndex());
-                break;
-            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
-                vpm.showAlbum(dm.getIndex());
-                break;
-            case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
-                vpm.showArtist(dm.getIndex());
-                break;
-            case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
-                vpm.showGenre(dm.getIndex());
-                break;
-            default:
-                vpm.showTracks();
-                break;
-        }
+        vpm.showData();
         notifyAAandOM();
         return true;
     }
@@ -547,6 +530,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void displayDialog(int m) {
+        //TODO: Dialog Polishing
         /*Various Dialogues*/
         switch (m) {
             case Constants.DIALOG_SORT:
@@ -1124,12 +1108,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 class trackAsync extends AsyncTask<String, String, String> {
                     @Override
                     protected String doInBackground(String... strings) {
-                        vpm.showTracks();
-                        notifyAAandOM();
+                        Log.v(LOG_TAG, "TASK ENTRY");
+                        dm.selectTracks();
+                        serv.setContent(dm.dataout);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                vpm.showData();
+                                notifyAAandOM();
+                            }
+                        });
                         return "Complete";
                     }
                 }
+                vpm.subMenu = Constants.DATA_SELECTOR_NONE;
                 multiSelect(false);
+                runOnUiThread(new Runnable() {
+                    //Clear the List Before heavy Loading Task for smoother Transition
+                    @Override
+                    public void run() {
+                        vpm.showEmpty(Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS);
+                        notifyAAandOM();
+                    }
+                });
                 new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
@@ -1140,12 +1141,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 class trackAsync extends AsyncTask<String, String, String> {
                     @Override
                     protected String doInBackground(String... strings) {
-                        vpm.showPlaylists();
-                        notifyAAandOM();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                vpm.showSubmenu(Constants.DATA_SELECTOR_PLAYLISTS);
+                                notifyAAandOM();
+                            }
+                        });
                         return "Complete";
                     }
                 }
+                vpm.subMenu = Constants.DATA_SELECTOR_PLAYLISTS;
                 multiSelect(false);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        vpm.showEmpty(Constants.DATA_SELECTOR_PLAYLISTS);
+                        notifyAAandOM();
+                    }
+                });
                 new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
@@ -1156,12 +1170,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 class trackAsync extends AsyncTask<String, String, String> {
                     @Override
                     protected String doInBackground(String... strings) {
-                        vpm.showArtists();
-                        notifyAAandOM();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                vpm.showSubmenu(Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS);
+                                notifyAAandOM();
+                            }
+                        });
                         return "Complete";
                     }
                 }
+                vpm.subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS;
                 multiSelect(false);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        vpm.showEmpty(Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS);
+                        notifyAAandOM();
+                    }
+                });
                 new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
             }
@@ -1173,12 +1200,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 class trackAsync extends AsyncTask<String, String, String> {
                     @Override
                     protected String doInBackground(String... strings) {
-                        vpm.showAlbums();
-                        notifyAAandOM();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                vpm.showSubmenu(Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS);
+                                notifyAAandOM();
+                            }
+                        });
                         return "Complete";
                     }
                 }
+                vpm.subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS;
                 multiSelect(false);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        vpm.showEmpty(Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS);
+                        notifyAAandOM();
+                    }
+                });
                 new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
@@ -1189,12 +1229,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 class trackAsync extends AsyncTask<String, String, String> {
                     @Override
                     protected String doInBackground(String... strings) {
-                        vpm.showGenres();
-                        notifyAAandOM();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                vpm.showSubmenu(Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES);
+                                notifyAAandOM();
+                            }
+                        });
                         return "Complete";
                     }
                 }
                 multiSelect(false);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        vpm.showEmpty(Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES);
+                        notifyAAandOM();
+                    }
+                });
                 new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
@@ -1449,7 +1501,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             dm.loadPlaylists(pltemp);
             vpm = new ViewPortManager(MainActivity.this, (ListView) findViewById(R.id.mainViewport), findViewById(R.id.btnMainControls), dm);
-            vpm.showTracks();
+            dm.selectTracks();
+            serv.setContent(dm.dataout);
+            vpm.showData();
             dm.loadContentFromFiles();
 
             serv.setEqualizerPreset(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
