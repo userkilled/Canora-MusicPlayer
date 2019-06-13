@@ -1,7 +1,7 @@
 ![API](https://img.shields.io/badge/API-21%2B-green.svg?style=flat)
 ![License](https://img.shields.io/badge/license-Apache%202-green.svg)
 <p align=center>
-  <img src="https://github.com/ZoidbergZero/Canora-MediaPlayer/raw/master/app/src/main/res/drawable/mainicon.png" alt="MainIcon"/>
+  <img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="MainIcon"/>
   <h1>Canora Music Player</h1>
 </p>
 The Aim of this Project is to Provide a Lightweight Fast and Costumizable Music Playback Experience.<br>
