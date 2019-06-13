@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class ViewPortManager {
-    /* Manipulates the ListView and the new Control Widgets */
+    /* Manages the Display of DataSets */
 
     public int state = Constants.ARRAYADAPT_STATE_DEFAULT;
 
@@ -197,7 +197,6 @@ public class ViewPortManager {
         }
     }
 
-
     private List<data_song> customList = new ArrayList<>();
 
     public void showCustom(List<data_song> in) {
@@ -207,7 +206,7 @@ public class ViewPortManager {
         songAdaptContentRef.addAll(customList);
         viewPort.setAdapter(songAdapt);
         songAdapt.notifyDataSetChanged();
-        if (songAdaptContentRef.size() == 0) {
+        if (customList.size() == 0) {
             viewPort.setOnItemClickListener(null);
         } else {
             viewPort.setOnItemClickListener(new AdapterView.OnItemClickListener() {

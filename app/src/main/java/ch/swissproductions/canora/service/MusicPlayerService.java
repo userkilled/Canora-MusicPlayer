@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -17,8 +18,12 @@ import ch.swissproductions.canora.activities.MainActivity;
 import ch.swissproductions.canora.tools.MediaPlayerEqualizer;
 import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.data.data_song;
+import ch.swissproductions.canora.tools.PerformanceTimer;
 
+import java.nio.channels.AsynchronousByteChannel;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static ch.swissproductions.canora.data.Constants.*;
 
@@ -29,6 +34,8 @@ public class MusicPlayerService extends Service {
         Log.v(LOG_TAG, "ONCREATE");
         plm = new PlayBackManager();
         registerReceiver();
+        exec = Executors.newSingleThreadExecutor();
+        isReleased = true;
         nfm = NotificationManagerCompat.from(this);
         showNotification();
         mpq = new MediaPlayerEqualizer();
@@ -40,6 +47,7 @@ public class MusicPlayerService extends Service {
         if (player != null) {
             player.stop();
             player.release();
+            isReleased = true;
         }
         if (brcv != null) {
             unregisterReceiver(brcv);
@@ -102,11 +110,17 @@ public class MusicPlayerService extends Service {
     }
 
     public boolean pauseResume() {
+        PerformanceTimer p = new PerformanceTimer();
+        p.start();
         if (player != null) {
             if (player.isPlaying()) {
-                return pause();
+                boolean ret = pause();
+                p.printStep(LOG_TAG, "PAUSE");
+                return ret;
             } else {
-                return resume();
+                boolean ret = resume();
+                p.printStep(LOG_TAG, "RESUME");
+                return ret;
             }
         }
         return false;
@@ -115,11 +129,16 @@ public class MusicPlayerService extends Service {
     private int position; //Position of Media Player in Miliseconds
 
     public boolean pause() {
+        PerformanceTimer pst = new PerformanceTimer();
+        pst.start();
         Log.v(LOG_TAG, "Pause");
         if (player != null) {
             player.pause();
+            pst.printStep(LOG_TAG, "PLAYERPAUSE");
             position = player.getCurrentPosition();
+            pst.printStep(LOG_TAG, "GETCURRENTPOS");
             showNotification();
+            pst.printStep(LOG_TAG, "SHOW NOTIFI");
         }
         return false;
     }
@@ -250,6 +269,7 @@ public class MusicPlayerService extends Service {
 
     //Private Globals
     private MediaPlayer player;
+    private boolean isReleased; //Indicates if MediaPlayer is Released to avoid Illegal State Exceptions
     private MediaPlayerEqualizer mpq;
 
     private PlayBackManager plm;
@@ -260,6 +280,8 @@ public class MusicPlayerService extends Service {
     private String LOG_TAG = "SERV";
 
     private float volume = 0.8f;
+
+    private ExecutorService exec;
 
     //Binder
     private final IBinder mBinder = new LocalBinder();
@@ -342,10 +364,12 @@ public class MusicPlayerService extends Service {
 
             player.reset();
             player.release();
+            isReleased = true;
         }
         songP = "file://" + songP;
         Log.v(LOG_TAG, "CREATING PLAYER: " + songP);
         player = MediaPlayer.create(getApplicationContext(), Uri.parse(songP));
+        isReleased = false;
         if (player != null) {
             player.start();
             setVolume(volume);
@@ -355,69 +379,84 @@ public class MusicPlayerService extends Service {
 
     //Notification Widget
     private void showNotification() {
-        Map<String, String> md = new HashMap<>();
-        if (plm.currentSong != null) {
-            md.put("TITLE", plm.currentSong.Title);
-            md.put("ARTIST", plm.currentSong.Artist);
-        } else {
-            md.put("TITLE", "");
-            md.put("ARTIST", "");
-        }
-        Notification.Builder nb = new Notification.Builder(this)
-                .setShowWhen(false)
-                .setStyle(new Notification.MediaStyle()
-                        .setShowActionsInCompactView(0, 1, 2))
-                .setColor(0x020202);
-        if (getCurrentSong() == null) {
-            nb.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mainicon));
-        } else if (getCurrentSong().icon != null) {
-            nb.setLargeIcon(getCurrentSong().icon);
-        } else {
-            MediaMetadataRetriever m = new MediaMetadataRetriever();
-            m.setDataSource(getCurrentSong().file.getAbsolutePath());
-            byte[] b = m.getEmbeddedPicture();
-            if (b != null) {
-                Bitmap icon = BitmapFactory.decodeByteArray(b, 0, b.length, null);
-                nb.setLargeIcon(icon);
-            } else {
-                nb.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mainicon));
+        final Context t = this;
+        class aTask extends AsyncTask<String, String, String> {
+            @Override
+            protected String doInBackground(String... strings) {
+                PerformanceTimer snp = new PerformanceTimer();
+                snp.start();
+                Map<String, String> md = new HashMap<>();
+                if (plm.currentSong != null) {
+                    md.put("TITLE", plm.currentSong.Title);
+                    md.put("ARTIST", plm.currentSong.Artist);
+                } else {
+                    md.put("TITLE", "");
+                    md.put("ARTIST", "");
+                }
+                snp.printStep(LOG_TAG, "GETCURRENTSONG");
+                Notification.Builder nb = new Notification.Builder(t)
+                        .setShowWhen(false)
+                        .setStyle(new Notification.MediaStyle()
+                                .setShowActionsInCompactView(0, 1, 2))
+                        .setColor(0x020202);
+                snp.printStep(LOG_TAG, "CREATE BUILDER");
+                //TODO: Beautify Notification(Large Icon, Background Color etc.)
+                /*if (getCurrentSong() == null) {
+                    nb.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mainicon));
+                } else if (getCurrentSong().icon != null) {
+                    nb.setLargeIcon(getCurrentSong().icon);
+                } else {
+                    //SLOW
+                    MediaMetadataRetriever m = new MediaMetadataRetriever();
+                    m.setDataSource(getCurrentSong().file.getAbsolutePath());
+                    byte[] b = m.getEmbeddedPicture();
+                    if (b != null) {
+                        Bitmap icon = BitmapFactory.decodeByteArray(b, 0, b.length, null);
+                        nb.setLargeIcon(icon);
+                    } else {
+                        nb.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mainicon));
+                    }
+                    //nb.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.mainicon));
+                }*/
+                snp.printStep(LOG_TAG, "SETLARGEICON");
+                nb.setSmallIcon(R.drawable.notificationbaricon)
+                        .setContentTitle(md.get("TITLE"))
+                        .setContentText(md.get("ARTIST"))
+                        .addAction(R.drawable.main_btnprev, "prev", retrievePlaybackAction(3));
+                snp.printStep(LOG_TAG, "SETSMALLICON");
+                if (!isReleased && player.isPlaying())
+                    nb.addAction(R.drawable.main_btnpause, "pause", retrievePlaybackAction(1));
+                else
+                    nb.addAction(R.drawable.main_btnplay, "play", retrievePlaybackAction(1));
+                nb.addAction(R.drawable.main_btnnext, "next", retrievePlaybackAction(2));
+                snp.printStep(LOG_TAG, "ADDACTIONS");
+                Intent resultIntent = new Intent(t, MainActivity.class);
+                resultIntent.setAction("android.intent.action.MAIN");
+                resultIntent.addCategory("android.intent.category.LAUNCHER");
+                PendingIntent resultPendingIntent = PendingIntent.getActivity(t, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                nb.setContentIntent(resultPendingIntent);
+                Intent oncloseIntent = new Intent(ACTION_QUIT);
+                PendingIntent onclosepi = PendingIntent.getBroadcast(t.getApplicationContext(), 0, oncloseIntent, 0);
+                nb.setDeleteIntent(onclosepi);
+                NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                snp.printStep(LOG_TAG, "HANDLE INTENT");
+                String NOTIFICATION_CHANNEL_ID = "420";
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    int importance = NotificationManager.IMPORTANCE_LOW;
+                    NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+
+                    nb.setChannelId(NOTIFICATION_CHANNEL_ID);
+                    mNotifyMgr.createNotificationChannel(notificationChannel);
+                }
+
+                Notification noti = nb.build();
+                nfm.notify(notificationID, noti);
+                snp.printStep(LOG_TAG, "NOTIFY");
+                return "COMPLETE";
             }
         }
-        nb.setSmallIcon(R.drawable.notificationbaricon)
-                .setContentTitle(md.get("TITLE"))
-                .setContentText(md.get("ARTIST"))
-                .addAction(R.drawable.main_btnprev, "prev", retrievePlaybackAction(3));
-
-        if (player != null && player.isPlaying())
-            nb.addAction(R.drawable.main_btnpause, "pause", retrievePlaybackAction(1));
-        else
-            nb.addAction(R.drawable.main_btnplay, "play", retrievePlaybackAction(1));
-        nb.addAction(R.drawable.main_btnnext, "next", retrievePlaybackAction(2));
-
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        resultIntent.setAction("android.intent.action.MAIN");
-        resultIntent.addCategory("android.intent.category.LAUNCHER");
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        nb.setContentIntent(resultPendingIntent);
-
-        Intent oncloseIntent = new Intent(ACTION_QUIT);
-        PendingIntent onclosepi = PendingIntent.getBroadcast(this.getApplicationContext(), 0, oncloseIntent, 0);
-        nb.setDeleteIntent(onclosepi);
-
-        NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        String NOTIFICATION_CHANNEL_ID = "420";
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
-
-            nb.setChannelId(NOTIFICATION_CHANNEL_ID);
-            mNotifyMgr.createNotificationChannel(notificationChannel);
-        }
-
-        Notification noti = nb.build();
-        nfm.notify(notificationID, noti);
+        new aTask().executeOnExecutor(exec);
     }
 
     private PendingIntent retrievePlaybackAction(int which) {

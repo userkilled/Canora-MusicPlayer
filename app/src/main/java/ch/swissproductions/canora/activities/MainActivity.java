@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     //Overrides
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "ONCREATE CALLED");
         super.onCreate(savedInstanceState);
         globT.start();
+        btnExecutor = Executors.newSingleThreadExecutor();
         pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -474,6 +477,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private ValueAnimator animator;
 
     private int PERMISSIONID = 42;
+
+    private ExecutorService btnExecutor;
 
     public void handleProgressAnimation(int dur, int pos) {
         /* Creates a new ValueAnimator for the Duration Bar and the Digits, And Calls Update Song Display*/
@@ -977,35 +982,72 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         playbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (serv != null) {
-                    if (serv.pauseResume())
-                        setPlayButton(playbtn, true);
-                    else
-                        setPlayButton(playbtn, false);
-                    handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
+                class atask extends AsyncTask<String, String, String> {
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (serv != null) {
+                                    boolean state = serv.pauseResume();
+                                    if (state)
+                                        setPlayButton(playbtn, true);
+                                    else
+                                        setPlayButton(playbtn, false);
+                                    handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
+                                }
+                            }
+                        });
+                        return "COMPLETE";
+                    }
                 }
+                new atask().executeOnExecutor(btnExecutor);
             }
         };
         prevbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (serv != null && dm.filesfound) {
-                    serv.previous();
-                    updateSongDisplay();
-                    handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
-                    setPlayButton(playbtn, true);
+                class atask extends AsyncTask<String, String, String> {
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (serv != null && dm.filesfound) {
+                                    serv.previous();
+                                    updateSongDisplay();
+                                    handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
+                                    setPlayButton(playbtn, true);
+                                }
+                            }
+                        });
+                        return "COMPLETE";
+                    }
                 }
+                new atask().executeOnExecutor(btnExecutor);
             }
         };
         nexbutton_click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (serv != null && dm.filesfound) {
-                    serv.next();
-                    updateSongDisplay();
-                    handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
-                    setPlayButton(playbtn, true);
+                class atask extends AsyncTask<String, String, String> {
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (serv != null && dm.filesfound) {
+                                    serv.next();
+                                    updateSongDisplay();
+                                    handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
+                                    setPlayButton(playbtn, true);
+                                }
+                            }
+                        });
+                        return "COMPLETE";
+                    }
                 }
+                new atask().executeOnExecutor(btnExecutor);
             }
         };
         shufbutton_click = new View.OnClickListener() {
@@ -1121,7 +1163,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         return "Complete";
                     }
                 }
-                vpm.subMenu = Constants.DATA_SELECTOR_NONE;
+                vpm.subMenu = Constants.DATA_SELECTOR_NONE; //Needed so that the Actionbar is Correctly Setup after showEmpty
                 multiSelect(false);
                 runOnUiThread(new Runnable() {
                     //Clear the List Before heavy Loading Task for smoother Transition
@@ -1131,7 +1173,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         notifyAAandOM();
                     }
                 });
-                new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new trackAsync().executeOnExecutor(btnExecutor);
             }
         });
         ImageButton playlistBtn = findViewById(R.id.btnPlaylists);
@@ -1160,7 +1202,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         notifyAAandOM();
                     }
                 });
-                new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new trackAsync().executeOnExecutor(btnExecutor);
             }
         });
         ImageButton artistBtn = findViewById(R.id.btnArtists);
@@ -1189,7 +1231,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         notifyAAandOM();
                     }
                 });
-                new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new trackAsync().executeOnExecutor(btnExecutor);
 
             }
         });
@@ -1219,7 +1261,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         notifyAAandOM();
                     }
                 });
-                new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new trackAsync().executeOnExecutor(btnExecutor);
             }
         });
         ImageButton genreBtn = findViewById(R.id.btnGenres);
@@ -1247,7 +1289,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         notifyAAandOM();
                     }
                 });
-                new trackAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new trackAsync().executeOnExecutor(btnExecutor);
             }
         });
     }
@@ -1312,12 +1354,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         registerReceiver(brcv, flt);
     }
 
-    public void setPlayButton(ImageButton btn, boolean play) {
-        if (play) {
-            btn.setImageResource(R.drawable.main_btnpause);
-        } else {
-            btn.setImageResource(R.drawable.main_btnplay);
-        }
+    public void setPlayButton(ImageButton btnpar, boolean playpar) {
+        final ImageButton btn = btnpar;
+        final boolean play = playpar;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (play) {
+                    btn.setImageResource(R.drawable.main_btnpause);
+                } else {
+                    btn.setImageResource(R.drawable.main_btnplay);
+                }
+            }
+        });
     }
 
     public void multiSelect() {
@@ -1514,9 +1563,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             notifyAAandOM();
 
             globT.printStep(LOG_TAG, "Service Initialization");
-
-            //long l = globT.tdur;
-            //showToastMessage(getString(R.string.misc_init) + ": " + l + " ms.");
         }
 
         public void onServiceDisconnected(ComponentName className) {

@@ -10,6 +10,7 @@ import android.provider.MediaStore;
 import java.io.File;
 
 public class data_song {
+    //TODO: Get Song Icon from Mediastore
     //Outputs
     public int id;
 

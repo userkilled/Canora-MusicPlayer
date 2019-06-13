@@ -23,6 +23,8 @@ import java.io.*;
 import java.util.*;
 
 public class DataManager {
+    /* Manages the Loading,Selection and Sorting of the Data Sets */
+
     //Data Output For a Listview and Player Service, Manipulated by the various Control Functions
     public List<data_song> dataout = new ArrayList<>();
 
@@ -108,11 +110,11 @@ public class DataManager {
             case Constants.SORT_BYARTIST:
                 Log.v(LOG_TAG, "SORTING BY ARTIST");
                 srted = sortSongsByArtist(new ArrayList<>(dataout));
+                dataout.clear();
+                dataout.addAll(srted);
                 mainActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        dataout.clear();
-                        dataout.addAll(srted);
                         mainActivity.notifyAAandOM();
                     }
                 });
@@ -120,11 +122,11 @@ public class DataManager {
             case Constants.SORT_BYTITLE:
                 Log.v(LOG_TAG, "SORTING BY TITLE");
                 srted = sortSongsByTitle(new ArrayList<>(dataout));
+                dataout.clear();
+                dataout.addAll(srted);
                 mainActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        dataout.clear();
-                        dataout.addAll(srted);
                         mainActivity.notifyAAandOM();
                     }
                 });
@@ -859,25 +861,15 @@ public class DataManager {
                     Log.v(LOG_TAG, "SORTING BY ARTIST");
                     srted = sortSongsByArtist(new ArrayList<>(dataout));
                     final List<data_song> uit = srted;
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dataout.clear();
-                            dataout.addAll(uit);
-                        }
-                    });
+                    dataout.clear();
+                    dataout.addAll(uit);
                     break;
                 case Constants.SORT_BYTITLE:
                     Log.v(LOG_TAG, "SORTING BY TITLE");
                     srted = sortSongsByTitle(new ArrayList<>(dataout));
                     final List<data_song> uit2 = srted;
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dataout.clear();
-                            dataout.addAll(uit2);
-                        }
-                    });
+                    dataout.clear();
+                    dataout.addAll(uit2);
                     break;
             }
         }
