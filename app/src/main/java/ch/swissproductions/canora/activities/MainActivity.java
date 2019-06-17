@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             String tmp23 = dm.getIndex();
             if (tmp23.equals(""))
-                tmp23 = "Tracks";
+                tmp23 = getString(R.string.misc_tracks);
             getSupportActionBar().setTitle("   " + tmp23);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -571,6 +571,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(View v) {
                         dm.sortContent(sortBy);
+                        vpm.reload();
                         if (isSearching)
                             vpm.showFiltered(searchTerm, searchBy);
                         notifyAAandOM();
@@ -918,7 +919,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(View v) {
                         delmuldia.dismiss();
-                        multiSelect(false);
                     }
                 });
                 delview.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
