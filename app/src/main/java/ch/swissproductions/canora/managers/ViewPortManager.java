@@ -59,18 +59,19 @@ public class ViewPortManager {
         submenuclick = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String sel = stringAdaptContentRef.get(position);
                 switch (subMenu) {
                     case Constants.DATA_SELECTOR_PLAYLISTS:
-                        dm.selectPlayList(dm.getPlaylists().get(position));
+                        dm.selectPlayList(sel);
                         break;
                     case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
-                        dm.selectAlbum(dm.getAlbums().get(position));
+                        dm.selectAlbum(sel);
                         break;
                     case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
-                        dm.selectArtist(dm.getArtists().get(position));
+                        dm.selectArtist(sel);
                         break;
                     case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
-                        dm.selectGenre(dm.getGenres().get(position));
+                        dm.selectGenre(sel);
                         break;
                 }
                 subMenu = Constants.DATA_SELECTOR_NONE;
@@ -230,6 +231,18 @@ public class ViewPortManager {
         }
     }
 
+    public void showCustomSub(List<String> in) {
+        stringAdaptContentRef.clear();
+        stringAdaptContentRef.addAll(in);
+        viewPort.setAdapter(stringAdapt);
+        stringAdapt.notifyDataSetChanged();
+        if (in.size() == 0) {
+            viewPort.setOnItemClickListener(null);
+        } else {
+            viewPort.setOnItemClickListener(submenuclick);
+        }
+    }
+
     public void showEmpty(int state) {
         //Show Empty List before switching Content for smoother Transition
         viewPort.setAdapter(null);
@@ -267,52 +280,82 @@ public class ViewPortManager {
 
     public void showFiltered(String term, int srb) {
         Log.v(LOG_TAG, "SHOWFILTERED");
-        if (subMenu != Constants.DATA_SELECTOR_NONE)
-            return;
-        try {
-            searchTerm = term;
-            searchBy = srb;
-            if (!dm.filesfound)
-                return;
-            List<data_song> cl = new ArrayList<>(dm.dataout);
-            Log.v(LOG_TAG, "CONTENT SIZE:" + cl.size());
-            List<data_song> flt = new ArrayList<>();
-            switch (srb) {
-                case Constants.SEARCH_BYTITLE:
-                    Log.v(LOG_TAG, "SEARCH BY TITLE");
-                    for (int i = 0; i < cl.size(); i++) {
-                        if (compareStrings(cl.get(i).Title, term)) {
-                            flt.add(cl.get(i));
-                        }
-                    }
+        searchTerm = term;
+        searchBy = srb;
+        if (subMenu != Constants.DATA_SELECTOR_NONE) {
+            List<String> out = new ArrayList<>();
+            List<String> in = new ArrayList<>();
+            switch (subMenu) {
+                case Constants.DATA_SELECTOR_PLAYLISTS:
+                    in = dm.getPlaylists();
                     break;
-                case Constants.SEARCH_BYARTIST:
-                    Log.v(LOG_TAG, "SEARCH BY ARTIST");
-                    for (int i = 0; i < cl.size(); i++) {
-                        if (compareStrings(cl.get(i).Artist, term)) {
-                            flt.add(cl.get(i));
-                        }
-                    }
+                case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
+                    in = dm.getAlbums();
                     break;
-                case Constants.SEARCH_BYBOTH:
-                    Log.v(LOG_TAG, "SEARCH BY BOTH");
-                    for (int i = 0; i < cl.size(); i++) {
-                        if (compareStrings(cl.get(i).Title, term) || compareStrings(cl.get(i).Artist, term)) {
-                            flt.add(cl.get(i));
-                        }
-                    }
+                case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
+                    in = dm.getArtists();
+                    break;
+                case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
+                    in = dm.getGenres();
                     break;
             }
-            final List<data_song> inp = flt;
+            for (int i = 0; i < in.size(); i++) {
+                if (compareStrings(in.get(i), term)) {
+                    out.add(in.get(i));
+                }
+            }
+            final List<String> fi = out;
             ma.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    showCustom(inp);
+                    showCustomSub(fi);
                     ma.notifyAAandOM();
                 }
             });
-        } catch (Exception e) {
-            e.printStackTrace();
+        } else {
+            try {
+                if (!dm.filesfound)
+                    return;
+                List<data_song> cl = new ArrayList<>(dm.dataout);
+                Log.v(LOG_TAG, "CONTENT SIZE:" + cl.size());
+                List<data_song> flt = new ArrayList<>();
+                switch (srb) {
+                    case Constants.SEARCH_BYTITLE:
+                        Log.v(LOG_TAG, "SEARCH BY TITLE");
+                        for (int i = 0; i < cl.size(); i++) {
+                            if (compareStrings(cl.get(i).Title, term)) {
+                                flt.add(cl.get(i));
+                            }
+                        }
+                        break;
+                    case Constants.SEARCH_BYARTIST:
+                        Log.v(LOG_TAG, "SEARCH BY ARTIST");
+                        for (int i = 0; i < cl.size(); i++) {
+                            if (compareStrings(cl.get(i).Artist, term)) {
+                                flt.add(cl.get(i));
+                            }
+                        }
+                        break;
+                    case Constants.SEARCH_BYBOTH:
+                        Log.v(LOG_TAG, "SEARCH BY BOTH");
+                        for (int i = 0; i < cl.size(); i++) {
+                            if (compareStrings(cl.get(i).Title, term) || compareStrings(cl.get(i).Artist, term)) {
+                                flt.add(cl.get(i));
+                            }
+                        }
+                        break;
+                }
+                final List<data_song> inp = flt;
+                ma.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showCustom(inp);
+                        ma.notifyAAandOM();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -472,24 +515,46 @@ public class ViewPortManager {
             if (empty) {
                 listItem = LayoutInflater.from(ma).inflate(R.layout.list_item_notfound, parent, false);
                 TextView tv = listItem.findViewById(R.id.centerText);
-                switch (subMenu) {
-                    case Constants.DATA_SELECTOR_PLAYLISTS:
-                        tv.setText(R.string.misc_noplaylistfound);
-                        break;
-                    case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
-                        tv.setText(R.string.misc_noAlbumfound);
-                        break;
-                    case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
-                        tv.setText(R.string.misc_noArtistfound);
-                        break;
-                    case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
-                        tv.setText(R.string.misc_nogenresfound);
-                        break;
-                    case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
-                        tv.setText(R.string.misc_notracksfound);
-                        break;
-                    default:
-                        break;
+                if (!ma.isSearching) {
+                    switch (subMenu) {
+                        case Constants.DATA_SELECTOR_PLAYLISTS:
+                            tv.setText(R.string.misc_noplaylistfound);
+                            break;
+                        case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
+                            tv.setText(R.string.misc_noAlbumfound);
+                            break;
+                        case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
+                            tv.setText(R.string.misc_noArtistfound);
+                            break;
+                        case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
+                            tv.setText(R.string.misc_nogenresfound);
+                            break;
+                        case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
+                            tv.setText(R.string.misc_notracksfound);
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    switch (subMenu) {
+                        case Constants.DATA_SELECTOR_PLAYLISTS:
+                            tv.setText(searchTerm + " " + ma.getString(R.string.misc_stringnotfound) + " " + ma.getString(R.string.misc_playlists));
+                            break;
+                        case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
+                            tv.setText(searchTerm + " " + ma.getString(R.string.misc_stringnotfound) + " " + ma.getString(R.string.misc_albums));
+                            break;
+                        case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
+                            tv.setText(searchTerm + " " + ma.getString(R.string.misc_stringnotfound) + " " + ma.getString(R.string.misc_artists));
+                            break;
+                        case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
+                            tv.setText(searchTerm + " " + ma.getString(R.string.misc_stringnotfound) + " " + ma.getString(R.string.misc_genres));
+                            break;
+                        case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
+                            tv.setText(searchTerm + " " + ma.getString(R.string.misc_stringnotfound) + " " + ma.getString(R.string.misc_tracks));
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 return listItem;
             }
@@ -586,7 +651,10 @@ public class ViewPortManager {
             if (empty) {
                 listItem = LayoutInflater.from(mContext).inflate(R.layout.list_item_notfound, parent, false);
                 TextView tx = listItem.findViewById(R.id.centerText);
-                tx.setText(R.string.misc_notracksfound);
+                if (!ma.isSearching)
+                    tx.setText(R.string.misc_notracksfound);
+                else
+                    tx.setText(searchTerm + " " + ma.getString(R.string.misc_stringnotfound) + " " + ma.getString(R.string.misc_tracks));
                 return listItem;
             }
             if (listItem == null || listItem.findViewById(R.id.listsongname) == null)

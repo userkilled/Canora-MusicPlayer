@@ -630,7 +630,6 @@ public class DataManager {
         }
     }
 
-    private boolean filtering = false;
     private boolean loadtaskIsRunning = false;
     private LoadFilesTask lft;
 
@@ -638,11 +637,6 @@ public class DataManager {
         @Override
         protected String doInBackground(String... params) {
             sortContentLocal(sortBy);
-            if (filtering) {
-                mainActivity.vpm.showFiltered(mainActivity.vpm.searchTerm, mainActivity.vpm.searchBy);
-            } else {
-                mainActivity.notifyAAandOM();
-            }
             List<data_song> nw = getSongsfromFiles();
             if (isCancelled())
                 return "Cancelled";
@@ -671,11 +665,6 @@ public class DataManager {
                 e.printStackTrace();
             }
             mainActivity.serv.setContent(dataout);
-            if (filtering) {
-                mainActivity.vpm.showFiltered(mainActivity.vpm.searchTerm, mainActivity.vpm.searchBy);
-            } else {
-                mainActivity.notifyAAandOM();
-            }
             Artists.clear();
             Albums.clear();
             Genres.clear();
@@ -710,8 +699,12 @@ public class DataManager {
                 @Override
                 public void run() {
                     mainActivity.vpm.reload();
+                    if (mainActivity.isSearching) {
+                        mainActivity.vpm.showFiltered(mainActivity.vpm.searchTerm, mainActivity.vpm.searchBy);
+                    }
                 }
             });
+
             return "COMPLETE!";
         }
 

@@ -86,6 +86,8 @@
     <string name="misc_noArtistfound">No Artists Found</string>
     <string name="misc_nogenresfound">No Genres Found</string>
 
+    <string name="misc_stringnotfound">not found in</string>
+
     <string-array translatable="false" name="Themes">
         <item>Blue</item>
         <item>Light Blue</item>

@@ -960,8 +960,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             });
             toggleKeyboardView(this, this.getCurrentFocus(), true);
-            if (searchTerm != null)
+            if (searchTerm != null && searchTerm != "") {
                 vpm.showFiltered(searchTerm, searchBy);
+                isSearching = true;
+            } else
+                isSearching = false;
         } else {
             isSearching = false;
             toggleKeyboardView(this, this.getCurrentFocus(), false);
@@ -1156,7 +1159,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                vpm.showData();
+                                Log.v(LOG_TAG, "ISSEARCH: " + isSearching);
+                                if (isSearching) {
+                                    vpm.showFiltered(searchTerm, searchBy);
+                                } else
+                                    vpm.showData();
                                 notifyAAandOM();
                             }
                         });
@@ -1187,6 +1194,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             @Override
                             public void run() {
                                 vpm.showSubmenu(Constants.DATA_SELECTOR_PLAYLISTS);
+                                if (isSearching) {
+                                    vpm.showFiltered(searchTerm, searchBy);
+                                }
                                 notifyAAandOM();
                             }
                         });
@@ -1216,6 +1226,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             @Override
                             public void run() {
                                 vpm.showSubmenu(Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS);
+                                if (isSearching) {
+                                    vpm.showFiltered(searchTerm, searchBy);
+                                }
                                 notifyAAandOM();
                             }
                         });
@@ -1246,6 +1259,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             @Override
                             public void run() {
                                 vpm.showSubmenu(Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS);
+                                if (isSearching) {
+                                    vpm.showFiltered(searchTerm, searchBy);
+                                }
                                 notifyAAandOM();
                             }
                         });
@@ -1275,6 +1291,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             @Override
                             public void run() {
                                 vpm.showSubmenu(Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES);
+                                if (isSearching) {
+                                    vpm.showFiltered(searchTerm, searchBy);
+                                }
                                 notifyAAandOM();
                             }
                         });

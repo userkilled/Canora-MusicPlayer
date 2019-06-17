@@ -86,4 +86,6 @@
     <string name="misc_noAlbumfound">Keine Alben gefunden</string>
     <string name="misc_noArtistfound">Keine Künstler gefunden</string>
     <string name="misc_nogenresfound">Keine Genren gefunden</string>
+
+    <string name="misc_stringnotfound">nicht gefunden in</string>
 </resources>
