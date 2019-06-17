@@ -1,37 +1,49 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?colorDialogBackground">
-    <TextView android:id="@+id/ayss"
-              android:layout_width="wrap_content"
+    <TextView android:id="@+id/title"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:text="@string/dialog_playlist_delete_t1"
-              android:layout_centerHorizontal="true"
-              android:layout_marginTop="20dp"
-    />
-    <TextView android:id="@+id/playlisttext"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_below="@+id/ayss"
-              android:layout_centerHorizontal="true"
-              android:layout_margin="10dp"
-    />
-    <LinearLayout android:id="@+id/footer"
-                  android:layout_width="match_parent"
+              android:gravity="center"
+              android:text="PLACEHOLDER"
+              android:textColor="?colorDialogText"
+              android:textSize="20dp"
+              android:background="?colorDialogFrame"
+              android:paddingBottom="10dp"
+              android:paddingTop="10dp"/>
+    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+        <TextView android:id="@+id/ayss"
+                  android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:orientation="horizontal"
-                  android:layout_below="@id/playlisttext">
-        <Button android:id="@+id/btnNeg" android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/misc_no"
-                android:background="?colorDialogFrame"
-                android:layout_marginRight="2dp"/>
-        <Button android:id="@+id/btnPos" android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/misc_yes"
-                android:background="?colorDialogFrame"/>
-    </LinearLayout>
-</RelativeLayout>
+                  android:text="@string/dialog_playlist_delete_t1"
+                  android:layout_centerHorizontal="true"
+                  android:layout_marginTop="20dp"
+        />
+        <TextView android:id="@+id/playlisttext"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_below="@+id/ayss"
+                  android:layout_centerHorizontal="true"
+                  android:layout_margin="10dp"
+        />
+        <LinearLayout android:id="@+id/footer"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal"
+                      android:layout_below="@id/playlisttext">
+            <Button android:id="@+id/btnNeg" android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/misc_no"
+                    android:background="?colorDialogFrame"
+                    android:layout_marginRight="2dp"/>
+            <Button android:id="@+id/btnPos" android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/misc_yes"
+                    android:background="?colorDialogFrame"/>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

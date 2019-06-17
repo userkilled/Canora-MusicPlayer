@@ -653,21 +653,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
 
             case Constants.DIALOG_PLAYLIST_EDIT:
-                LayoutInflater plli = LayoutInflater.from(this);
-                View plv = plli.inflate(R.layout.dialog_playlist_edit, null);
-                final AlertDialog.Builder plbuild = new AlertDialog.Builder(this, R.style.DialogStyle);
-                final EditText et = plv.findViewById(R.id.plname);
+                final Dialog pled = new Dialog(this);
+                pled.setContentView(R.layout.dialog_playlist_edit);
+                pled.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                TextView plet = pled.findViewById(R.id.title);
+                plet.setText(R.string.dialog_playlist_edit_title);
+                final EditText et = pled.findViewById(R.id.plname);
                 final String orig = dm.getIndex();
                 et.setText(dm.getIndex());
-
-                View edTitle = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
-                TextView edT = edTitle.findViewById(R.id.diatitle);
-                edT.setText(getString(R.string.dialog_playlist_edit_title));
-                plbuild.setCustomTitle(edTitle);
-
-                final AlertDialog plad = plbuild.create();
-
-                plv.findViewById(R.id.btnok).setOnClickListener(new View.OnClickListener() {
+                pled.findViewById(R.id.btnok).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         String t = et.getText().toString();
@@ -688,42 +682,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                 vpm.showFiltered(searchTerm, searchBy);
                             notifyAAandOM();
                         }
-                        plad.dismiss();
+                        pled.dismiss();
                     }
                 });
-
-                plv.findViewById(R.id.btnback).setOnClickListener(new View.OnClickListener() {
+                pled.findViewById(R.id.btnback).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        plad.dismiss();
+                        pled.dismiss();
                     }
                 });
-
-                plv.findViewById(R.id.btnDel).setOnClickListener(new View.OnClickListener() {
+                pled.findViewById(R.id.btnDel).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        plad.dismiss();
+                        pled.dismiss();
                         displayDialog(Constants.DIALOG_WARNING_PLAYLIST_DELETE);
                     }
                 });
-                plad.setView(plv);
-                plad.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
-                plad.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                plad.show();
+                pled.show();
                 et.requestFocus();
                 break;
 
             case Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST:
-                AlertDialog.Builder build = new AlertDialog.Builder(this, R.style.DialogStyle);
-                View viv = LayoutInflater.from(this).inflate(R.layout.dialog_file_delete, null);
-                View dlft = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
-                TextView dltex = dlft.findViewById(R.id.diatitle);
-                dltex.setText(R.string.dialog_file_deletefrom_title);
-                build.setCustomTitle(dlft);
-
-                final AlertDialog eddia = build.create();
-
-                viv.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
+                final Dialog dd = new Dialog(this);
+                dd.setContentView(R.layout.dialog_file_delete);
+                dd.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                TextView dtit = dd.findViewById(R.id.title);
+                dtit.setText(getString(R.string.dialog_file_deletefrom_title));
+                dd.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (dm.getSelector() != (Constants.DATA_SELECTOR_PLAYLISTS)) {
@@ -753,45 +738,34 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             notifyAAandOM();
                             showToastMessage(t.size() + " " + getString(R.string.misc_removed));
                         }
-                        eddia.dismiss();
+                        dd.dismiss();
                     }
                 });
-                viv.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
+                dd.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        eddia.dismiss();
+                        dd.dismiss();
                     }
                 });
-                TextView tv = viv.findViewById(R.id.ays);
+                TextView tv = dd.findViewById(R.id.ays);
                 tv.setText(getString(R.string.dialog_file_deletefrom_t1) + " " + getSelected().size() + " " + getString(R.string.dialog_file_deletefrom_t2));
-
-                eddia.setView(viv);
-                eddia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
-                eddia.show();
+                dd.show();
                 break;
             case Constants.DIALOG_WARNING_PLAYLIST_DELETE:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.DialogStyle);
-                View pldltit = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
-                View vivef = LayoutInflater.from(this).inflate(R.layout.dialog_playlist_delete, null);
-                TextView tex = pldltit.findViewById(R.id.diatitle);
-                tex.setText(R.string.dialog_playlist_delete_title);
-                builder.setCustomTitle(pldltit);
-
-                TextView fpf = vivef.findViewById(R.id.playlisttext);
+                final Dialog pldd = new Dialog(this);
+                LayoutInflater pldif = getLayoutInflater();
+                pldd.setContentView(pldif.inflate(R.layout.dialog_playlist_delete, null));
+                pldd.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                TextView pldtit = pldd.findViewById(R.id.title);
+                pldtit.setText(R.string.dialog_playlist_delete_title);
+                TextView fpf = pldd.findViewById(R.id.playlisttext);
                 fpf.setText(dm.getIndex());
-                final AlertDialog eddiaet = builder.create();
-                vivef.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        eddiaet.dismiss();
-
-                    }
-                });
-                vivef.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
+                pldd.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         dm.deletePlayList(dm.getIndex());
                         dm.selectPlayList("");
+                        vpm.showData();
 
                         getSupportActionBar().setDisplayShowHomeEnabled(true);
                         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -804,25 +778,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             vpm.showFiltered(searchTerm, searchBy);
 
                         notifyAAandOM();
-                        eddiaet.dismiss();
-
+                        pldd.dismiss();
                     }
                 });
-
-                eddiaet.setView(vivef);
-                eddiaet.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
-                eddiaet.show();
+                pldd.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        pldd.dismiss();
+                    }
+                });
+                pldd.show();
                 break;
             case Constants.DIALOG_PLAYLIST_CREATE:
-                AlertDialog.Builder buil = new AlertDialog.Builder(this, R.style.DialogStyle);
-                View vi = LayoutInflater.from(this).inflate(R.layout.dialog_playlist_create, null);
-                View vi2 = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
-                TextView tetx = vi2.findViewById(R.id.diatitle);
-                tetx.setText(R.string.dialog_playlist_create_title);
-                buil.setCustomTitle(vi2);
-                final EditText ip = vi.findViewById(R.id.plname);
-                final AlertDialog plcdia = buil.create();
-                vi.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
+                final Dialog eddia = new Dialog(this);
+                LayoutInflater edif = getLayoutInflater();
+                eddia.setContentView(edif.inflate(R.layout.dialog_playlist_create, null));
+                eddia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                TextView edtit = eddia.findViewById(R.id.title);
+                edtit.setText(R.string.dialog_playlist_create_title);
+                final EditText ip = eddia.findViewById(R.id.plname);
+                eddia.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Log.v(LOG_TAG, "CREATING PLAYLIST");
@@ -849,81 +824,66 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         if (isSearching)
                             vpm.showFiltered(searchTerm, searchBy);
                         notifyAAandOM();
-                        plcdia.dismiss();
+                        eddia.dismiss();
                     }
                 });
-                vi.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
+                eddia.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        plcdia.dismiss();
+                        eddia.dismiss();
                     }
                 });
-                plcdia.setView(vi);
-                plcdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
-                plcdia.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                plcdia.show();
+                eddia.show();
                 ip.requestFocus();
                 break;
             case Constants.DIALOG_EXIT_CONFIRM:
-                AlertDialog.Builder exbuild = new AlertDialog.Builder(this, R.style.DialogStyle);
-                View exv = LayoutInflater.from(this).inflate(R.layout.dialog_exit, null);
-                View ext = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
-                TextView extt = ext.findViewById(R.id.diatitle);
-                extt.setText(R.string.misc_exit);
-
-                exbuild.setCustomTitle(ext);
-                final AlertDialog exad = exbuild.create();
-
-                exv.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
+                final Dialog exdia = new Dialog(this);
+                LayoutInflater exif = getLayoutInflater();
+                exdia.setContentView(exif.inflate(R.layout.dialog_exit, null));
+                exdia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                exdia.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        exad.dismiss();
+                        exdia.dismiss();
                     }
                 });
-                exv.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
+                exdia.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         finish();
                     }
                 });
-                exv.findViewById(R.id.btnNeut).setOnClickListener(new View.OnClickListener() {
+                exdia.findViewById(R.id.btnNeut).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        exad.dismiss();
+                        exdia.dismiss();
                         moveTaskToBack(true);
                     }
                 });
-                exad.setView(exv);
-                exad.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
-                exad.show();
+                TextView t = exdia.findViewById(R.id.title);
+                t.setText(getString(R.string.misc_exit));
+                exdia.show();
                 break;
             case Constants.DIALOG_FILE_INFO:
                 //TODO:POPULATE FILE INFO DIALOGE
-                AlertDialog.Builder builde = new AlertDialog.Builder(this, R.style.DialogStyle);
-                View vive = LayoutInflater.from(this).inflate(R.layout.dialog_file_info, null);
-                View fiti = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
-                TextView fitex = fiti.findViewById(R.id.diatitle);
-                fitex.setText(R.string.dialog_file_info_title);
-                builde.setCustomTitle(fiti);
-
-                TextView fp = vive.findViewById(R.id.filepathtitle);
+                final Dialog fidia = new Dialog(this);
+                LayoutInflater fiif = getLayoutInflater();
+                fidia.setContentView(fiif.inflate(R.layout.dialog_file_info, null));
+                fidia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                TextView fitit = fidia.findViewById(R.id.title);
+                fitit.setText(R.string.dialog_file_info_title);
+                TextView fp = fidia.findViewById(R.id.filepathtitle);
                 fp.setText(getString(R.string.dialog_file_info_t1) + ":");
-
-                fp = vive.findViewById(R.id.filepathtext);
+                fp = fidia.findViewById(R.id.filepathtext);
                 fp.setText(dm.dataout.get(vpm.getClicked()).file.getAbsolutePath());
 
-                final AlertDialog eddiae = builde.create();
-
-                vive.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
+                fidia.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        eddiae.dismiss();
+                        fidia.dismiss();
                     }
                 });
-
-                eddiae.setView(vive);
-                eddiae.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
-                eddiae.show();
+                fidia.show();
                 break;
             case Constants.DIALOG_SETTINGS:
                 switchUI = true;
@@ -933,34 +893,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 finish();
                 break;
             case Constants.DIALOG_WARNING_PLAYLIST_DELETE_MULTIPLE:
-                AlertDialog.Builder delbuil = new AlertDialog.Builder(this, R.style.DialogStyle);
-                View delv = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
-                View delview = LayoutInflater.from(this).inflate(R.layout.dialog_playlist_delete_multiple, null);
-                TextView deltext = delview.findViewById(R.id.ayss);
-                TextView deltitle = delv.findViewById(R.id.diatitle);
-                deltitle.setText(R.string.misc_delmultitle);
+                final Dialog deld = new Dialog(this);
+                LayoutInflater delif = getLayoutInflater();
+                deld.setContentView(delif.inflate(R.layout.dialog_playlist_delete_multiple, null));
+                deld.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                TextView delt = deld.findViewById(R.id.title);
+                delt.setText(R.string.misc_delmultitle);
+                TextView deltext = deld.findViewById(R.id.ayss);
                 deltext.setText(getString(R.string.misc_delmul1) + " " + vpm.getSelected().size() + " " + getString(R.string.misc_delmul2));
-                delbuil.setCustomTitle(delv);
-                final AlertDialog delmuldia = delbuil.create();
-                delview.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        delmuldia.dismiss();
-                    }
-                });
-                delview.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
+                deld.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         vpm.deleteSelectedPlaylists();
                         notifyAAandOM();
-                        delmuldia.dismiss();
+                        deld.dismiss();
                         multiSelect(false);
                     }
                 });
-
-                delmuldia.setView(delview);
-                delmuldia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorFrame)));
-                delmuldia.show();
+                deld.findViewById(R.id.btnNeg).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        deld.dismiss();
+                    }
+                });
+                deld.show();
                 break;
         }
     }

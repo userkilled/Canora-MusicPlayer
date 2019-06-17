@@ -1,29 +1,41 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-    <LinearLayout android:id="@+id/content"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_centerHorizontal="true"
-                  android:orientation="vertical"
-                  android:paddingTop="10dp"
-                  android:paddingBottom="10dp"
-                  android:background="?colorDialogBackground">
-        <TextView android:id="@+id/filepathtitle"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-        />
-        <TextView android:id="@+id/filepathtext"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-        />
+    <TextView android:id="@+id/title"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:gravity="center"
+              android:text="PLACEHOLDER"
+              android:textColor="?colorDialogText"
+              android:textSize="20dp"
+              android:background="?colorDialogFrame"
+              android:paddingBottom="10dp"
+              android:paddingTop="10dp"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+        <LinearLayout android:id="@+id/content"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_centerHorizontal="true"
+                      android:orientation="vertical"
+                      android:paddingTop="10dp"
+                      android:paddingBottom="10dp"
+                      android:background="?colorDialogBackground">
+            <TextView android:id="@+id/filepathtitle"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+            />
+            <TextView android:id="@+id/filepathtext"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+            />
+        </LinearLayout>
+        <Button android:id="@+id/okbtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/misc_ok"
+                android:textSize="15dp"
+                android:background="?colorDialogFrame"
+                android:layout_below="@id/content"/>
     </LinearLayout>
-    <Button android:id="@+id/okbtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/misc_ok"
-            android:textSize="15dp"
-            android:background="?colorDialogFrame"
-            android:layout_below="@id/content"/>
-</RelativeLayout>
+</LinearLayout>
