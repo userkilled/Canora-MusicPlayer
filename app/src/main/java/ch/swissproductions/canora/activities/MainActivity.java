@@ -732,6 +732,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             data_playlist tmp = new data_playlist(dm.getIndex(), nw);
                             dm.replacePlayList(dm.getIndex(), tmp);
                             dm.selectPlayList(dm.getIndex());
+                            serv.setContent(dm.dataout);
+                            vpm.reload();
                             if (isSearching)
                                 vpm.showFiltered(searchTerm, searchBy);
                             multiSelect(false);
@@ -765,8 +767,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     @Override
                     public void onClick(View v) {
                         dm.deletePlayList(dm.getIndex());
-                        dm.selectPlayList("");
-                        vpm.showData();
+                        dm.selectTracks();
+                        serv.setContent(dm.dataout);
+                        vpm.showSubmenu(Constants.DATA_SELECTOR_PLAYLISTS);
 
                         getSupportActionBar().setDisplayShowHomeEnabled(true);
                         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
