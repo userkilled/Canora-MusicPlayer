@@ -21,7 +21,7 @@
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:dividerHeight="2dp"
-                  android:divider="?colorFrame"
+                  android:divider="?colorDialogFrame"
                   android:layout_weight="1">
         </ListView>
         <Button android:id="@+id/okbtn"
