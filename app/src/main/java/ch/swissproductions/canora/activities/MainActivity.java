@@ -2,7 +2,6 @@ package ch.swissproductions.canora.activities;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.*;
@@ -20,7 +19,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.Html;
@@ -41,7 +39,6 @@ import ch.swissproductions.canora.managers.ThemeManager;
 import ch.swissproductions.canora.managers.ViewPortManager;
 import ch.swissproductions.canora.service.MusicPlayerService;
 import ch.swissproductions.canora.tools.PerformanceTimer;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -236,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     ic = getDrawable(R.drawable.icon_tracks);
                     break;
                 default:
-                    ic = getDrawable(R.drawable.notificationbaricon);
+                    ic = getDrawable(R.drawable.notification_smallicon);
             }
             ic.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
             getSupportActionBar().setIcon(ic);
@@ -538,7 +535,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void displayDialog(int m) {
-        //TODO: Dialog Polishing
         /*Various Dialogues*/
         switch (m) {
             case Constants.DIALOG_SORT:

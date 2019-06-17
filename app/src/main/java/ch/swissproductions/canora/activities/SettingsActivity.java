@@ -99,7 +99,7 @@ public class SettingsActivity extends AppCompatActivity {
     private void setupActionBar() {
         ActionBar actionbar = getSupportActionBar();
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
-        Drawable mc = getDrawable(R.drawable.notificationbaricon);
+        Drawable mc = getDrawable(R.drawable.notification_smallicon);
         mc.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         actionbar.setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));
         String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID

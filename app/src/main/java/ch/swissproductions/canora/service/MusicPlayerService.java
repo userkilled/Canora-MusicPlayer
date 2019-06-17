@@ -2,9 +2,6 @@ package ch.swissproductions.canora.service;
 
 import android.app.*;
 import android.content.*;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -20,7 +17,6 @@ import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.data.data_song;
 import ch.swissproductions.canora.tools.PerformanceTimer;
 
-import java.nio.channels.AsynchronousByteChannel;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -419,7 +415,7 @@ public class MusicPlayerService extends Service {
                     //nb.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.mainicon));
                 }*/
                 snp.printStep(LOG_TAG, "SETLARGEICON");
-                nb.setSmallIcon(R.drawable.notificationbaricon)
+                nb.setSmallIcon(R.drawable.notification_smallicon)
                         .setContentTitle(md.get("TITLE"))
                         .setContentText(md.get("ARTIST"))
                         .addAction(R.drawable.main_btnprev, "prev", retrievePlaybackAction(3));

@@ -25,6 +25,8 @@ import java.util.*;
 public class DataManager {
     /* Manages the Loading,Selection and Sorting of the Data Sets */
 
+    //TODO:Get Genres From Mediastore
+
     //Data Output For a Listview and Player Service, Manipulated by the various Control Functions
     public List<data_song> dataout = new ArrayList<>();
 
@@ -505,7 +507,7 @@ public class DataManager {
             if (b != null)
                 t.icon = BitmapFactory.decodeByteArray(b, 0, m.getEmbeddedPicture().length, null);
             else
-                t.icon = BitmapFactory.decodeResource(mainActivity.getResources(), R.drawable.mainicon);
+                t.icon = BitmapFactory.decodeResource(mainActivity.getResources(), R.drawable.notification_unsetsongicon);
             t.id = GIDC++;
         }
         return t;
