@@ -539,6 +539,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         switch (m) {
             case Constants.DIALOG_SORT:
                 final Dialog dia = new Dialog(this);
+                dia.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dia.setContentView(R.layout.dialog_sort);
                 dia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
@@ -592,6 +593,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case Constants.DIALOG_SEARCHBY:
                 final Dialog sdia = new Dialog(this);
+                sdia.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 sdia.setContentView(R.layout.dialog_searchby);
                 sdia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
@@ -650,6 +652,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             case Constants.DIALOG_PLAYLIST_EDIT:
                 final Dialog pled = new Dialog(this);
+                pled.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 pled.setContentView(R.layout.dialog_playlist_edit);
                 pled.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 TextView plet = pled.findViewById(R.id.title);
@@ -700,6 +703,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             case Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST:
                 final Dialog dd = new Dialog(this);
+                dd.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dd.setContentView(R.layout.dialog_file_delete);
                 dd.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 TextView dtit = dd.findViewById(R.id.title);
@@ -749,6 +753,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case Constants.DIALOG_WARNING_PLAYLIST_DELETE:
                 final Dialog pldd = new Dialog(this);
+                pldd.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 LayoutInflater pldif = getLayoutInflater();
                 pldd.setContentView(pldif.inflate(R.layout.dialog_playlist_delete, null));
                 pldd.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -787,6 +792,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case Constants.DIALOG_PLAYLIST_CREATE:
                 final Dialog eddia = new Dialog(this);
+                eddia.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 LayoutInflater edif = getLayoutInflater();
                 eddia.setContentView(edif.inflate(R.layout.dialog_playlist_create, null));
                 eddia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -834,6 +840,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case Constants.DIALOG_EXIT_CONFIRM:
                 final Dialog exdia = new Dialog(this);
+                exdia.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 LayoutInflater exif = getLayoutInflater();
                 exdia.setContentView(exif.inflate(R.layout.dialog_exit, null));
                 exdia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -863,6 +870,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case Constants.DIALOG_FILE_INFO:
                 //TODO:POPULATE FILE INFO DIALOGE
                 final Dialog fidia = new Dialog(this);
+                fidia.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 LayoutInflater fiif = getLayoutInflater();
                 fidia.setContentView(fiif.inflate(R.layout.dialog_file_info, null));
                 fidia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -890,6 +898,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case Constants.DIALOG_WARNING_PLAYLIST_DELETE_MULTIPLE:
                 final Dialog deld = new Dialog(this);
+                deld.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 LayoutInflater delif = getLayoutInflater();
                 deld.setContentView(delif.inflate(R.layout.dialog_playlist_delete_multiple, null));
                 deld.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1461,6 +1470,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             hideable.setVisibility(View.VISIBLE);
             imb.setImageResource(R.drawable.main_btnclosecontrols);
             findViewById(R.id.songDisplay).requestFocus();
+            //TODO: Fix unreliable Marquee in API 21
         } else {
             hideable.setVisibility(View.GONE);
             imb.setImageResource(R.drawable.main_btnopencontrols);
