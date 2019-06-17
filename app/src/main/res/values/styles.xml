@@ -163,7 +163,7 @@
         <item name="colorText">#ffffff</item>
         <item name="colorHighlight">#66ff66</item>
 
-        <item name="colorDialogBackground">#4d4d4d</item>
+        <item name="colorDialogBackground">#1a1a1a</item>
         <item name="colorDialogFrame">#000000</item>
         <item name="colorDialogText">?colorText</item>
         <item name="colorDialogHighlight">?colorHighlight</item>

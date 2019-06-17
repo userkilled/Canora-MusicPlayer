@@ -2,7 +2,9 @@ package ch.swissproductions.canora.activities;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -39,6 +41,7 @@ import ch.swissproductions.canora.managers.ThemeManager;
 import ch.swissproductions.canora.managers.ViewPortManager;
 import ch.swissproductions.canora.service.MusicPlayerService;
 import ch.swissproductions.canora.tools.PerformanceTimer;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -539,20 +542,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         /*Various Dialogues*/
         switch (m) {
             case Constants.DIALOG_SORT:
-                AlertDialog.Builder b = new AlertDialog.Builder(this, R.style.DialogStyle);
-                View sortitle = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
-                View e = LayoutInflater.from(this).inflate(R.layout.dialog_sort, null);
-                TextView tsor = sortitle.findViewById(R.id.diatitle);
-                tsor.setText(R.string.dialog_sortby_title);
-                b.setCustomTitle(sortitle);
+                final Dialog dia = new Dialog(this);
+                dia.setContentView(R.layout.dialog_sort);
+                dia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                TextView stit = dia.findViewById(R.id.title);
+                stit.setText(R.string.dialog_sortby_title);
+
+                ListView slv = dia.findViewById(R.id.list);
+
                 List<String> items = new ArrayList<>();
                 items.add(getString(R.string.misc_title));
                 items.add(getString(R.string.misc_artist));
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_item_singlechoice, items);
-                b.setSingleChoiceItems(adapter, sortBy, new DialogInterface.OnClickListener() {
+                slv.setAdapter(adapter);
+                slv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        switch (position) {
                             case 0:
                                 sortBy = Constants.SORT_BYTITLE;
                                 sc.putSetting(Constants.SETTING_SORTBY, "" + sortBy);
@@ -564,10 +571,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         }
                     }
                 });
-                final AlertDialog sortdia = b.create();
-                sortdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorDialogFrame)));
-                sortdia.getListView().setDividerHeight(5);
-                e.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
+                slv.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                switch (sortBy) {
+                    case Constants.SORT_BYARTIST:
+                        slv.setItemChecked(1, true);
+                        break;
+                    case Constants.SORT_BYTITLE:
+                        slv.setItemChecked(0, true);
+                        break;
+                }
+                Button okb = dia.findViewById(R.id.okbtn);
+                okb.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         dm.sortContent(sortBy);
@@ -575,25 +589,32 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         if (isSearching)
                             vpm.showFiltered(searchTerm, searchBy);
                         notifyAAandOM();
-                        sortdia.dismiss();
+                        dia.dismiss();
                     }
                 });
-                sortdia.setView(e);
-                sortdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
-                sortdia.show();
+                dia.show();
                 break;
             case Constants.DIALOG_SEARCHBY:
-                AlertDialog.Builder b1 = new AlertDialog.Builder(this, R.style.DialogStyle);
-                View title = LayoutInflater.from(this).inflate(R.layout.dialog_template_title, null);
-                TextView t = title.findViewById(R.id.diatitle);
-                t.setText(R.string.dialog_searchby_title);
-                b1.setCustomTitle(title);
-                CharSequence[] arr1 = {getString(R.string.misc_title), getString(R.string.misc_artist), getString(R.string.misc_both)};
-                ArrayAdapter<CharSequence> ada = new ArrayAdapter<>(this, R.layout.list_item_singlechoice, arr1);
-                b1.setSingleChoiceItems(ada, searchBy, new DialogInterface.OnClickListener() {
+                final Dialog sdia = new Dialog(this);
+                sdia.setContentView(R.layout.dialog_searchby);
+                sdia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                TextView setit = sdia.findViewById(R.id.title);
+                setit.setText(R.string.dialog_searchby_title);
+
+                ListView selv = sdia.findViewById(R.id.list);
+
+                List<String> sitems = new ArrayList<>();
+                sitems.add(getString(R.string.misc_title));
+                sitems.add(getString(R.string.misc_artist));
+                sitems.add(getString(R.string.misc_both));
+
+                ArrayAdapter<String> sadapter = new ArrayAdapter<String>(this, R.layout.list_item_singlechoice, sitems);
+                selv.setAdapter(sadapter);
+                selv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        switch (position) {
                             case 0:
                                 searchBy = Constants.SEARCH_BYTITLE;
                                 sc.putSetting(Constants.SETTING_SEARCHBY, "" + searchBy);
@@ -609,20 +630,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         }
                     }
                 });
-                final AlertDialog serdia = b1.create();
-                LayoutInflater l1 = LayoutInflater.from(this);
-                View e1 = l1.inflate(R.layout.dialog_searchby, null);
-                e1.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
+                selv.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+                switch (searchBy) {
+                    case Constants.SEARCH_BYTITLE:
+                        selv.setItemChecked(0, true);
+                        break;
+                    case Constants.SEARCH_BYARTIST:
+                        selv.setItemChecked(1, true);
+                        break;
+                    case Constants.SEARCH_BYBOTH:
+                        selv.setItemChecked(2, true);
+                        break;
+                }
+                Button sokb = sdia.findViewById(R.id.okbtn);
+                sokb.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        serdia.dismiss();
+                        sdia.dismiss();
                     }
                 });
-                serdia.getListView().setDivider(new ColorDrawable(getColorFromAtt(R.attr.colorDialogFrame)));
-                serdia.getListView().setDividerHeight(5);
-                serdia.setView(e1);
-                serdia.getWindow().setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorDialogBackground)));
-                serdia.show();
+                sdia.show();
                 break;
 
             case Constants.DIALOG_PLAYLIST_EDIT:
