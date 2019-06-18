@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //Overrides
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //TODO: Reduce Startup Time
         Log.v(LOG_TAG, "ONCREATE CALLED");
         super.onCreate(savedInstanceState);
         globT.start();

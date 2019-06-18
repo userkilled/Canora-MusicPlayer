@@ -59,7 +59,7 @@ public class MusicPlayerService extends Service {
     }
 
     //Public Control Functions
-    public synchronized int setContent(List<data_song> pl) {
+    public int setContent(List<data_song> pl) {
         Log.v(LOG_TAG, "SetContent Called Size: " + pl.size());
         List<data_song> t = new ArrayList<>(pl);
         plm.setContent(t);
