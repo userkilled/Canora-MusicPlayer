@@ -719,7 +719,7 @@ public class DataManager {
             List<Integer> ids = new ArrayList<>();
 
             do {
-                names.add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Artists.ARTIST)));
+                names.add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Genres.NAME)));
                 ids.add(Integer.parseInt(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Genres._ID))));
             }
             while (cursor.moveToNext());
