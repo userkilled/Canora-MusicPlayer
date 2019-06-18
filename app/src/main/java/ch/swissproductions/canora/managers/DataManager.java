@@ -16,6 +16,7 @@ import ch.swissproductions.canora.activities.MainActivity;
 import ch.swissproductions.canora.data.Constants;
 import ch.swissproductions.canora.data.data_playlist;
 import ch.swissproductions.canora.data.data_song;
+import ch.swissproductions.canora.tools.PerformanceTimer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -59,13 +60,20 @@ public class DataManager {
     }
 
     public void loadContentFromMediaStore() {
+        PerformanceTimer lp = new PerformanceTimer();
+        lp.start();
         List<data_song> ml = getSongsfromMediaStore();
+        lp.printStep(LOG_TAG, "GETSONGS");
         Log.v(LOG_TAG, "FOUND " + ml.size() + " SONGS IN MEDIASTORE");
         Tracks.audio.clear();
         Tracks.audio.addAll(ml);
+        lp.printStep(LOG_TAG, "MISC");
         Artists = getArtistsfromMS();
+        lp.printStep(LOG_TAG, "GETARTISTS");
         Albums = getAlbumsfromMS();
+        lp.printStep(LOG_TAG, "GETALBUMS");
         Genres = getGenresfromMS();
+        lp.printStep(LOG_TAG, "GETGENRES");
         updateContent();
     }
 
@@ -492,7 +500,7 @@ public class DataManager {
     }
 
     private Map<String, data_playlist> getAlbumsfromMS() {
-        Map<String, data_playlist> ret = new TreeMap<>();
+        Map<String, data_playlist> ret = new HashMap<>();
         Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
         String[] columns = {android.provider.MediaStore.Audio.Albums._ID, android.provider.MediaStore.Audio.Albums.ALBUM};
         Cursor cursor = mainActivity.getApplicationContext().getContentResolver().query(uri, columns, null, null, null);
@@ -501,10 +509,12 @@ public class DataManager {
                 private String title = "";
                 private data_playlist out;
                 private Map<String, data_playlist> contRef;
+                private List<data_song> cache;
 
-                public mytask(String tit, Map<String, data_playlist> cref) {
+                public mytask(String tit, Map<String, data_playlist> cref, List<data_song> cacheP) {
                     title = tit;
                     contRef = cref;
+                    cache = new ArrayList<>(cacheP);
                 }
 
                 synchronized void addResult() {
@@ -513,46 +523,51 @@ public class DataManager {
 
                 @Override
                 protected String doInBackground(String... strings) {
-                    String[] mediaProjection = {
-                            MediaStore.Audio.Media._ID,
-                            MediaStore.Audio.Media.ARTIST,
-                            MediaStore.Audio.Media.ALBUM,
-                            MediaStore.Audio.Media.TITLE,
-                            MediaStore.Audio.Media.DATA,
-                            MediaStore.Audio.Media.DURATION,
-                            MediaStore.Audio.Media.ALBUM
-                    };
-                    String where = MediaStore.Audio.Media.ALBUM + "=?";
-                    String whereVal[] = {title};
-                    String orderBy = android.provider.MediaStore.Audio.Media.TITLE;
-                    Cursor mc = mainActivity.getApplicationContext().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaProjection, where, whereVal, orderBy);
-                    List<data_song> titles = new ArrayList<>();
-                    if (mc != null) {
-                        while (mc.moveToNext()) {
-                            data_song ds = new data_song();
-                            ds.file = new File(mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.DATA)));
-                            ds.length = Long.parseLong(mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.DURATION)));
-                            ds.Title = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                            ds.Artist = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                            ds.Album = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-                            titles.add(ds);
+                    List<data_song> found = new ArrayList<>();
+                    for (int i = 0; i < cache.size(); i++) {
+                        if (cache.get(i).Album.equals(title)) {
+                            found.add(cache.get(i));
                         }
                     }
-                    out = new data_playlist(title, titles);
+                    out = new data_playlist(title, found);
                     addResult();
                     return null;
                 }
             }
-
             List<String> names = new ArrayList<>();
             do {
                 names.add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM)));
             }
             while (cursor.moveToNext());
+            cursor.close();
+            String[] mediaProjection = {
+                    MediaStore.Audio.Media._ID,
+                    MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM,
+                    MediaStore.Audio.Media.TITLE,
+                    MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media.DURATION,
+                    MediaStore.Audio.Media.ALBUM
+            };
+            Cursor mc = mainActivity.getApplicationContext().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaProjection, null, null, null);
+            List<data_song> cache = new ArrayList<>();
+            if (mc != null) {
+                while (mc.moveToNext()) {
+                    data_song ds = new data_song();
+                    ds.file = new File(mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.DATA)));
+                    ds.length = Long.parseLong(mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.DURATION)));
+                    ds.Title = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                    ds.Artist = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+                    ds.Album = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                    ds.id = GIDC++;
+                    cache.add(ds);
+                }
+            }
+            mc.close();
             try {
                 ExecutorService exec = Executors.newCachedThreadPool();
                 for (int i = 0; i < names.size(); i++) {
-                    new mytask(names.get(i), ret).executeOnExecutor(exec);
+                    new mytask(names.get(i), ret, cache).executeOnExecutor(exec);
                 }
                 exec.shutdown();
                 while (!exec.awaitTermination(5, TimeUnit.MILLISECONDS)) {
@@ -561,11 +576,11 @@ public class DataManager {
                 e.printStackTrace();
             }
         }
-        return ret;
+        return new TreeMap<>(ret);
     }
 
     private Map<String, data_playlist> getArtistsfromMS() {
-        Map<String, data_playlist> ret = new TreeMap<>();
+        Map<String, data_playlist> ret = new HashMap<>();
         Uri uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI;
         String[] columns = {MediaStore.Audio.Artists._ID, MediaStore.Audio.Artists.ARTIST};
         Cursor cursor = mainActivity.getApplicationContext().getContentResolver().query(uri, columns, null, null, null);
@@ -575,10 +590,12 @@ public class DataManager {
                 private String title = "";
                 private data_playlist out;
                 private Map<String, data_playlist> contRef;
+                private List<data_song> cache;
 
-                public mytask(String tit, Map<String, data_playlist> cref) {
+                public mytask(String tit, Map<String, data_playlist> cref, List<data_song> cacheP) {
                     title = tit;
                     contRef = cref;
+                    cache = new ArrayList<>(cacheP);
                 }
 
                 synchronized void addResult() {
@@ -587,48 +604,51 @@ public class DataManager {
 
                 @Override
                 protected String doInBackground(String... strings) {
-                    String[] mediaProjection = {
-                            MediaStore.Audio.Media._ID,
-                            MediaStore.Audio.Media.ARTIST,
-                            MediaStore.Audio.Media.ALBUM,
-                            MediaStore.Audio.Media.TITLE,
-                            MediaStore.Audio.Media.DATA,
-                            MediaStore.Audio.Media.DURATION,
-                            MediaStore.Audio.Media.ALBUM
-                    };
-                    String where = android.provider.MediaStore.Audio.Media.ARTIST + "=?";
-                    String whereVal[] = {title};
-                    String orderBy = android.provider.MediaStore.Audio.Media.TITLE;
-                    Cursor mc = mainActivity.getApplicationContext().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaProjection, where, whereVal, orderBy);
-                    List<data_song> titles = new ArrayList<>();
-                    if (mc != null) {
-                        while (mc.moveToNext()) {
-                            data_song ds = new data_song();
-                            ds.file = new File(mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.DATA)));
-                            ds.length = Long.parseLong(mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.DURATION)));
-                            ds.Title = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                            ds.Artist = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                            ds.Album = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-                            titles.add(ds);
+                    List<data_song> found = new ArrayList<>();
+                    for (int i = 0; i < cache.size(); i++) {
+                        if (cache.get(i).Artist.equals(title)) {
+                            found.add(cache.get(i));
                         }
                     }
-                    out = new data_playlist(title, titles);
+                    out = new data_playlist(title, found);
                     addResult();
                     return null;
                 }
             }
-
             List<String> names = new ArrayList<>();
-
             do {
                 names.add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Artists.ARTIST)));
             }
             while (cursor.moveToNext());
-
+            cursor.close();
+            String[] mediaProjection = {
+                    MediaStore.Audio.Media._ID,
+                    MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM,
+                    MediaStore.Audio.Media.TITLE,
+                    MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media.DURATION,
+                    MediaStore.Audio.Media.ALBUM
+            };
+            Cursor mc = mainActivity.getApplicationContext().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaProjection, null, null, null);
+            List<data_song> cache = new ArrayList<>();
+            if (mc != null) {
+                while (mc.moveToNext()) {
+                    data_song ds = new data_song();
+                    ds.file = new File(mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.DATA)));
+                    ds.length = Long.parseLong(mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.DURATION)));
+                    ds.Title = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                    ds.Artist = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+                    ds.Album = mc.getString(mc.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                    ds.id = GIDC++;
+                    cache.add(ds);
+                }
+            }
+            mc.close();
             try {
                 ExecutorService exec = Executors.newCachedThreadPool();
                 for (int i = 0; i < names.size(); i++) {
-                    new mytask(names.get(i), ret).executeOnExecutor(exec);
+                    new mytask(names.get(i), ret, cache).executeOnExecutor(exec);
                 }
                 exec.shutdown();
                 while (!exec.awaitTermination(5, TimeUnit.MILLISECONDS)) {
@@ -637,11 +657,11 @@ public class DataManager {
                 e.printStackTrace();
             }
         }
-        return ret;
+        return new TreeMap<>(ret);
     }
 
     private Map<String, data_playlist> getGenresfromMS() {
-        Map<String, data_playlist> ret = new TreeMap<>();
+        Map<String, data_playlist> ret = new HashMap<>();
         Uri uri = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI;
         String[] columns = {MediaStore.Audio.Genres._ID, MediaStore.Audio.Genres.NAME};
         Cursor cursor = mainActivity.getApplicationContext().getContentResolver().query(uri, columns, null, null, null);
@@ -689,6 +709,7 @@ public class DataManager {
                         }
                     }
                     out = new data_playlist(title, titles);
+                    mc.close();
                     addResult();
                     return null;
                 }
@@ -703,6 +724,8 @@ public class DataManager {
             }
             while (cursor.moveToNext());
 
+            cursor.close();
+
             try {
                 ExecutorService exec = Executors.newCachedThreadPool();
                 for (int i = 0; i < names.size(); i++) {
@@ -715,7 +738,7 @@ public class DataManager {
                 e.printStackTrace();
             }
         }
-        return ret;
+        return new TreeMap<>(ret);
     }
 
     private List<data_song> sortSongsByTitle(List<data_song> s) {
