@@ -727,6 +727,8 @@ public class DataManager {
                         }
                     }
                 });
+            } else {
+                Log.v(LOG_TAG,"NO MEDIASTORE REFRESH NEEDED");
             }
             return "COMPLETE";
         }

@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Log.v(LOG_TAG, "ONCREATEOPTIONS");
+        //Log.v(LOG_TAG, "ONCREATEOPTIONS");
         getMenuInflater().inflate(R.menu.main_menu, menu);
         menu.getItem(0).getIcon().mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         return true;
@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        Log.v(LOG_TAG, "ONPREPAREOPTIONS");
+        //Log.v(LOG_TAG, "ONPREPAREOPTIONS");
         if (vpm == null)
             return false;
         Menu m = menu;
@@ -284,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         switch (vpm.state) {
             case Constants.ARRAYADAPT_STATE_DEFAULT:
-                Log.v(LOG_TAG, "OPTIONS NORMAL MODE");
+                //Log.v(LOG_TAG, "OPTIONS NORMAL MODE");
                 menu.findItem(R.id.action_addTo).setVisible(false);
                 menu.findItem(R.id.action_cancel).setVisible(false);
                 if (vpm.subMenu == Constants.DATA_SELECTOR_PLAYLISTS || vpm.subMenu == Constants.DATA_SELECTOR_NONE)
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 menu.findItem(R.id.action_delete).setVisible(false);
                 break;
             case Constants.ARRAYADAPT_STATE_SELECT:
-                Log.v(LOG_TAG, "OPTIONS SELECT MODE");
+                //Log.v(LOG_TAG, "OPTIONS SELECT MODE");
                 closeOptionsMenu();
                 menu.findItem(R.id.action_cancel).setVisible(true);
                 menu.findItem(R.id.action_select).setVisible(false);
@@ -316,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             menu.findItem(R.id.action_sortby).setVisible(false);
         menu.findItem(R.id.action_addTo).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         menu.findItem(R.id.action_search).getIcon().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
-        Log.v(LOG_TAG, "EXIT OPTIONS");
+        //Log.v(LOG_TAG, "EXIT OPTIONS");
         return super.onPrepareOptionsMenu(menu);
     }
 

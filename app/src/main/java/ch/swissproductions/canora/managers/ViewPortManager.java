@@ -169,6 +169,7 @@ public class ViewPortManager {
     }
 
     public void showData() {
+        Log.v(LOG_TAG,"SHOWING DATA SIZE: " + dm.dataout.size());
         switch (dm.getSelector()) {
             case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
                 colorSelectedMenu(0);
@@ -466,11 +467,11 @@ public class ViewPortManager {
                     ImageButton imb = (ImageButton) child.getChildAt(0);
                     TextView tmb = (TextView) child.getChildAt(1);
                     if (i == sel) {
-                        Log.v(LOG_TAG, "HIGHLIGHTING " + i);
+                        //Log.v(LOG_TAG, "HIGHLIGHTING " + i);
                         imb.getDrawable().mutate().setColorFilter(ma.getColorFromAtt(R.attr.colorHighlight), PorterDuff.Mode.SRC_ATOP);
                         tmb.setTextColor(ma.getColorFromAtt(R.attr.colorHighlight));
                     } else {
-                        Log.v(LOG_TAG, "NORMAL " + i);
+                        //Log.v(LOG_TAG, "NORMAL " + i);
                         imb.getDrawable().mutate().setColorFilter(ma.getColorFromAtt(R.attr.colorText), PorterDuff.Mode.SRC_ATOP);
                         tmb.setTextColor(ma.getColorFromAtt(R.attr.colorText));
                     }
@@ -498,11 +499,11 @@ public class ViewPortManager {
                 sel.add(false);
             }
             if (pls.size() == 0) {
-                Log.v(LOG_TAG, "EMPTY");
+                //Log.v(LOG_TAG, "EMPTY");
                 empty = true;
                 pls.add(null);
             } else if (pls.get(0) != null) {
-                Log.v(LOG_TAG, "NOT EMPTY");
+                //Log.v(LOG_TAG, "NOT EMPTY");
                 empty = false;
             }
             super.notifyDataSetChanged();
@@ -634,11 +635,11 @@ public class ViewPortManager {
         @Override
         public void notifyDataSetChanged() {
             if (viewList.size() == 0) {
-                Log.v(LOG_TAG, "EMPTY");
+                //Log.v(LOG_TAG, "EMPTY");
                 empty = true;
                 viewList.add(new data_song());
             } else if (viewList.get(0).Title != null) {
-                Log.v(LOG_TAG, "NOT EMPTY");
+                //Log.v(LOG_TAG, "NOT EMPTY");
                 empty = false;
             }
             super.notifyDataSetChanged();
