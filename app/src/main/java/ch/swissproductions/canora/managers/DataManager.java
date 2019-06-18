@@ -7,6 +7,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import ch.swissproductions.canora.tools.ListSorter;
@@ -23,11 +24,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class DataManager {
     /* Manages the Loading,Selection and Sorting of the Data Sets */
-
-    //TODO:Get Genre From Mediastore
 
     //Data Output For a Listview and Player Service, Manipulated by the various Control Functions
     public List<data_song> dataout = new ArrayList<>();
@@ -63,8 +63,6 @@ public class DataManager {
         Log.v(LOG_TAG, "FOUND " + ml.size() + " SONGS IN MEDIASTORE");
         Tracks.audio.clear();
         Tracks.audio.addAll(ml);
-        if (Tracks.audio.size() > 0)
-            updateContent();
         Artists.clear();
         Albums.clear();
         Genres.clear();
@@ -95,6 +93,7 @@ public class DataManager {
                 Genres.put(tr.Genre, art);
             }
         }
+        updateContent();
     }
 
     public void loadContentFromFiles() {
@@ -305,7 +304,7 @@ public class DataManager {
 
     private int sortBy;
 
-    private String LOG_TAG = "PLC";
+    private String LOG_TAG = "DM";
 
     private int selector = Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS; //Which Content is Selected
     private String index; //Index of the Selected Content
@@ -588,8 +587,8 @@ public class DataManager {
         validExtensions.add(".aac");
         validExtensions.add(".mkv");
         validExtensions.add(".wav");
-        searchPaths.add("/storage/emulated/0/Music");
-        searchPaths.add("/storage/emulated/0/Download");
+        searchPaths.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
+        searchPaths.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath());
     }
 
     private void updateContent() {
@@ -634,7 +633,6 @@ public class DataManager {
 
     private String getGenreForID(int mediaid) {
         Cursor genresCursor;
-
         String[] genresProjection = {
                 MediaStore.Audio.Genres.NAME,
                 MediaStore.Audio.Genres._ID
@@ -644,12 +642,10 @@ public class DataManager {
                 genresProjection, null, null, null);
         int genre_column_index = genresCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME);
         if (genresCursor.moveToFirst()) {
-            Log.v(LOG_TAG, "GENRE FOUND");
             do {
                 return genresCursor.getString(genre_column_index);
             } while (genresCursor.moveToNext());
         } else {
-            Log.v(LOG_TAG, "GENRE NOT FOUND");
             return mainActivity.getString(R.string.misc_unknown);
         }
     }
@@ -658,77 +654,81 @@ public class DataManager {
     private LoadFilesTask lft;
 
     protected class LoadFilesTask extends AsyncTask<String, Integer, String> {
+        //Refresh Files that are missing in the Mediastore, such as recently Downloaded etc.
         @Override
         protected String doInBackground(String... params) {
-            sortContentLocal(sortBy);
-            List<data_song> nw = getSongsfromFiles();
+            List<File> nw = getSongsfromFiles();
             if (isCancelled())
                 return "Cancelled";
             Log.v(LOG_TAG, "FOUND " + nw.size() + " AUDIO FILES ON DISK");
-            List<data_song> nnw = mergeLists(Tracks.audio, nw);
-            if (isCancelled())
-                return "Cancelled";
-            Tracks.audio.clear();
-            Tracks.audio.addAll(nnw);
-            if (Tracks.audio.size() == 0) {
-                Log.e(LOG_TAG, "NO FILES FOUND");
-                filesfound = false;
-                updateContent();
-                mainActivity.notifyAAandOM();
-                return "ERROR:NOFILESFOUND";
-            } else {
-                filesfound = true;
+            class mediaLoader {
+                public mediaLoader() {
+                    queue = 0;
+                }
+
+                public void addQueue() {
+                    queue++;
+                }
+
+                public void remQueue() {
+                    queue--;
+                }
+
+                public boolean getStat() {
+                    if (queue > 0)
+                        return false;
+                    else
+                        return true;
+                }
+
+                private int queue;
             }
-            updateContent();
-            sortContentLocal(sortBy);
-            try {
-                while (mainActivity.serv == null) {
-                    Thread.sleep(100);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            mainActivity.serv.setContent(dataout);
-            Artists.clear();
-            Albums.clear();
-            Genres.clear();
-            for (int i = 0; i < Tracks.audio.size(); i++) {
-                data_song tr = Tracks.audio.get(i);
-                if (Artists.containsKey(tr.Artist)) {
-                    Artists.get(tr.Artist).audio.add(tr);
-                } else {
-                    List<data_song> t = new ArrayList<>();
-                    t.add(tr);
-                    data_playlist art = new data_playlist(tr.Artist, t);
-                    Artists.put(tr.Artist, art);
-                }
-                if (Albums.containsKey(tr.Album)) {
-                    Albums.get(tr.Album).audio.add(tr);
-                } else {
-                    List<data_song> t = new ArrayList<>();
-                    t.add(tr);
-                    data_playlist art = new data_playlist(tr.Album, t);
-                    Albums.put(tr.Album, art);
-                }
-                if (Genres.containsKey(tr.Genre)) {
-                    Genres.get(tr.Genre).audio.add(tr);
-                } else {
-                    List<data_song> t = new ArrayList<>();
-                    t.add(tr);
-                    data_playlist art = new data_playlist(tr.Genre, t);
-                    Genres.put(tr.Genre, art);
-                }
-            }
-            mainActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mainActivity.vpm.reload();
-                    if (mainActivity.isSearching) {
-                        mainActivity.vpm.showFiltered(mainActivity.vpm.searchTerm, mainActivity.vpm.searchBy);
+            final mediaLoader ml = new mediaLoader();
+            boolean reload = false;
+            for (int i = 0; i < nw.size(); i++) {
+                boolean instore = false;
+                for (int y = 0; y < Tracks.audio.size(); y++) {
+                    if (Tracks.audio.get(y).file.getAbsolutePath().equals(nw.get(i).getAbsolutePath())) {
+                        instore = true;
+                        break;
                     }
                 }
-            });
-            return "COMPLETE!";
+                if (!instore) {
+                    Log.v(LOG_TAG, "RESCANNING: " + nw.get(i).getAbsolutePath());
+                    reload = true;
+                    ml.addQueue();
+                    MediaScannerConnection.scanFile(mainActivity, new String[]{nw.get(i).getAbsolutePath()}, null, new MediaScannerConnection.OnScanCompletedListener() {
+                        @Override
+                        public void onScanCompleted(String path, Uri uri) {
+                            ml.remQueue();
+                        }
+                    });
+                }
+            }
+            if (reload) {
+                Log.v(LOG_TAG, "REFRESHING MEDIASTORE");
+                try {
+                    //Wait for Mediastore Update to finish
+                    while (!ml.getStat()) {
+                        TimeUnit.MILLISECONDS.sleep(500);
+                    }
+                    loadContentFromMediaStore();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return "ERROR";
+                }
+                mainActivity.serv.setContent(dataout);
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mainActivity.vpm.reload();
+                        if (mainActivity.isSearching) {
+                            mainActivity.vpm.showFiltered(mainActivity.vpm.searchTerm, mainActivity.vpm.searchBy);
+                        }
+                    }
+                });
+            }
+            return "COMPLETE";
         }
 
         @Override
@@ -750,76 +750,17 @@ public class DataManager {
             Log.v(LOG_TAG, "LOAD ASYNC TASK EXIT: " + result);
         }
 
-        private List<data_song> getSongsfromFiles() {
-            List<data_song> ret = new ArrayList<>();
+        private List<File> getSongsfromFiles() {
+            List<File> ret = new ArrayList<>();
             for (String str : searchPaths) {
                 if (isCancelled())
                     return null;
                 Log.v(LOG_TAG, "Searching in Directory: " + str);
-                List<data_song> te = getPlayListAsItems(str);
+                List<File> te = getPlayListFiles(str);
                 if (isCancelled())
                     return null;
                 if (te != null)
                     ret.addAll(te);
-            }
-            return ret;
-        }
-
-        private List<data_song> mergeLists(List<data_song> a, List<data_song> b) {
-            List<data_song> ret = new ArrayList<>();
-            if (a.size() > b.size()) {
-                ret.addAll(a);
-                for (int i = 0; i < b.size(); i++) {
-                    if (isCancelled())
-                        return null;
-                    boolean ex = false;
-                    for (int y = 0; y < a.size(); y++) {
-                        if (isCancelled())
-                            return null;
-                        if (b.get(i).file.getAbsolutePath().equals(a.get(y).file.getAbsolutePath())) {
-                            if (a.get(y).selected)
-                                b.get(i).selected = true;
-                            ex = true;
-                        }
-                    }
-                    if (!ex) {
-                        ret.add(b.get(i));
-                    }
-                }
-            } else {
-                ret.addAll(b);
-                for (int i = 0; i < a.size(); i++) {
-                    if (isCancelled())
-                        return null;
-                    boolean ex = false;
-                    for (int y = 0; y < b.size(); y++) {
-                        if (isCancelled())
-                            return null;
-                        if (a.get(i).file.getAbsolutePath().equals(b.get(y).file.getAbsolutePath())) {
-                            if (b.get(y).selected)
-                                a.get(i).selected = true;
-                            ex = true;
-                        }
-                    }
-                    if (!ex) {
-                        ret.add(a.get(i));
-                    }
-                }
-            }
-            return ret;
-        }
-
-        private List<data_song> getPlayListAsItems(String rootPath) {
-            List<File> t = getPlayListFiles(rootPath);
-            if (isCancelled())
-                return null;
-            List<data_song> ret = new ArrayList<>();
-            for (int i = 0; i < t.size(); i++) {
-                if (isCancelled())
-                    return null;
-                data_song s = getMetadata(t.get(i));
-                if (s != null)
-                    ret.add(s);
             }
             return ret;
         }
@@ -856,7 +797,6 @@ public class DataManager {
 
         private String getFileExtension(File file) {
             String extension = "";
-
             try {
                 if (file != null && file.exists()) {
                     String name = file.getName();
@@ -865,29 +805,7 @@ public class DataManager {
             } catch (Exception e) {
                 extension = "";
             }
-
             return extension;
-        }
-
-        private void sortContentLocal(int SortBy) {
-            sortBy = SortBy;
-            List<data_song> srted;
-            switch (sortBy) {
-                case Constants.SORT_BYARTIST:
-                    Log.v(LOG_TAG, "SORTING BY ARTIST");
-                    srted = sortSongsByArtist(new ArrayList<>(dataout));
-                    final List<data_song> uit = srted;
-                    dataout.clear();
-                    dataout.addAll(uit);
-                    break;
-                case Constants.SORT_BYTITLE:
-                    Log.v(LOG_TAG, "SORTING BY TITLE");
-                    srted = sortSongsByTitle(new ArrayList<>(dataout));
-                    final List<data_song> uit2 = srted;
-                    dataout.clear();
-                    dataout.addAll(uit2);
-                    break;
-            }
         }
     }
 
