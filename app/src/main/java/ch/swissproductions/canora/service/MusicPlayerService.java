@@ -517,20 +517,17 @@ public class MusicPlayerService extends Service {
             if (currentSong != null)
                 history.push(currentSong);
             if (shuffle) {
-                if (shuffmemavail.size() <= 0) {
-                    shuffmemplayed = new ArrayList<>();
-                    shuffmemavail = new ArrayList<>(content);
+                if (shufflememavailable.size() <= 0) {
+                    shufflememavailable = new ArrayList<>(content);
                 }
                 Random rand = new Random();
-                int t = rand.nextInt(shuffmemavail.size());
-                shuffmemplayed.add(shuffmemavail.get(t));
+                int t = rand.nextInt(shufflememavailable.size());
                 currentIndex = t;
-                currentSong = shuffmemavail.get(currentIndex);
-                shuffmemavail.remove(t);
+                currentSong = shufflememavailable.get(currentIndex);
+                shufflememavailable.remove(t);
                 return currentSong;
             } else {
-                shuffmemplayed = new ArrayList<>();
-                shuffmemavail = new ArrayList<>(content);
+                shufflememavailable = new ArrayList<>(content);
                 if (content.size() > 1 && currentIndex < content.size() - 1) {
                     currentIndex = currentIndex + 1;
                 } else {
@@ -568,15 +565,12 @@ public class MusicPlayerService extends Service {
 
         public void setContent(List<data_song> c) {
             content = new ArrayList<>(c);
-            shuffmemplayed = new ArrayList<>();
-            shuffmemavail = new ArrayList<>(content);
+            shufflememavailable = new ArrayList<>(content);
         }
 
         private Stack<data_song> history;
 
-        private List<data_song> shuffmemplayed;
-
-        private List<data_song> shuffmemavail;
+        private List<data_song> shufflememavailable;
 
         private List<data_song> content;
         private int currentIndex;
