@@ -15,7 +15,6 @@ import ch.swissproductions.canora.activities.MainActivity;
 import ch.swissproductions.canora.tools.MediaPlayerEqualizer;
 import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.data.data_song;
-import ch.swissproductions.canora.tools.PerformanceTimer;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -106,16 +105,12 @@ public class MusicPlayerService extends Service {
     }
 
     public boolean pauseResume() {
-        PerformanceTimer p = new PerformanceTimer();
-        p.start();
         if (player != null) {
             if (player.isPlaying()) {
                 boolean ret = pause();
-                p.printStep(LOG_TAG, "PAUSE");
                 return ret;
             } else {
                 boolean ret = resume();
-                p.printStep(LOG_TAG, "RESUME");
                 return ret;
             }
         }
@@ -125,16 +120,11 @@ public class MusicPlayerService extends Service {
     private int position; //Position of Media Player in Miliseconds
 
     public boolean pause() {
-        PerformanceTimer pst = new PerformanceTimer();
-        pst.start();
         Log.v(LOG_TAG, "Pause");
         if (player != null) {
             player.pause();
-            pst.printStep(LOG_TAG, "PLAYERPAUSE");
             position = player.getCurrentPosition();
-            pst.printStep(LOG_TAG, "GETCURRENTPOS");
             showNotification();
-            pst.printStep(LOG_TAG, "SHOW NOTIFI");
         }
         return false;
     }
@@ -379,8 +369,6 @@ public class MusicPlayerService extends Service {
         class aTask extends AsyncTask<String, String, String> {
             @Override
             protected String doInBackground(String... strings) {
-                PerformanceTimer snp = new PerformanceTimer();
-                snp.start();
                 Map<String, String> md = new HashMap<>();
                 if (plm.currentSong != null) {
                     md.put("TITLE", plm.currentSong.Title);
@@ -389,13 +377,11 @@ public class MusicPlayerService extends Service {
                     md.put("TITLE", "");
                     md.put("ARTIST", "");
                 }
-                snp.printStep(LOG_TAG, "GETCURRENTSONG");
                 Notification.Builder nb = new Notification.Builder(t)
                         .setShowWhen(false)
                         .setStyle(new Notification.MediaStyle()
                                 .setShowActionsInCompactView(0, 1, 2))
                         .setColor(0x020202);
-                snp.printStep(LOG_TAG, "CREATE BUILDER");
                 //TODO: Beautify Notification(Large Icon, Background Color etc.)
                 /*if (getCurrentSong() == null) {
                     nb.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mainicon));
@@ -414,18 +400,15 @@ public class MusicPlayerService extends Service {
                     }
                     //nb.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.mainicon));
                 }*/
-                snp.printStep(LOG_TAG, "SETLARGEICON");
                 nb.setSmallIcon(R.drawable.notification_smallicon)
                         .setContentTitle(md.get("TITLE"))
                         .setContentText(md.get("ARTIST"))
                         .addAction(R.drawable.main_btnprev, "prev", retrievePlaybackAction(3));
-                snp.printStep(LOG_TAG, "SETSMALLICON");
                 if (!isReleased && player.isPlaying())
                     nb.addAction(R.drawable.main_btnpause, "pause", retrievePlaybackAction(1));
                 else
                     nb.addAction(R.drawable.main_btnplay, "play", retrievePlaybackAction(1));
                 nb.addAction(R.drawable.main_btnnext, "next", retrievePlaybackAction(2));
-                snp.printStep(LOG_TAG, "ADDACTIONS");
                 Intent resultIntent = new Intent(t, MainActivity.class);
                 resultIntent.setAction("android.intent.action.MAIN");
                 resultIntent.addCategory("android.intent.category.LAUNCHER");
@@ -435,7 +418,6 @@ public class MusicPlayerService extends Service {
                 PendingIntent onclosepi = PendingIntent.getBroadcast(t.getApplicationContext(), 0, oncloseIntent, 0);
                 nb.setDeleteIntent(onclosepi);
                 NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                snp.printStep(LOG_TAG, "HANDLE INTENT");
                 String NOTIFICATION_CHANNEL_ID = "420";
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -448,7 +430,6 @@ public class MusicPlayerService extends Service {
 
                 Notification noti = nb.build();
                 nfm.notify(notificationID, noti);
-                snp.printStep(LOG_TAG, "NOTIFY");
                 return "COMPLETE";
             }
         }
