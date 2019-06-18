@@ -24,7 +24,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class DataManager {
     /* Manages the Loading,Selection and Sorting of the Data Sets */
@@ -464,29 +464,57 @@ public class DataManager {
     private data_song getMetadata(File f) {
         if (!f.exists())
             return null;
-        data_song t = new data_song();
         //Log.v(LOG_TAG, "Getting Metadata for File: " + f.getAbsolutePath());
-        Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
-                MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media._ID
-        }, null, null, null);
+        Cursor mediaCursor;
+        Cursor genresCursor;
+
+        String[] mediaProjection = {
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION
+        };
+        String[] genresProjection = {
+                MediaStore.Audio.Genres.NAME,
+                MediaStore.Audio.Genres._ID
+        };
+        mediaCursor = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaProjection, null, null, null);
+
         boolean found = false;
-        while (c != null && c.moveToNext()) {
-            if (c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)).equals(f.getAbsolutePath())) {
-                t.Title = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                t.Artist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+
+        data_song t = new data_song();
+        while (mediaCursor != null && mediaCursor.moveToNext()) {
+            if (mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.DATA)).equals(f.getAbsolutePath())) {
+                t.Title = mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                t.Artist = mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
                 if (t.Artist == null)
                     t.Artist = mainActivity.getString(R.string.misc_unknown);
-                t.Album = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                t.Album = mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
                 if (t.Album == null)
                     t.Album = mainActivity.getString(R.string.misc_unknown);
-                t.Genre = (getGenreForID(Integer.parseInt(c.getString(c.getColumnIndex(MediaStore.Audio.Media._ID)))));
-                t.file = new File(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
-                t.length = Long.parseLong(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DURATION)));
+                //TODO: Optimize Genre Fetching
+/*
+                Uri uri = MediaStore.Audio.Genres.getContentUriForAudioId("external", Integer.parseInt(mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media._ID))));
+                genresCursor = mainActivity.getContentResolver().query(uri, genresProjection, null, null, null); //SLOW
+                int genre_column_index = genresCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME);
+                if (genresCursor.moveToFirst()) {
+                    do {
+                        t.Genre = genresCursor.getString(genre_column_index);
+                    } while (genresCursor.moveToNext());
+                } else */
+                {
+                    t.Genre = mainActivity.getString(R.string.misc_unknown);
+                }
+
+                t.file = new File(mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.DATA)));
+                t.length = Long.parseLong(mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.DURATION)));
                 t.id = GIDC++;
                 found = true;
             }
         }
-        c.close();
+        mediaCursor.close();
         if (!found) {
             MediaMetadataRetriever m = new MediaMetadataRetriever();
             m.setDataSource(f.getAbsolutePath());
@@ -535,22 +563,50 @@ public class DataManager {
     }
 
     private List<data_song> getSongsfromMediaStore() {
+        Cursor mediaCursor;
+        Cursor genresCursor;
+
+        String[] mediaProjection = {
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION
+        };
+        String[] genresProjection = {
+                MediaStore.Audio.Genres.NAME,
+                MediaStore.Audio.Genres._ID
+        };
+
         List<data_song> ret = new ArrayList<>();
-        Cursor c = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
-                MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media._ID
-        }, null, null, null);
-        while (c.moveToNext()) {
+
+        mediaCursor = gc.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaProjection, null, null, null);
+
+        while (mediaCursor.moveToNext()) {
             data_song t = new data_song();
-            t.Title = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE));
-            t.Artist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+            t.Title = mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+            t.Artist = mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
             if (t.Artist == null || t.Artist.length() == 0)
                 t.Artist = mainActivity.getString(R.string.misc_unknown);
-            t.Album = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+            t.Album = mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
             if (t.Album == null || t.Album.length() == 0)
                 t.Album = mainActivity.getString(R.string.misc_unknown);
-            t.Genre = (getGenreForID(Integer.parseInt(c.getString(c.getColumnIndex(MediaStore.Audio.Media._ID)))));
-            t.file = new File(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
-            t.length = Long.parseLong(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DURATION)));
+
+            /*Uri uri = MediaStore.Audio.Genres.getContentUriForAudioId("external", Integer.parseInt(mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media._ID))));
+            genresCursor = mainActivity.getContentResolver().query(uri, genresProjection, null, null, null); //SLOW
+            int genre_column_index = genresCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME);
+            if (genresCursor.moveToFirst()) {
+                do {
+                    t.Genre = genresCursor.getString(genre_column_index);
+                } while (genresCursor.moveToNext());
+            } else */
+            {
+                t.Genre = mainActivity.getString(R.string.misc_unknown);
+            }
+
+            t.file = new File(mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.DATA)));
+            t.length = Long.parseLong(mediaCursor.getString(mediaCursor.getColumnIndex(MediaStore.Audio.Media.DURATION)));
             t.id = GIDC++;
             ret.add(t);
         }
@@ -628,25 +684,6 @@ public class DataManager {
                 default:
                     Log.v(LOG_TAG, "ERROR: SELECTOR INVALID");
             }
-        }
-    }
-
-    private String getGenreForID(int mediaid) {
-        Cursor genresCursor;
-        String[] genresProjection = {
-                MediaStore.Audio.Genres.NAME,
-                MediaStore.Audio.Genres._ID
-        };
-        Uri uri = MediaStore.Audio.Genres.getContentUriForAudioId("external", mediaid);
-        genresCursor = mainActivity.getContentResolver().query(uri,
-                genresProjection, null, null, null);
-        int genre_column_index = genresCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME);
-        if (genresCursor.moveToFirst()) {
-            do {
-                return genresCursor.getString(genre_column_index);
-            } while (genresCursor.moveToNext());
-        } else {
-            return mainActivity.getString(R.string.misc_unknown);
         }
     }
 
@@ -728,7 +765,7 @@ public class DataManager {
                     }
                 });
             } else {
-                Log.v(LOG_TAG,"NO MEDIASTORE REFRESH NEEDED");
+                Log.v(LOG_TAG, "NO MEDIASTORE REFRESH NEEDED");
             }
             return "COMPLETE";
         }
