@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -25,7 +27,7 @@ import java.util.*;
 public class DataManager {
     /* Manages the Loading,Selection and Sorting of the Data Sets */
 
-    //TODO:Get Genres From Mediastore
+    //TODO:Get Genre From Mediastore
 
     //Data Output For a Listview and Player Service, Manipulated by the various Control Functions
     public List<data_song> dataout = new ArrayList<>();
@@ -478,7 +480,7 @@ public class DataManager {
                 t.Album = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM));
                 if (t.Album == null)
                     t.Album = mainActivity.getString(R.string.misc_unknown);
-                t.Genre = mainActivity.getString(R.string.misc_unknown);
+                t.Genre = (getGenreForID(Integer.parseInt(c.getString(c.getColumnIndex(MediaStore.Audio.Media._ID)))));
                 t.file = new File(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
                 t.length = Long.parseLong(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DURATION)));
                 t.id = GIDC++;
@@ -499,9 +501,7 @@ public class DataManager {
             t.Album = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
             if (t.Album == null)
                 t.Album = mainActivity.getString(R.string.misc_unknown);
-            t.Genre = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
-            if (t.Genre == null)
-                t.Genre = mainActivity.getString(R.string.misc_unknown);
+            t.Genre = (m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE));
             t.length = Long.parseLong(m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
             byte[] b = m.getEmbeddedPicture();
             if (b != null)
@@ -549,7 +549,7 @@ public class DataManager {
             t.Album = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM));
             if (t.Album == null || t.Album.length() == 0)
                 t.Album = mainActivity.getString(R.string.misc_unknown);
-            t.Genre = mainActivity.getString(R.string.misc_unknown);
+            t.Genre = (getGenreForID(Integer.parseInt(c.getString(c.getColumnIndex(MediaStore.Audio.Media._ID)))));
             t.file = new File(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
             t.length = Long.parseLong(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DURATION)));
             t.id = GIDC++;
@@ -632,6 +632,28 @@ public class DataManager {
         }
     }
 
+    private String getGenreForID(int mediaid) {
+        Cursor genresCursor;
+
+        String[] genresProjection = {
+                MediaStore.Audio.Genres.NAME,
+                MediaStore.Audio.Genres._ID
+        };
+        Uri uri = MediaStore.Audio.Genres.getContentUriForAudioId("external", mediaid);
+        genresCursor = mainActivity.getContentResolver().query(uri,
+                genresProjection, null, null, null);
+        int genre_column_index = genresCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME);
+        if (genresCursor.moveToFirst()) {
+            Log.v(LOG_TAG, "GENRE FOUND");
+            do {
+                return genresCursor.getString(genre_column_index);
+            } while (genresCursor.moveToNext());
+        } else {
+            Log.v(LOG_TAG, "GENRE NOT FOUND");
+            return mainActivity.getString(R.string.misc_unknown);
+        }
+    }
+
     private boolean loadtaskIsRunning = false;
     private LoadFilesTask lft;
 
@@ -706,7 +728,6 @@ public class DataManager {
                     }
                 }
             });
-
             return "COMPLETE!";
         }
 
