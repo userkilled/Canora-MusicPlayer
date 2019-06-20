@@ -505,24 +505,19 @@ public class DataManager {
         String[] columns = {android.provider.MediaStore.Audio.Albums._ID, android.provider.MediaStore.Audio.Albums.ALBUM};
         Cursor cursor = mainActivity.getApplicationContext().getContentResolver().query(uri, columns, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            class mytask extends AsyncTask<String, String, String> {
-                private String title = "";
+            final datainterface di = new datainterface(ret);
+            class mythread extends Thread {
+                private String title;
                 private data_playlist out;
-                private Map<String, data_playlist> contRef;
                 private List<data_song> cache;
 
-                public mytask(String tit, Map<String, data_playlist> cref, List<data_song> cacheP) {
+                public mythread(String tit, List<data_song> cacheP) {
                     title = tit;
-                    contRef = cref;
                     cache = new ArrayList<>(cacheP);
                 }
 
-                synchronized void addResult() {
-                    contRef.put(out.Title, out);
-                }
-
                 @Override
-                protected String doInBackground(String... strings) {
+                public void run() {
                     List<data_song> found = new ArrayList<>();
                     for (int i = 0; i < cache.size(); i++) {
                         if (cache.get(i).Album.equals(title)) {
@@ -530,8 +525,7 @@ public class DataManager {
                         }
                     }
                     out = new data_playlist(title, found);
-                    addResult();
-                    return null;
+                    di.putData(out.Title, out);
                 }
             }
             List<String> names = new ArrayList<>();
@@ -567,7 +561,7 @@ public class DataManager {
             try {
                 ExecutorService exec = Executors.newCachedThreadPool();
                 for (int i = 0; i < names.size(); i++) {
-                    new mytask(names.get(i), ret, cache).executeOnExecutor(exec);
+                    exec.execute(new mythread(names.get(i), cache));
                 }
                 exec.shutdown();
                 while (!exec.awaitTermination(5, TimeUnit.MILLISECONDS)) {
@@ -584,26 +578,20 @@ public class DataManager {
         Uri uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI;
         String[] columns = {MediaStore.Audio.Artists._ID, MediaStore.Audio.Artists.ARTIST};
         Cursor cursor = mainActivity.getApplicationContext().getContentResolver().query(uri, columns, null, null, null);
-
         if (cursor != null && cursor.moveToFirst()) {
-            class mytask extends AsyncTask<String, String, String> {
-                private String title = "";
+            final datainterface di = new datainterface(ret);
+            class mythread extends Thread {
+                private String title;
                 private data_playlist out;
-                private Map<String, data_playlist> contRef;
                 private List<data_song> cache;
 
-                public mytask(String tit, Map<String, data_playlist> cref, List<data_song> cacheP) {
+                public mythread(String tit, List<data_song> cacheP) {
                     title = tit;
-                    contRef = cref;
                     cache = new ArrayList<>(cacheP);
                 }
 
-                synchronized void addResult() {
-                    contRef.put(out.Title, out);
-                }
-
                 @Override
-                protected String doInBackground(String... strings) {
+                public void run() {
                     List<data_song> found = new ArrayList<>();
                     for (int i = 0; i < cache.size(); i++) {
                         if (cache.get(i).Artist.equals(title)) {
@@ -611,8 +599,7 @@ public class DataManager {
                         }
                     }
                     out = new data_playlist(title, found);
-                    addResult();
-                    return null;
+                    di.putData(out.Title, out);
                 }
             }
             List<String> names = new ArrayList<>();
@@ -648,11 +635,10 @@ public class DataManager {
             try {
                 ExecutorService exec = Executors.newCachedThreadPool();
                 for (int i = 0; i < names.size(); i++) {
-                    new mytask(names.get(i), ret, cache).executeOnExecutor(exec);
+                    exec.execute(new mythread(names.get(i), cache));
                 }
                 exec.shutdown();
-                while (!exec.awaitTermination(5, TimeUnit.MILLISECONDS)) {
-                }
+                exec.awaitTermination(1, TimeUnit.MINUTES);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -666,24 +652,19 @@ public class DataManager {
         String[] columns = {MediaStore.Audio.Genres._ID, MediaStore.Audio.Genres.NAME};
         Cursor cursor = mainActivity.getApplicationContext().getContentResolver().query(uri, columns, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            class mytask extends AsyncTask<String, String, String> {
-                private String title = "";
+            final datainterface di = new datainterface(ret);
+            class mythread extends Thread {
+                private String title;
                 private int genreID;
                 private data_playlist out;
-                private Map<String, data_playlist> contRef;
 
-                public mytask(String tit, Map<String, data_playlist> cref, int genID) {
+                public mythread(String tit, int genID) {
                     title = tit;
-                    contRef = cref;
                     genreID = genID;
                 }
 
-                synchronized void addResult() {
-                    contRef.put(out.Title, out);
-                }
-
                 @Override
-                protected String doInBackground(String... strings) {
+                public void run() {
                     String[] mediaProjection = {
                             MediaStore.Audio.Media._ID,
                             MediaStore.Audio.Media.ARTIST,
@@ -710,26 +691,21 @@ public class DataManager {
                     }
                     out = new data_playlist(title, titles);
                     mc.close();
-                    addResult();
-                    return null;
+                    di.putData(out.Title, out);
                 }
             }
-
             List<String> names = new ArrayList<>();
             List<Integer> ids = new ArrayList<>();
-
             do {
                 names.add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Genres.NAME)));
                 ids.add(Integer.parseInt(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Genres._ID))));
             }
             while (cursor.moveToNext());
-
             cursor.close();
-
             try {
                 ExecutorService exec = Executors.newCachedThreadPool();
                 for (int i = 0; i < names.size(); i++) {
-                    new mytask(names.get(i), ret, ids.get(i)).executeOnExecutor(exec);
+                    exec.execute(new mythread(names.get(i), ids.get(i)));
                 }
                 exec.shutdown();
                 while (!exec.awaitTermination(5, TimeUnit.MILLISECONDS)) {
@@ -863,6 +839,18 @@ public class DataManager {
                 default:
                     Log.v(LOG_TAG, "ERROR: SELECTOR INVALID");
             }
+        }
+    }
+
+    private class datainterface {
+        private Map<String, data_playlist> ret;
+
+        public datainterface(Map<String, data_playlist> datRef) {
+            ret = datRef;
+        }
+
+        synchronized public void putData(String key, data_playlist d) {
+            ret.put(key, d);
         }
     }
 
