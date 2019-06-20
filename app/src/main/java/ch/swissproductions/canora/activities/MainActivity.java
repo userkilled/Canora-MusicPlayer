@@ -1561,7 +1561,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             dm.sortContent(sortBy);
 
             dm.loadPlaylists(pltemp);
-            vpm = new ViewPortManager(MainActivity.this, (ListView) findViewById(R.id.mainViewport), findViewById(R.id.btnMainControls), dm);
+            vpm = new ViewPortManager(MainActivity.this, (ListView) findViewById(R.id.mainViewport), findViewById(R.id.SubMenuContainer), dm);
             dm.selectTracks();
             serv.setContent(dm.dataout);
             vpm.showData();

@@ -22,25 +22,14 @@ public class MediaPlayerEqualizer {
         }
     }
 
-    public void setPreset(MediaPlayer mp, int preset) {
-        if (mp != null) {
-            eq = new Equalizer(0, mp.getAudioSessionId());
+    public void setPreset(int mediaplayerid, int preset) {
+        try {
+            eq = new Equalizer(0, mediaplayerid);
             eq.setEnabled(true);
             eq.usePreset((short) preset);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
-
-    public void setPreset(MediaPlayer mp, String preset) {
-        if (mp != null) {
-            eq = new Equalizer(0, mp.getAudioSessionId());
-            eq.setEnabled(true);
-            for (int i = 0; i < presets.size(); i++) {
-                if (presets.get(i).name.equals(preset)) {
-                    eq.usePreset(presets.get(i).val);
-                }
-            }
-        }
-        selectedPreset = preset;
     }
 
     public List<String> getPresets() {
