@@ -169,7 +169,7 @@ public class ViewPortManager {
     }
 
     public void showData() {
-        Log.v(LOG_TAG,"SHOWING DATA SIZE: " + dm.dataout.size());
+        Log.v(LOG_TAG, "SHOWING DATA SIZE: " + dm.dataout.size());
         switch (dm.getSelector()) {
             case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
                 colorSelectedMenu(0);

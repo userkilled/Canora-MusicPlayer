@@ -60,7 +60,7 @@ public class MainActivityEspressoTest {
                 avail.remove(ran);
             }
             for (int y = 0; y < fields.size(); y++) {
-                    onData(anything()).inAdapterView(withId(R.id.mainViewport)).atPosition(fields.get(y)).perform(click());
+                onData(anything()).inAdapterView(withId(R.id.mainViewport)).atPosition(fields.get(y)).perform(click());
             }
             onView(withId(R.id.btnPlaylists)).perform(click());
             listsize = getListItemCount(R.id.mainViewport);
@@ -76,7 +76,7 @@ public class MainActivityEspressoTest {
                 avail.remove(ran);
             }
             for (int y = 0; y < fields.size(); y++) {
-                    onData(anything()).inAdapterView(withId(R.id.mainViewport)).atPosition(fields.get(y)).perform(click());
+                onData(anything()).inAdapterView(withId(R.id.mainViewport)).atPosition(fields.get(y)).perform(click());
                 onView(withId(R.id.btnPlaylists)).perform(click());
             }
             onView(withId(R.id.btnArtists)).perform(click());
@@ -93,7 +93,7 @@ public class MainActivityEspressoTest {
                 avail.remove(ran);
             }
             for (int y = 0; y < fields.size(); y++) {
-                    onData(anything()).inAdapterView(withId(R.id.mainViewport)).atPosition(fields.get(y)).perform(click());
+                onData(anything()).inAdapterView(withId(R.id.mainViewport)).atPosition(fields.get(y)).perform(click());
                 onView(withId(R.id.btnArtists)).perform(click());
             }
             onView(withId(R.id.btnAlbums)).perform(click());
@@ -110,7 +110,7 @@ public class MainActivityEspressoTest {
                 avail.remove(ran);
             }
             for (int y = 0; y < fields.size(); y++) {
-                    onData(anything()).inAdapterView(withId(R.id.mainViewport)).atPosition(fields.get(y)).perform(click());
+                onData(anything()).inAdapterView(withId(R.id.mainViewport)).atPosition(fields.get(y)).perform(click());
                 onView(withId(R.id.btnAlbums)).perform(click());
             }
             onView(withId(R.id.SubMenuContainer)).perform(swipeLeft());
