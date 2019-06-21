@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.v(LOG_TAG, "ONRESTART CALLED");
         if (serv != null) {
             dm.loadContentFromMediaStore();
+            dm.sortContent(sortBy);
             serv.setContent(dm.dataout);
             if (isSearching)
                 vpm.showFiltered(searchTerm, searchBy);
