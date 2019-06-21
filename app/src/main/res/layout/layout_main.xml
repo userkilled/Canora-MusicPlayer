@@ -165,8 +165,6 @@
                         android:background="?colorPlayerControlsBackground"
                         android:layout_marginLeft="0dp"
                         android:layout_marginRight="0dp"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="5dp"
                         android:layout_alignParentBottom="true">
             <RelativeLayout android:id="@+id/part1"
                             android:layout_width="match_parent"
@@ -174,7 +172,8 @@
                             android:orientation="vertical"
                             android:clipChildren="false"
                             android:layout_alignStart="@id/part2"
-                            android:visibility="visible">
+                            android:visibility="visible"
+                            android:paddingTop="5dp">
                 <SeekBar android:id="@+id/songDurBar"
                          android:layout_width="match_parent"
                          android:layout_height="wrap_content"
@@ -220,7 +219,7 @@
                           android:layout_centerVertical="true"/>
                 <ImageButton android:id="@+id/buttonPrev"
                              android:layout_width="50dp"
-                             android:layout_height="35dp"
+                             android:layout_height="50dp"
                              android:src="@drawable/main_btnprev"
                              style="@style/SelectableItemBackground"
                              android:background="@null"
@@ -229,7 +228,7 @@
                 />
                 <ImageButton android:id="@+id/buttonPlay"
                              android:layout_width="50dp"
-                             android:layout_height="35dp"
+                             android:layout_height="50dp"
                              android:src="@drawable/main_btnplay"
                              style="@style/SelectableItemBackground"
                              android:background="@null"
@@ -237,7 +236,7 @@
                 />
                 <ImageButton android:id="@+id/buttonNex"
                              android:layout_width="50dp"
-                             android:layout_height="35dp"
+                             android:layout_height="50dp"
                              android:src="@drawable/main_btnnext"
                              style="@style/SelectableItemBackground"
                              android:background="@null"
@@ -245,7 +244,7 @@
                 />
                 <ImageButton android:id="@+id/buttonShuff"
                              android:layout_width="50dp"
-                             android:layout_height="35dp"
+                             android:layout_height="50dp"
                              android:textColor="?attr/colorText"
                              android:background="@null"
                              android:src="@drawable/main_shuffle"
@@ -253,7 +252,7 @@
                 />
                 <ImageButton android:id="@+id/buttonRep"
                              android:layout_width="50dp"
-                             android:layout_height="35dp"
+                             android:layout_height="50dp"
                              android:textColor="?attr/colorText"
                              android:background="@null"
                              android:src="@drawable/main_repeat"
@@ -263,5 +262,4 @@
             </RelativeLayout>
         </RelativeLayout>
     </RelativeLayout>
-    <View android:layout_width="match_parent" android:layout_height="10dp" android:background="?colorFrame"></View>
 </LinearLayout>
