@@ -88,6 +88,8 @@
 
     <string name="misc_stringnotfound">not found in</string>
 
+    <string name="settings_credits">Credits</string>
+
     <string-array translatable="false" name="Themes">
         <item>Blue</item>
         <item>Light Blue</item>

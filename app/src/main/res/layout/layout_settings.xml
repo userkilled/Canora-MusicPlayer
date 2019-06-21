@@ -85,5 +85,48 @@
                      android:layout_marginTop="10dp"
             />
         </RelativeLayout>
+        <RelativeLayout android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/AboutSection"
+                        android:layout_marginTop="10dp">
+            <RelativeLayout android:id="@+id/header_about"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="?colorViewPort">
+                <TextView android:id="@+id/creditsTitle"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:text="@string/settings_credits"
+                          android:textSize="15dp"
+                          android:gravity="center"
+                          android:paddingLeft="10dp"
+                          android:layout_centerVertical="true"/>
+                <ImageButton android:id="@+id/arrowBtn"
+                             android:layout_width="50dp"
+                             android:layout_height="25dp"
+                             android:src="@drawable/settings_btnopen"
+                             android:background="?android:selectableItemBackgroundBorderless"
+                             android:scaleType="center"
+                             android:layout_alignParentRight="true"
+                             android:layout_centerVertical="true">
+                </ImageButton>
+            </RelativeLayout>
+            <RelativeLayout android:id="@+id/hideable_about"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_below="@id/header_about"
+                            android:background="?colorViewPort"
+                            android:layout_marginTop="2dp"
+                            android:visibility="gone">
+                <TextView android:id="@+id/beamedNoteAttribution"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:text="Contains Icons made by Freepik from www.flaticon.com"
+                          android:textColor="?colorHighlight"
+                          android:layout_centerHorizontal="true"
+                          android:padding="5dp"/>
+            </RelativeLayout>
+        </RelativeLayout>
     </LinearLayout>
 </RelativeLayout>

@@ -3,6 +3,7 @@ package ch.swissproductions.canora.activities;
 import android.content.*;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -14,11 +15,9 @@ import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MenuItem;
+import android.view.TouchDelegate;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.SeekBar;
-import android.widget.Spinner;
+import android.widget.*;
 import ch.swissproductions.canora.service.MusicPlayerService;
 import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.managers.SettingsManager;
@@ -173,6 +172,24 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
         });
+        findViewById(R.id.arrowBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showHideCredits();
+            }
+        });
+    }
+
+    private void showHideCredits() {
+        ImageButton ib = findViewById(R.id.arrowBtn);
+        View hideable = findViewById(R.id.hideable_about);
+        if (hideable.getVisibility() == View.VISIBLE) {
+            hideable.setVisibility(View.GONE);
+            ib.setImageResource(R.drawable.settings_btnopen);
+        } else {
+            hideable.setVisibility(View.VISIBLE);
+            ib.setImageResource(R.drawable.settings_btnclose);
+        }
     }
 
     public int getColorFromAtt(int v) {

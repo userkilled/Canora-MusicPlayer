@@ -88,4 +88,6 @@
     <string name="misc_nogenresfound">Keine Genren gefunden</string>
 
     <string name="misc_stringnotfound">nicht gefunden in</string>
+
+    <string name="settings_credits">Credits</string>
 </resources>
