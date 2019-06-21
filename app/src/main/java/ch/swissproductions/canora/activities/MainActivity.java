@@ -446,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private NotificationManagerCompat notificationManager;
 
     /* Contains all the Song Data */
-    private DataManager dm;
+    public DataManager dm;
 
     /* Settings Manager */
     public SettingsManager sc;

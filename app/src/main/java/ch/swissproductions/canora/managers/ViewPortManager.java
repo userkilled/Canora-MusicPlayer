@@ -360,6 +360,11 @@ public class ViewPortManager {
         }
     }
 
+    public List<data_song> getVisibleContent()
+    {
+        return songAdaptContentRef;
+    }
+
     public void notifyAA() {
         ma.runOnUiThread(new Runnable() {
             @Override
