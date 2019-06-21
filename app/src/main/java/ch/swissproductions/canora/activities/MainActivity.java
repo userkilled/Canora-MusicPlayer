@@ -2,6 +2,7 @@ package ch.swissproductions.canora.activities;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.*;
@@ -179,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        //TODO: Custom Actionbar with clean Icons
         //Log.v(LOG_TAG, "ONPREPAREOPTIONS");
         if (vpm == null)
             return false;
@@ -214,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             String tmp23 = dm.getIndex();
             if (tmp23.equals(""))
                 tmp23 = getString(R.string.misc_tracks);
-            getSupportActionBar().setTitle("   " + tmp23);
+            getSupportActionBar().setTitle(tmp23);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             Drawable ic;
