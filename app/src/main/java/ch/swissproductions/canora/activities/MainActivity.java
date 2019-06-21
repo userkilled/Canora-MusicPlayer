@@ -860,6 +860,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 exdia.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        exdia.dismiss();
                         finish();
                     }
                 });
