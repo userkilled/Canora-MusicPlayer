@@ -397,15 +397,17 @@ public class ViewPortManager {
         ma.notifyAAandOM();
     }
 
-    public List<String> getSelected() {
+    public List<String> getSelectedSubMenus() {
         return stringAdapt.getSelected();
     }
 
     public void selectAll() {
         if (subMenu != Constants.DATA_SELECTOR_NONE && subMenu == Constants.DATA_SELECTOR_PLAYLISTS) {
-            stringAdapt.selectAll();
+            if (!stringAdapt.empty)
+                stringAdapt.selectAll();
         } else {
-            songAdapt.selectAll();
+            if (!songAdapt.empty)
+                songAdapt.selectAll();
         }
     }
 

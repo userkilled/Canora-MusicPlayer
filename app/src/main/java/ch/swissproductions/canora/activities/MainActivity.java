@@ -2,7 +2,6 @@ package ch.swissproductions.canora.activities;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.*;
@@ -23,7 +22,6 @@ import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.Html;
-import android.text.Layout;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
@@ -400,10 +398,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 multiSelect();
                 return true;
             case R.id.action_delete:
-                if (vpm.subMenu == Constants.DATA_SELECTOR_NONE)
-                    displayDialog(Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST);
-                else if (vpm.subMenu == Constants.DATA_SELECTOR_PLAYLISTS)
-                    displayDialog(Constants.DIALOG_WARNING_PLAYLIST_DELETE_MULTIPLE);
+                if (vpm.subMenu == Constants.DATA_SELECTOR_NONE) {
+                    List<data_song> tmp = vpm.getVisibleContent();
+                    Boolean set = false;
+                    for (int i = 0; i < tmp.size(); i++) {
+                        if (tmp.get(i).selected) {
+                            set = true;
+                            break;
+                        }
+                    }
+                    if (set)
+                        displayDialog(Constants.DIALOG_WARNING_FILE_DELETE_FROMPLAYLIST);
+                    else
+                        multiSelect(false);
+                } else if (vpm.subMenu == Constants.DATA_SELECTOR_PLAYLISTS) {
+                    if (vpm.getSelectedSubMenus().size() > 0)
+                        displayDialog(Constants.DIALOG_WARNING_PLAYLIST_DELETE_MULTIPLE);
+                    else
+                        multiSelect(false);
+                }
                 return true;
             case R.id.action_playlist_edit:
                 displayDialog(Constants.DIALOG_PLAYLIST_EDIT);
@@ -834,13 +847,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         serv.setContent(dm.dataout);
                         vpm.showSubmenu(Constants.DATA_SELECTOR_PLAYLISTS);
 
-                        getSupportActionBar().setDisplayShowHomeEnabled(true);
-                        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-                        String hexColor = "#" + Integer.toHexString(getColorFromAtt(R.attr.colorText) & 0x00ffffff); //Because ANDROID
-                        String t = "<font color='" + hexColor + "'>" + getString(R.string.app_name) + "</font>";
-                        getSupportActionBar().setTitle(Html.fromHtml(t));
-
                         if (isSearching)
                             vpm.showFiltered(searchTerm, searchBy);
 
@@ -972,11 +978,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 TextView delt = deld.findViewById(R.id.title);
                 delt.setText(R.string.misc_delmultitle);
                 TextView deltext = deld.findViewById(R.id.ayss);
-                deltext.setText(getString(R.string.misc_delmul1) + " " + vpm.getSelected().size() + " " + getString(R.string.misc_delmul2));
+                deltext.setText(getString(R.string.misc_delmul1) + " " + vpm.getSelectedSubMenus().size() + " " + getString(R.string.misc_delmul2));
                 deld.findViewById(R.id.btnPos).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         vpm.deleteSelectedPlaylists();
+
+                        dm.selectTracks();
+                        serv.setContent(dm.dataout);
+                        vpm.showSubmenu(Constants.DATA_SELECTOR_PLAYLISTS);
+
+                        if (isSearching)
+                            vpm.showFiltered(searchTerm, searchBy);
+
                         notifyAAandOM();
                         deld.dismiss();
                         multiSelect(false);
