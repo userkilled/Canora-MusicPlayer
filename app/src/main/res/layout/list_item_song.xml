@@ -6,45 +6,49 @@
                 android:paddingRight="5dp"
                 android:id="@+id/mainFrame">
     <RelativeLayout android:id="@+id/hitbox" android:layout_width="match_parent" android:layout_height="wrap_content">
-        <CheckBox android:id="@+id/checkbox"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_centerVertical="true"
-                  android:buttonTint="?attr/colorHighlight"/>
-        <TextView
-                android:id="@+id/listsongname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="PLACEHOLDER"
-                android:textSize="20dp"
-                android:includeFontPadding="false"
-                android:textColor="?attr/colorText"
-                android:maxLines="1"
-                android:paddingTop="10dp"
-                android:layout_toRightOf="@+id/checkbox"
-        />
-        <TextView
-                android:id="@+id/listinterpret"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/listsongname"
-                android:text="PLACEHOLDER"
-                android:textSize="15dp"
-                android:includeFontPadding="false"
-                android:textColor="?attr/colorText"
-                android:maxLines="1"
-                android:paddingBottom="10dp"
-                android:layout_toRightOf="@+id/checkbox"
-                android:layout_toLeftOf="@+id/songlength"
-        />
+        <RelativeLayout android:id="@+id/songdata"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_toLeftOf="@id/songlength">
+            <CheckBox android:id="@+id/checkbox"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_centerVertical="true"
+                      android:buttonTint="?attr/colorHighlight"/>
+            <TextView
+                    android:id="@+id/listsongname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="PLACEHOLDER"
+                    android:textSize="20dp"
+                    android:includeFontPadding="false"
+                    android:textColor="?attr/colorText"
+                    android:maxLines="1"
+                    android:paddingTop="10dp"
+                    android:layout_toRightOf="@+id/checkbox"
+            />
+            <TextView
+                    android:id="@+id/listinterpret"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/listsongname"
+                    android:text="PLACEHOLDER"
+                    android:textSize="15dp"
+                    android:includeFontPadding="false"
+                    android:textColor="?attr/colorText"
+                    android:maxLines="1"
+                    android:paddingBottom="10dp"
+                    android:layout_toRightOf="@+id/checkbox"
+            />
+        </RelativeLayout>
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:text="00:00"
                   android:id="@+id/songlength"
                   android:textColor="?attr/colorText"
                   android:layout_alignParentRight="true"
-                  android:layout_alignTop="@id/listinterpret"
+                  android:layout_centerVertical="true"
         />
     </RelativeLayout>
 </RelativeLayout>
