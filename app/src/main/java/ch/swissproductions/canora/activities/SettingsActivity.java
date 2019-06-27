@@ -4,6 +4,7 @@ import android.content.*;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -40,6 +41,19 @@ public class SettingsActivity extends AppCompatActivity {
         thm = new ThemeManager(sc);
         setTheme(thm.getThemeResourceID());
         setContentView(R.layout.layout_settings);
+
+        try {
+            RelativeLayout mpt = findViewById(R.id.root);
+            if (mpt.getBackground() instanceof AnimationDrawable) {
+                AnimationDrawable animationDrawable = (AnimationDrawable) mpt.getBackground();
+                animationDrawable.setEnterFadeDuration(10);
+                animationDrawable.setExitFadeDuration(1500);
+                animationDrawable.start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         setupActionBar();
     }
 

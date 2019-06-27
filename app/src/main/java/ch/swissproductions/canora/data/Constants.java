@@ -63,7 +63,7 @@ public final class Constants {
             themes.add(new data_theme(Constants.THEME_LIGHT, R.style.AppTheme_Light));
             themes.add(new data_theme(Constants.THEME_CAMO,R.style.AppTheme_Camo));
             themes.add(new data_theme(Constants.THEME_COMIC,R.style.AppTheme_Comic));
-
+            themes.add(new data_theme(Constants.THEME_NEON,R.style.AppTheme_Neon));
         }
 
         public List<data_theme> get() {
@@ -77,6 +77,7 @@ public final class Constants {
     public static final String THEME_LIGHT = "Light";
     public static final String THEME_CAMO = "Camo";
     public static final String THEME_COMIC = "Comic";
+    public static final String THEME_NEON = "Neon";
 
     public static final String THEME_DEFAULT = THEME_BLUE;
 
