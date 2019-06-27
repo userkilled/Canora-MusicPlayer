@@ -20,6 +20,7 @@
                   android:layout_height="wrap_content"
                   android:layout_marginLeft="15dp"
                   android:textSize="22dp"
+                  android:maxLines="1"
                   android:layout_toRightOf="@id/icon"
                   android:layout_centerVertical="true"
         />
