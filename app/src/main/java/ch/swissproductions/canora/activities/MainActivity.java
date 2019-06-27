@@ -125,10 +125,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onStart() {
         super.onStart();
         Log.v(LOG_TAG, "ONSTART CALLED");
-        if (serv != null) {
-            handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
-            updateSongDisplay();
-        }
     }
 
     @Override
@@ -161,8 +157,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             serv.setContent(dm.dataout);
             if (isSearching)
                 vpm.showFiltered(searchTerm, searchBy);
-            notifyAAandOM();
+            vpm.showData();
             dm.loadContentFromFiles();
+            updateSongDisplay();
+            handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
+            notifyAAandOM();
         }
     }
 
@@ -176,7 +175,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onBackPressed() {
-        displayDialog(Constants.DIALOG_EXIT_CONFIRM);
+        if (vpm.state == Constants.ARRAYADAPT_STATE_SELECT)
+            multiSelect(false);
+        else
+            displayDialog(Constants.DIALOG_EXIT_CONFIRM);
     }
 
     @Override
@@ -423,7 +425,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.sel:
-                multiSelect();
+                multiSelect(true);
                 dm.dataout.get(info.position).selected = true;
                 notifyAAandOM();
                 return true;
@@ -1404,18 +1406,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void multiSelect(boolean state) {
         if (state) {
+            Log.v(LOG_TAG, "SWITCHING TO SELECT MODE");
             vpm.state = Constants.ARRAYADAPT_STATE_SELECT;
-            invalidateOptionsMenu();
             for (int i = 0; i < dm.dataout.size(); i++) {
                 dm.dataout.get(i).selected = false;
             }
         } else {
+            Log.v(LOG_TAG, "SWITCHING TO NORMAL MODE");
             vpm.state = Constants.ARRAYADAPT_STATE_DEFAULT;
-            invalidateOptionsMenu();
             for (int i = 0; i < dm.dataout.size(); i++) {
                 dm.dataout.get(i).selected = false;
             }
         }
+        notifyAAandOM();
     }
 
     private data_playlist getPlayList(String title, List<data_song> audio) {
