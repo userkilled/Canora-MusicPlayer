@@ -31,6 +31,7 @@
     <string name="menu_options_addtoplaylist">Hinzufügen zu</string>
     <string name="menu_options_newplaylist">Neue Playlist</string>
     <string name="menu_options_select">Auswahl</string>
+    <string name="menu_options_selectAll">Alle Auswählen</string>
     <string name="menu_options_cancelselect">Auswahl beenden</string>
 
     <!-- Snackbars -->

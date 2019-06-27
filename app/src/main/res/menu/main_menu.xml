@@ -36,6 +36,9 @@
     <item android:id="@+id/action_select"
           android:title="@string/menu_options_select"
           app:showAsAction="never"/>
+    <item android:id="@+id/action_select_all"
+          android:title="@string/menu_options_selectAll"
+          app:showAsAction="never"/>
     <item android:id="@+id/action_playlist_edit"
           android:title="@string/menu_options_editpl"
           app:showAsAction="never"

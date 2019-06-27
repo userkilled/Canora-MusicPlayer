@@ -360,8 +360,7 @@ public class ViewPortManager {
         }
     }
 
-    public List<data_song> getVisibleContent()
-    {
+    public List<data_song> getVisibleContent() {
         return songAdaptContentRef;
     }
 
@@ -400,6 +399,14 @@ public class ViewPortManager {
 
     public List<String> getSelected() {
         return stringAdapt.getSelected();
+    }
+
+    public void selectAll() {
+        if (subMenu != Constants.DATA_SELECTOR_NONE && subMenu == Constants.DATA_SELECTOR_PLAYLISTS) {
+            stringAdapt.selectAll();
+        } else {
+            songAdapt.selectAll();
+        }
     }
 
     private ListView viewPort;
@@ -612,6 +619,13 @@ public class ViewPortManager {
             return listItem;
         }
 
+        public void selectAll() {
+            notifyDataSetChanged();
+            for (int i = 0; i < sel.size(); i++) {
+                sel.set(i, true);
+            }
+        }
+
         public List<String> getSelected() {
             List<String> ret = new ArrayList<>();
             for (int i = 0; i < sel.size(); i++) {
@@ -704,6 +718,13 @@ public class ViewPortManager {
 
         public void setClicked(int pos) {
             clicked = pos;
+        }
+
+        public void selectAll() {
+            for (int i = 0; i < viewList.size(); i++) {
+                viewList.get(i).selected = true;
+            }
+            notifyDataSetChanged();
         }
     }
 }

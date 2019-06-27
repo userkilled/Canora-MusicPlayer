@@ -71,6 +71,13 @@ public class DataManager {
                 Tracks.audio.addAll(ml);
             }
         };
+        Thread art = new Thread()
+        {
+            @Override
+            public void run() {
+                Artists = getArtistsfromMS();
+            }
+        };
         Thread an = new Thread() {
             @Override
             public void run() {
@@ -87,6 +94,7 @@ public class DataManager {
         exc.execute(sn);
         exc.execute(an);
         exc.execute(gn);
+        exc.execute(art);
         exc.shutdown();
         try {
             exc.awaitTermination(60, TimeUnit.SECONDS);

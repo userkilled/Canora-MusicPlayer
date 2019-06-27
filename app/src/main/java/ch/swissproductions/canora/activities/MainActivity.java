@@ -294,10 +294,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 //Log.v(LOG_TAG, "OPTIONS NORMAL MODE");
                 menu.findItem(R.id.action_addTo).setVisible(false);
                 menu.findItem(R.id.action_cancel).setVisible(false);
-                if (vpm.subMenu == Constants.DATA_SELECTOR_PLAYLISTS || vpm.subMenu == Constants.DATA_SELECTOR_NONE)
+                if (vpm.subMenu == Constants.DATA_SELECTOR_PLAYLISTS || vpm.subMenu == Constants.DATA_SELECTOR_NONE) {
                     menu.findItem(R.id.action_select).setVisible(true);
-                else
+                    menu.findItem(R.id.action_select_all).setVisible(true);
+                }
+                else {
                     menu.findItem(R.id.action_select).setVisible(false);
+                    menu.findItem(R.id.action_select_all).setVisible(false);
+                }
                 menu.findItem(R.id.action_delete).setVisible(false);
                 break;
             case Constants.ARRAYADAPT_STATE_SELECT:
@@ -305,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 closeOptionsMenu();
                 menu.findItem(R.id.action_cancel).setVisible(true);
                 menu.findItem(R.id.action_select).setVisible(false);
+                menu.findItem(R.id.action_select_all).setVisible(false);
                 if (vpm.subMenu == Constants.DATA_SELECTOR_NONE) {
                     menu.findItem(R.id.action_addTo).setVisible(true);
                     if (dm.getSelector() == (Constants.DATA_SELECTOR_PLAYLISTS))
@@ -341,6 +346,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 return true;
             case R.id.action_select:
                 multiSelect();
+                return true;
+            case R.id.action_select_all:
+                multiSelect();
+                vpm.selectAll();
                 return true;
             case R.id.action_addTo:
                 return true;
