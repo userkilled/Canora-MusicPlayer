@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onRestart();
         Log.v(LOG_TAG, "ONRESTART CALLED");
         if (serv != null) {
+            multiSelect(false);
             dm.loadContentFromMediaStore();
             dm.sortContent(sortBy);
             serv.setContent(dm.dataout);
