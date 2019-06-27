@@ -4,9 +4,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="?backgroundTexture">
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="vertical">
+    <android.support.v7.widget.Toolbar
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:contentInsetEnd="0dp"
+            app:contentInsetStart="0dp"
+            android:id="@+id/toolbar_settings"
+            android:layout_alignParentTop="true">
+    </android.support.v7.widget.Toolbar>
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_below="@id/toolbar_settings">
         <RelativeLayout android:id="@+id/volBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -37,7 +48,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="?colorViewPort"
-                        android:layout_marginTop="2dp">
+                        android:layout_marginTop="2dp"
+                        android:layout_below="@id/volBox">
             <TextView
                     android:id="@+id/textView1"
                     android:layout_width="wrap_content"
@@ -88,7 +100,7 @@
         <RelativeLayout android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/AboutSection"
-                        android:layout_marginTop="10dp">
+                        android:layout_alignParentBottom="true">
             <RelativeLayout android:id="@+id/header_about"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
@@ -128,5 +140,5 @@
                           android:padding="5dp"/>
             </RelativeLayout>
         </RelativeLayout>
-    </LinearLayout>
+    </RelativeLayout>
 </RelativeLayout>

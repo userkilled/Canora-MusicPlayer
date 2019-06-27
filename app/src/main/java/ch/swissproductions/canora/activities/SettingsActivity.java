@@ -23,6 +23,7 @@ import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.managers.SettingsManager;
 import ch.swissproductions.canora.managers.ThemeManager;
 import ch.swissproductions.canora.data.Constants;
+import org.w3c.dom.Text;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -96,8 +97,9 @@ public class SettingsActivity extends AppCompatActivity {
     };
 
     private void setupActionBar() {
+        android.support.v7.widget.Toolbar tool = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar_settings);
+        setSupportActionBar(tool);
         ActionBar actionbar = getSupportActionBar();
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_USE_LOGO);
         Drawable mc = getDrawable(R.drawable.notification_smallicon);
         mc.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
         actionbar.setBackgroundDrawable(new ColorDrawable(getColorFromAtt(R.attr.colorToolbar)));

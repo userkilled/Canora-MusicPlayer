@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme.Blue" parent="Base.Theme.AppCompat.Light">
+    <style name="AppTheme.Blue" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorViewPort">#0D2740</item>
         <item name="colorFrame">#001a33</item>
         <item name="colorText">#ffffff</item>
@@ -40,7 +40,7 @@
     </style>
 
     <!-- Additional Themes, Set Color Values Here -->
-    <style name="AppTheme.LightBlue" parent="Base.Theme.AppCompat.Light">
+    <style name="AppTheme.LightBlue" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorViewPort">#ccffff</item>
         <item name="colorFrame">#009999</item>
         <item name="colorText">#000000</item>
@@ -79,7 +79,7 @@
         <item name="android:textColorPrimary">?colorText</item>
     </style>
 
-    <style name="AppTheme.Dark" parent="Base.Theme.AppCompat.Light">
+    <style name="AppTheme.Dark" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorViewPort">#262626</item>
         <item name="colorFrame">#1a1a1a</item>
         <item name="colorText">#ffffff</item>
@@ -118,7 +118,7 @@
         <item name="android:textColorPrimary">?colorText</item>
     </style>
 
-    <style name="AppTheme.Light" parent="Base.Theme.AppCompat.Light">
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorViewPort">#ffffff</item>
         <item name="colorFrame">#d9d9d9</item>
         <item name="colorText">#000000</item>
@@ -157,7 +157,7 @@
         <item name="android:textColorPrimary">?colorText</item>
     </style>
 
-    <style name="AppTheme.Camo" parent="Base.Theme.AppCompat.Light">
+    <style name="AppTheme.Camo" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorViewPort">#32000000</item>
         <item name="colorFrame">@null</item>
         <item name="colorText">#ffffff</item>

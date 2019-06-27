@@ -23,6 +23,7 @@ import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.Html;
+import android.text.Layout;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
@@ -69,6 +70,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
+
+                android.support.v7.widget.Toolbar t = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+                setSupportActionBar(t);
+
                 ListView lv = findViewById(R.id.mainViewport);
                 registerForContextMenu(lv);
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
@@ -90,6 +95,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
+
+                android.support.v7.widget.Toolbar t = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+                setSupportActionBar(t);
+
                 ListView lv = findViewById(R.id.mainViewport);
                 registerForContextMenu(lv);
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
@@ -175,10 +184,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onBackPressed() {
-        if (vpm.state == Constants.ARRAYADAPT_STATE_SELECT)
+        if (vpm.state == Constants.ARRAYADAPT_STATE_SELECT) {
             multiSelect(false);
-        else
+        } else if (vpm.subMenu != Constants.DATA_SELECTOR_NONE) {
+            vpm.showData();
+            notifyAAandOM();
+        } else {
             displayDialog(Constants.DIALOG_EXIT_CONFIRM);
+        }
     }
 
     @Override
@@ -219,7 +232,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             String tmp23 = dm.getIndex();
             if (tmp23.equals(""))
                 tmp23 = getString(R.string.misc_tracks);
-            getSupportActionBar().setTitle(tmp23);
+
+            TextView ti = findViewById(R.id.text);
+            ti.setText(tmp23);
+
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             Drawable ic;
@@ -243,7 +259,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     ic = getDrawable(R.drawable.notification_smallicon);
             }
             ic.setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
-            getSupportActionBar().setIcon(ic);
+
+            ImageView iv = findViewById(R.id.icon);
+            iv.setVisibility(View.VISIBLE);
+            iv.setImageDrawable(ic);
+
             Drawable d = getDrawable(R.drawable.icon_back);
             d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
             getSupportActionBar().setHomeAsUpIndicator(d);
@@ -253,7 +273,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             m.findItem(R.id.action_playlist_edit).setVisible(false);
             getSupportActionBar().setDisplayShowHomeEnabled(false);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.misc_artists);
+
+            ImageView iv = findViewById(R.id.icon);
+            iv.setVisibility(View.GONE);
+
+            TextView ti = findViewById(R.id.text);
+            ti.setText(R.string.misc_artists);
+
             Drawable d = getDrawable(R.drawable.icon_back);
             d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
             getSupportActionBar().setHomeAsUpIndicator(d);
@@ -263,7 +289,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             m.findItem(R.id.action_playlist_edit).setVisible(false);
             getSupportActionBar().setDisplayShowHomeEnabled(false);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.misc_albums);
+
+            ImageView iv = findViewById(R.id.icon);
+            iv.setVisibility(View.GONE);
+
+            TextView ti = findViewById(R.id.text);
+            ti.setText(R.string.misc_albums);
+
             Drawable d = getDrawable(R.drawable.icon_back);
             d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
             getSupportActionBar().setHomeAsUpIndicator(d);
@@ -273,7 +305,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             m.findItem(R.id.action_playlist_edit).setVisible(false);
             getSupportActionBar().setDisplayShowHomeEnabled(false);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.misc_genres);
+
+            ImageView iv = findViewById(R.id.icon);
+            iv.setVisibility(View.GONE);
+
+            TextView ti = findViewById(R.id.text);
+            ti.setText(R.string.misc_genres);
+
             Drawable d = getDrawable(R.drawable.icon_back);
             d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
             getSupportActionBar().setHomeAsUpIndicator(d);
@@ -283,7 +321,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             m.findItem(R.id.action_playlist_edit).setVisible(false);
             getSupportActionBar().setDisplayShowHomeEnabled(false);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.misc_playlists);
+
+            ImageView iv = findViewById(R.id.icon);
+            iv.setVisibility(View.GONE);
+
+            TextView ti = findViewById(R.id.text);
+            ti.setText(R.string.misc_playlists);
+
             Drawable d = getDrawable(R.drawable.icon_back);
             d.mutate().setColorFilter(getColorFromAtt(R.attr.colorText), PorterDuff.Mode.MULTIPLY);
             getSupportActionBar().setHomeAsUpIndicator(d);
@@ -297,8 +341,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 if (vpm.subMenu == Constants.DATA_SELECTOR_PLAYLISTS || vpm.subMenu == Constants.DATA_SELECTOR_NONE) {
                     menu.findItem(R.id.action_select).setVisible(true);
                     menu.findItem(R.id.action_select_all).setVisible(true);
-                }
-                else {
+                } else {
                     menu.findItem(R.id.action_select).setVisible(false);
                     menu.findItem(R.id.action_select_all).setVisible(false);
                 }
@@ -399,6 +442,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
+
+                android.support.v7.widget.Toolbar t = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+                setSupportActionBar(t);
+
                 ListView lv = findViewById(R.id.mainViewport);
                 registerForContextMenu(lv);
                 findViewById(R.id.searchbox).setVisibility(View.GONE);
