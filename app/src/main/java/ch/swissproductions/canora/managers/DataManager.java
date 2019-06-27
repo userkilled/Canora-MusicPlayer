@@ -62,19 +62,39 @@ public class DataManager {
     public void loadContentFromMediaStore() {
         PerformanceTimer lp = new PerformanceTimer();
         lp.start();
-        List<data_song> ml = getSongsfromMediaStore();
-        lp.printStep(LOG_TAG, "GETSONGS");
-        Log.v(LOG_TAG, "FOUND " + ml.size() + " SONGS IN MEDIASTORE");
-        Tracks.audio.clear();
-        Tracks.audio.addAll(ml);
-        lp.printStep(LOG_TAG, "MISC");
-        Artists = getArtistsfromMS();
-        lp.printStep(LOG_TAG, "GETARTISTS");
-        Albums = getAlbumsfromMS();
-        lp.printStep(LOG_TAG, "GETALBUMS");
-        Genres = getGenresfromMS();
-        lp.printStep(LOG_TAG, "GETGENRES");
+        Thread sn = new Thread() {
+            @Override
+            public void run() {
+                List<data_song> ml = getSongsfromMediaStore();
+                Log.v(LOG_TAG, "FOUND " + ml.size() + " SONGS IN MEDIASTORE");
+                Tracks.audio.clear();
+                Tracks.audio.addAll(ml);
+            }
+        };
+        Thread an = new Thread() {
+            @Override
+            public void run() {
+                Albums = getAlbumsfromMS();
+            }
+        };
+        Thread gn = new Thread() {
+            @Override
+            public void run() {
+                Genres = getGenresfromMS();
+            }
+        };
+        ExecutorService exc = Executors.newCachedThreadPool();
+        exc.execute(sn);
+        exc.execute(an);
+        exc.execute(gn);
+        exc.shutdown();
+        try {
+            exc.awaitTermination(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         updateContent();
+        lp.printStep(LOG_TAG, "LOADCONTENTFROMMS");
     }
 
     public void loadContentFromFiles() {
