@@ -44,7 +44,7 @@
         <item name="colorViewPort">#ccffff</item>
         <item name="colorFrame">#009999</item>
         <item name="colorText">#000000</item>
-        <item name="colorHighlight">#00ffff</item>
+        <item name="colorHighlight">#ff6600</item>
 
         <item name="colorDialogBackground">?colorViewPort</item>
         <item name="colorDialogFrame">?colorFrame</item>
@@ -158,7 +158,7 @@
     </style>
 
     <style name="AppTheme.Camo" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorViewPort">#80000000</item>
+        <item name="colorViewPort">#59000000</item>
         <item name="colorFrame">@null</item>
         <item name="colorText">#ffffff</item>
         <item name="colorHighlight">#66ff66</item>
