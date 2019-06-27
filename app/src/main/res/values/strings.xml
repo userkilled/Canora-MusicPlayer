@@ -97,5 +97,6 @@
         <item>Dark</item>
         <item>Light</item>
         <item>Camo</item>
+        <item>Comic</item>
     </string-array>
 </resources>

@@ -62,6 +62,7 @@ public final class Constants {
             themes.add(new data_theme(Constants.THEME_DARK, R.style.AppTheme_Dark));
             themes.add(new data_theme(Constants.THEME_LIGHT, R.style.AppTheme_Light));
             themes.add(new data_theme(Constants.THEME_CAMO,R.style.AppTheme_Camo));
+            themes.add(new data_theme(Constants.THEME_COMIC,R.style.AppTheme_Comic));
 
         }
 
@@ -75,6 +76,7 @@ public final class Constants {
     public static final String THEME_DARK = "Dark";
     public static final String THEME_LIGHT = "Light";
     public static final String THEME_CAMO = "Camo";
+    public static final String THEME_COMIC = "Comic";
 
     public static final String THEME_DEFAULT = THEME_BLUE;
 
