@@ -8,18 +8,20 @@ The Aim of this Project is to Provide a Lightweight Fast and Costumizable Music 
 <br>
 
 Features:
-* Playlists
-* Costumization/Themes
-* Equalizer
+* Clean and Simple User Interface
+* Playlist Creation
+* Costumization / Various Themes
+* Equalizer Presets
 * Shuffle / Repeat
-* Notification Bar Widget
-* Sorting(By Title/Artist)
-* Search
+* Searching / Sorting
+* Notification Bar Widget Controls
 
-ToDo:
-* UI Overhaul
-* Polishing
-* Testing
+Planned Features (After 1.0):
+* Theme Creation via User Interface
+* Theme Import / Export
+* Playlist Import / Export
+* Integration of Cover Arts
+* ...
 
 Available Soon for Free on the Play Store!
 
