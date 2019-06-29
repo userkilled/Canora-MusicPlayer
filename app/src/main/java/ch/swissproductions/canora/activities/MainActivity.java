@@ -699,6 +699,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         vpm.reload();
                         if (isSearching)
                             vpm.showFiltered(searchTerm, searchBy);
+                        serv.setContent(dm.dataout);
                         notifyAAandOM();
                         dia.dismiss();
                     }
