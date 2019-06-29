@@ -90,14 +90,4 @@
     <string name="misc_stringnotfound">not found in</string>
 
     <string name="settings_credits">Credits</string>
-
-    <string-array translatable="false" name="Themes">
-        <item>Blue</item>
-        <item>Light Blue</item>
-        <item>Dark</item>
-        <item>Light</item>
-        <item>Camo</item>
-        <item>Comic</item>
-        <item>Neon</item>
-    </string-array>
 </resources>
