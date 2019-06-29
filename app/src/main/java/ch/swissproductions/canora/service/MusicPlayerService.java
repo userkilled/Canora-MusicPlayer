@@ -494,6 +494,7 @@ public class MusicPlayerService extends Service {
             shuffle = false;
             repeat = false;
             history = new Stack<>();
+            forwardHistory = new Stack<>();
             currentIndex = 0;
         }
 
@@ -504,6 +505,7 @@ public class MusicPlayerService extends Service {
             }
             if (currentSong != null)
                 history.push(currentSong);
+            forwardHistory.empty();
             currentIndex = getIndexOfID(id);
             currentSong = content.get(currentIndex);
             return currentSong;
@@ -516,6 +518,11 @@ public class MusicPlayerService extends Service {
             }
             if (currentSong != null)
                 history.push(currentSong);
+            if (forwardHistory.size() > 0) {
+                currentSong = forwardHistory.pop();
+                currentIndex = getIndexOfID(currentSong.id);
+                return currentSong;
+            }
             if (shuffle) {
                 if (shufflememavailable.size() <= 0) {
                     shufflememavailable = new ArrayList<>(content);
@@ -541,6 +548,8 @@ public class MusicPlayerService extends Service {
         public data_song getPrev() {
             if (content.size() == 0)
                 return null;
+            if (currentSong != null)
+                forwardHistory.push(new data_song(currentSong));
             if (history.size() > 0) {
                 String p = history.pop().file.getAbsolutePath();
                 for (int i = 0; i < content.size(); i++) {
@@ -569,6 +578,7 @@ public class MusicPlayerService extends Service {
         }
 
         private Stack<data_song> history;
+        private Stack<data_song> forwardHistory;
 
         private List<data_song> shufflememavailable;
 
