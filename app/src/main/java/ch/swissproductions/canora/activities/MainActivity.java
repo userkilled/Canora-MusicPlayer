@@ -373,10 +373,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case Constants.ARRAYADAPT_STATE_SELECT:
                 //Log.v(LOG_TAG, "OPTIONS SELECT MODE");
-                closeOptionsMenu();
                 menu.findItem(R.id.action_cancel).setVisible(true);
                 menu.findItem(R.id.action_select).setVisible(false);
-                menu.findItem(R.id.action_select_all).setVisible(false);
                 if (vpm.subMenu == Constants.DATA_SELECTOR_NONE) {
                     menu.findItem(R.id.action_addTo).setVisible(true);
                     if (dm.getSelector() == (Constants.DATA_SELECTOR_PLAYLISTS))
@@ -415,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 multiSelect();
                 return true;
             case R.id.action_select_all:
-                multiSelect();
+                multiSelect(true);
                 vpm.selectAll();
                 return true;
             case R.id.action_addTo:
