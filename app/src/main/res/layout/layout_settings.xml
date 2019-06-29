@@ -132,10 +132,10 @@
                             android:background="?colorViewPort"
                             android:layout_marginTop="2dp"
                             android:visibility="gone">
-                <TextView android:id="@+id/beamedNoteAttribution"
+                <TextView android:id="@+id/sampleAttribution"
                           android:layout_width="wrap_content"
                           android:layout_height="wrap_content"
-                          android:text="Contains Icons made by Freepik from www.flaticon.com"
+                          android:text="Sample Attribution"
                           android:textColor="?colorHighlight"
                           android:layout_centerHorizontal="true"
                           android:padding="5dp"/>

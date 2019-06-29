@@ -184,47 +184,7 @@
         <item name="backgroundTexture">@drawable/texture_camo_tile</item>
 
         <!--Options Context Menu Background-->
-        <item name="android:itemBackground">#000000</item>
-
-        <item name="android:colorEdgeEffect">?attr/colorText</item>
-        <item name="colorControlHighlight">?attr/colorText</item>
-        <item name="android:panelFullBackground">?colorDialogBackground</item>
-        <item name="android:textColor">?colorDialogText</item>
-
-        <item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>
-        <item name="actionBarStyle">@style/MyActionBar</item>
-        <item name="android:textColorPrimary">?colorText</item>
-        <item name="popupMenuStyle">@style/PopupMenu</item>
-    </style>
-
-    <style name="AppTheme.Comic" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorViewPort">#80000000</item>
-        <item name="colorFrame">@null</item>
-        <item name="colorText">#ffffff</item>
-        <item name="colorHighlight">#ffff00</item>
-
-        <item name="colorDialogBackground">#1a1a1a</item>
-        <item name="colorDialogFrame">#000000</item>
-        <item name="colorDialogText">?colorText</item>
-        <item name="colorDialogHighlight">?colorHighlight</item>
-
-        <item name="colorPlayerControlsBackground">#000000</item>
-
-        <item name="colorSubMenuBackground">#80000000</item>
-
-        <item name="colorBorder">#000000</item>
-
-        <item name="colorToolbar">#000000</item>
-
-        <item name="colorSnackbarText">#ffffff</item>
-        <item name="colorSnackbarBackground">#262626</item>
-
-        <item name="colorGreyed">#33ffffff</item>
-
-        <item name="backgroundTexture">@drawable/texture_comic_tile</item>
-
-        <!--Options Context Menu Background-->
-        <item name="android:itemBackground">#000000</item>
+        <item name="android:itemBackground">?colorDialogBackground</item>
 
         <item name="android:colorEdgeEffect">?attr/colorText</item>
         <item name="colorControlHighlight">?attr/colorText</item>
@@ -264,7 +224,7 @@
         <item name="backgroundTexture">@drawable/texture_neon_animated</item>
 
         <!--Options Context Menu Background-->
-        <item name="android:itemBackground">#000000</item>
+        <item name="android:itemBackground">?colorDialogBackground</item>
 
         <item name="android:colorEdgeEffect">?attr/colorText</item>
         <item name="colorControlHighlight">?attr/colorText</item>
