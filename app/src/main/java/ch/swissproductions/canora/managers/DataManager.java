@@ -107,7 +107,7 @@ public class DataManager {
 
     public void loadContentFromFiles() {
         if (!loadtaskIsRunning) {
-            lft = new LoadFilesTask();
+            lft = new MSRefreshTask();
             lft.execute();
         }
     }
@@ -883,13 +883,13 @@ public class DataManager {
     }
 
     private boolean loadtaskIsRunning = false;
-    private LoadFilesTask lft;
+    private MSRefreshTask lft;
 
-    protected class LoadFilesTask extends AsyncTask<String, Integer, String> {
+    protected class MSRefreshTask extends AsyncTask<String, Integer, String> {
         //Refresh Files that are missing in the Mediastore, such as recently Downloaded etc.
         @Override
         protected String doInBackground(String... params) {
-            List<File> nw = getSongsfromFiles();
+            List<File> nw = getAudioFiles();
             if (isCancelled())
                 return "Cancelled";
             Log.v(LOG_TAG, "FOUND " + nw.size() + " AUDIO FILES ON DISK");
@@ -945,20 +945,21 @@ public class DataManager {
                         TimeUnit.MILLISECONDS.sleep(500);
                     }
                     loadContentFromMediaStore();
+                    sortContent(sortBy);
+                    mainActivity.serv.setContent(dataout);
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainActivity.vpm.reload();
+                            if (mainActivity.isSearching) {
+                                mainActivity.vpm.showFiltered(mainActivity.vpm.searchTerm, mainActivity.vpm.searchBy);
+                            }
+                        }
+                    });
                 } catch (Exception e) {
                     e.printStackTrace();
                     return "ERROR";
                 }
-                mainActivity.serv.setContent(dataout);
-                mainActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mainActivity.vpm.reload();
-                        if (mainActivity.isSearching) {
-                            mainActivity.vpm.showFiltered(mainActivity.vpm.searchTerm, mainActivity.vpm.searchBy);
-                        }
-                    }
-                });
             } else {
                 Log.v(LOG_TAG, "NO MEDIASTORE REFRESH NEEDED");
             }
@@ -984,13 +985,13 @@ public class DataManager {
             Log.v(LOG_TAG, "LOAD ASYNC TASK EXIT: " + result);
         }
 
-        private List<File> getSongsfromFiles() {
+        private List<File> getAudioFiles() {
             List<File> ret = new ArrayList<>();
             for (String str : searchPaths) {
                 if (isCancelled())
                     return null;
                 Log.v(LOG_TAG, "Searching in Directory: " + str);
-                List<File> te = getPlayListFiles(str);
+                List<File> te = getAudioFilesRecurs(str);
                 if (isCancelled())
                     return null;
                 if (te != null)
@@ -999,7 +1000,7 @@ public class DataManager {
             return ret;
         }
 
-        private ArrayList<File> getPlayListFiles(String rootPath) {
+        private ArrayList<File> getAudioFilesRecurs(String rootPath) {
             ArrayList<File> fileList = new ArrayList<>();
             try {
                 File rootFolder = new File(rootPath);
@@ -1009,8 +1010,8 @@ public class DataManager {
                         if (isCancelled())
                             return null;
                         if (file.isDirectory()) {
-                            if (getPlayListFiles(file.getAbsolutePath()) != null) {
-                                fileList.addAll(getPlayListFiles(file.getAbsolutePath()));
+                            if (getAudioFilesRecurs(file.getAbsolutePath()) != null) {
+                                fileList.addAll(getAudioFilesRecurs(file.getAbsolutePath()));
                             } else {
                                 if (isCancelled())
                                     return null;
