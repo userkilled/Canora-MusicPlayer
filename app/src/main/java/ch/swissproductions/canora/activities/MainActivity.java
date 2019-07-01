@@ -987,7 +987,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 exdia.show();
                 break;
             case Constants.DIALOG_FILE_INFO:
-                //TODO:POPULATE FILE INFO DIALOGE
                 final Dialog fidia = new Dialog(this);
                 fidia.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 LayoutInflater fiif = getLayoutInflater();
@@ -995,10 +994,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 fidia.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 TextView fitit = fidia.findViewById(R.id.title);
                 fitit.setText(R.string.dialog_file_info_title);
-                TextView fp = fidia.findViewById(R.id.filepathtitle);
-                fp.setText(getString(R.string.dialog_file_info_t1) + ":");
-                fp = fidia.findViewById(R.id.filepathtext);
+
+                TextView fp = fidia.findViewById(R.id.filepathtext);
                 fp.setText(dm.dataout.get(vpm.getClicked()).file.getAbsolutePath());
+                fp = fidia.findViewById(R.id.fileTitleText);
+                fp.setText(dm.dataout.get(vpm.getClicked()).Title);
+                fp = fidia.findViewById(R.id.fileArtistText);
+                fp.setText(dm.dataout.get(vpm.getClicked()).Artist);
 
                 fidia.findViewById(R.id.okbtn).setOnClickListener(new View.OnClickListener() {
                     @Override
