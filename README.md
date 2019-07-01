@@ -2,7 +2,7 @@
 <div align="right">
   <img border="0" alt="API21+" src="https://img.shields.io/badge/API-21%2B-green.svg?style=flat" align="left">
   <img border="0" alt="LICENSE_APACHE" src="https://img.shields.io/badge/license-Apache%202-green.svg" align="left">
-  <a href="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png">
+  <a href="https://play.google.com/store/apps/details?id=ch.swissproductions.canora">
     <img border="0" alt="Get Canora Here" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="250" height="100">
   </a>
 </div>
