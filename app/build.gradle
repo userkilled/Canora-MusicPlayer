@@ -6,7 +6,7 @@ android {
         applicationId "ch.swissproductions.canora"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 3132
+        versionCode 3133
         versionName "0.60"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
