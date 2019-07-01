@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+option java_package = "ch.swissproductions.canora.data";
+option java_outer_classname = "PlaylistsProtoBuff";
+
+message PlaylistItem {
+	required string path = 1;
+}
+message Playlist {
+	required string name = 1;
+	repeated PlaylistItem song = 2;
+}
+message Playlists {
+	repeated Playlist playlists = 1;
+}

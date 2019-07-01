@@ -10,19 +10,13 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import ch.swissproductions.canora.data.*;
 import ch.swissproductions.canora.tools.ListSorter;
 import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.activities.MainActivity;
-import ch.swissproductions.canora.data.Constants;
-import ch.swissproductions.canora.data.data_playlist;
-import ch.swissproductions.canora.data.data_song;
 import ch.swissproductions.canora.tools.PerformanceTimer;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import com.google.protobuf.InvalidProtocolBufferException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -36,8 +30,7 @@ public class DataManager {
     public DataManager(Context c, MainActivity b, int SORTBY, MainActivity.SavedState savedState) {
         gc = c;
         mainActivity = b;
-        if (savedState != null)
-        {
+        if (savedState != null) {
             selector = savedState.selector;
             index = savedState.index;
         }
@@ -68,8 +61,7 @@ public class DataManager {
                 Tracks.audio.addAll(ml);
             }
         };
-        Thread art = new Thread()
-        {
+        Thread art = new Thread() {
             @Override
             public void run() {
                 Artists = getArtistsfromMS();
@@ -331,7 +323,7 @@ public class DataManager {
 
     //START Local Playlists
     private Map<String, data_playlist> getLocalPlayLists() {
-        Map<String, data_playlist> ret = getDataAsMap();
+        Map<String, data_playlist> ret = readPlaylists();
         if (ret.size() < 1) {
             Log.e(LOG_TAG, "NONE/CORRUPT PLAYLISTS FOUND");
         } else {
@@ -343,126 +335,49 @@ public class DataManager {
     }
 
     private void putLocalPlayLists(Map<String, data_playlist> in) {
-        writeDataAsXML(in);
+        writePlaylists(in);
     }
 
     //XML Abstraction Layer
-    private Map<String, data_playlist> getDataAsMap() {
-        Map<String, data_playlist> ret = new HashMap<>();
-        String XMLSTR = new String(fsa.read());
-        if (XMLSTR.length() > 0) {
-            ret = convertXMLtoMAP(XMLSTR);
-        }
-        return ret;
-    }
-
-    private void writeDataAsXML(Map<String, data_playlist> data) {
-        String writeStr = convertMAPtoXML(data);
-        fsa.write(writeStr.getBytes());
-    }
-
-    //Conversion
-    private String convertMAPtoXML(Map<String, data_playlist> in) {
-        String ret = "<?xml version=\"1.0\"?><playlists>";
-        for (Map.Entry<String, data_playlist> entry : in.entrySet()) {
-            if (entry.getKey() == "")
-                continue;
-            ret += "<playlist title=\"" + encodeXML(entry.getKey()) + "\">";
-            for (int i = 0; i < entry.getValue().audio.size(); i++) {
-                File f = entry.getValue().audio.get(i).file;
-                if (f != null && f.exists())
-                    ret += "<song>" + encodeXML(f.getAbsolutePath()) + "</song>";
-            }
-            ret += "</playlist>";
-        }
-        ret += "</playlists>";
-        return ret;
-    }
-
-    private Map<String, data_playlist> convertXMLtoMAP(String xml) {
+    private Map<String, data_playlist> readPlaylists() {
         Map<String, data_playlist> ret = new HashMap<>();
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            StringBuilder xmlStringBuilder = new StringBuilder();
-            xmlStringBuilder.append(xml);
-            ByteArrayInputStream input = new ByteArrayInputStream(xmlStringBuilder.toString().getBytes("UTF-8"));
-            Document doc = builder.parse(input);
-            Element root = doc.getDocumentElement();
-            NodeList pln = root.getChildNodes();
-            for (int i = 0; i < pln.getLength(); i++) {
-                List<data_song> tmp = new ArrayList<>();
-                NodeList sitm = pln.item(i).getChildNodes();
-                for (int y = 0; y < sitm.getLength(); y++) {
-                    if (!new File(sitm.item(y).getTextContent()).exists())
-                        break;
-                    data_song t = new data_song();
-                    t.file = new File(sitm.item(y).getTextContent());
-                    tmp.add(t);
+            byte[] rdata = fsa.read();
+            PlaylistsProtoBuff.Playlists lp = PlaylistsProtoBuff.Playlists.parseFrom(rdata);
+            for (PlaylistsProtoBuff.Playlist plist : lp.getPlaylistsList())
+            {
+                List<data_song> songs = new ArrayList<>();
+                for (PlaylistsProtoBuff.PlaylistItem it : plist.getSongList())
+                {
+                    data_song tmp = new data_song();
+                    tmp.file = new File(it.getPath());
+                    songs.add(tmp);
                 }
-                data_playlist p = new data_playlist(pln.item(i).getAttributes().item(0).getTextContent(), tmp);
-                if (p != null)
-                    ret.put(p.Title, p);
+                data_playlist datapl = new data_playlist(plist.getName(),songs);
+                ret.put(plist.getName(),datapl);
             }
-        } catch (Exception e) {
+        } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
         }
         return ret;
     }
 
-    public static String encodeXML(CharSequence s) {
-        StringBuilder sb = new StringBuilder();
-        int len = s.length();
-        for (int i = 0; i < len; i++) {
-            int c = s.charAt(i);
-            if (c >= 0xd800 && c <= 0xdbff && i + 1 < len) {
-                c = ((c - 0xd7c0) << 10) | (s.charAt(++i) & 0x3ff);    // UTF16 decode
-            }
-            if (c < 0x80) {      // ASCII range: test most common case first
-                if (c < 0x20 && (c != '\t' && c != '\r' && c != '\n')) {
-                    // Illegal XML character, even encoded. Skip or substitute
-                    sb.append("&#xfffd;");   // Unicode replacement character
-                } else {
-                    switch (c) {
-                        case '&':
-                            sb.append("&amp;");
-                            break;
-                        case '>':
-                            sb.append("&gt;");
-                            break;
-                        case '<':
-                            sb.append("&lt;");
-                            break;
-                        case '\'':
-                            sb.append("&apos;");
-                            break;
-                        case '\"':
-                            sb.append("&quot;");
-                            break;
-                        case '\n':
-                            sb.append("&#10;");
-                            break;
-                        case '\r':
-                            sb.append("&#13;");
-                            break;
-                        case '\t':
-                            sb.append("&#9;");
-                            break;
+    private void writePlaylists(Map<String, data_playlist> data) {
+        PlaylistsProtoBuff.Playlists.Builder psb = PlaylistsProtoBuff.Playlists.newBuilder();
+        for (Map.Entry<String, data_playlist> it : data.entrySet()) {
+            PlaylistsProtoBuff.Playlist.Builder pb = PlaylistsProtoBuff.Playlist.newBuilder();
+            pb.setName(it.getKey());
 
-                        default:
-                            sb.append((char) c);
-                    }
-                }
-            } else if ((c >= 0xd800 && c <= 0xdfff) || c == 0xfffe || c == 0xffff) {
-                // Illegal XML character, even encoded. Skip or substitute
-                sb.append("&#xfffd;");   // Unicode replacement character
-            } else {
-                sb.append("&#x");
-                sb.append(Integer.toHexString(c));
-                sb.append(';');
+            for (data_song t : it.getValue().audio) {
+                PlaylistsProtoBuff.PlaylistItem.Builder plb = PlaylistsProtoBuff.PlaylistItem.newBuilder();
+                plb.setPath(t.file.getAbsolutePath());
+                pb.addSong(plb.build());
             }
+
+            psb.addPlaylists(pb.build());
         }
-        return sb.toString();
+        byte[] wdata = psb.build().toByteArray();
+        fsa.write(wdata);
     }
 
     //END Local Playlists

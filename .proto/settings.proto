@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+option java_package = "ch.swissproductions.canora.data";
+option java_outer_classname = "SettingsProtoBuff";
+
+message Setting {
+		required string name = 1;
+		required string value = 2;
+}
+
+message Settings {
+	repeated Setting settings = 1;
+}
