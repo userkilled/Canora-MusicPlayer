@@ -19,7 +19,8 @@ public final class Constants {
 
     public static final String ACTION_QUIT = "com.musicman.QUIT";
 
-    public static final String PARAMETER_PLAYLIST = "SELPL";
+    public static final String PARAMETER_INDEX = "SUB";
+    public static final String PARAMETER_SELECTOR = "SEL";
 
     //Integers
     public static final int SORT_BYTITLE = 0;

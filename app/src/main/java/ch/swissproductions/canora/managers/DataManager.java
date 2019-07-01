@@ -33,13 +33,14 @@ public class DataManager {
     //Data Output For a Listview and Player Service, Manipulated by the various Control Functions
     public List<data_song> dataout = new ArrayList<>();
 
-    public DataManager(Context c, MainActivity b, int SORTBY, String PlayListIndex) {
+    public DataManager(Context c, MainActivity b, int SORTBY, MainActivity.SavedState savedState) {
         gc = c;
         mainActivity = b;
-        if (PlayListIndex != null)
-            index = PlayListIndex;
-        else
-            index = "";
+        if (savedState != null)
+        {
+            selector = savedState.selector;
+            index = savedState.index;
+        }
         String plPath = mainActivity.getFilesDir().getAbsolutePath() + "/PlayLists";
         fsa = new FileSystemAccessManager(plPath);
         sortBy = SORTBY;
@@ -48,11 +49,7 @@ public class DataManager {
     }
 
     //Public Callbacks
-    public void loadPlaylists(String selected) {
-        if (selected == null)
-            index = "";
-        else
-            index = selected;
+    public void loadPlaylists() {
         if (!playlisttaskIsRunning) {
             plt = new PlayListTask();
             plt.execute();
@@ -1060,6 +1057,13 @@ public class DataManager {
                 }
                 PlayLists.put(index, tmp.get(index));
                 selectPlayList(index);
+                mainActivity.serv.setContent(dataout);
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mainActivity.vpm.reload();
+                    }
+                });
                 mainActivity.notifyAAandOM();
             }
             for (Map.Entry<String, data_playlist> entry : tmp.entrySet()) {

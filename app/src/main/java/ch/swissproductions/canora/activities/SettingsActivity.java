@@ -3,7 +3,6 @@ package ch.swissproductions.canora.activities;
 import android.content.*;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -16,7 +15,6 @@ import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MenuItem;
-import android.view.TouchDelegate;
 import android.view.View;
 import android.widget.*;
 import ch.swissproductions.canora.service.MusicPlayerService;
@@ -24,7 +22,6 @@ import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.managers.SettingsManager;
 import ch.swissproductions.canora.managers.ThemeManager;
 import ch.swissproductions.canora.data.Constants;
-import org.w3c.dom.Text;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -32,10 +29,17 @@ public class SettingsActivity extends AppCompatActivity {
     private SettingsManager sc;
     private ThemeManager thm;
 
+    private MainActivity.SavedState sv;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
+        if (getIntent().getStringExtra(Constants.PARAMETER_SELECTOR) != null && getIntent().getStringExtra(Constants.PARAMETER_INDEX) != null) {
+            sv = new MainActivity.SavedState();
+            sv.index = getIntent().getStringExtra(Constants.PARAMETER_INDEX);
+            sv.selector = Integer.parseInt(getIntent().getStringExtra(Constants.PARAMETER_SELECTOR));
+            Log.v(LOG_TAG,"SAVED STATE, INDEX: " + sv.index + " SEL: " + sv.selector);
+        }
         doBindService();
         sc = new SettingsManager(this);
         thm = new ThemeManager(sc);
@@ -68,7 +72,8 @@ public class SettingsActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 Intent t = new Intent(this, MainActivity.class);
-                t.putExtra(Constants.PARAMETER_PLAYLIST, pltemp);
+                t.putExtra(Constants.PARAMETER_INDEX, sv.index);
+                t.putExtra(Constants.PARAMETER_SELECTOR,"" + sv.selector);
                 startActivity(t);
                 finish();
                 return true;
@@ -80,7 +85,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Intent t = new Intent(this, MainActivity.class);
-        t.putExtra(Constants.PARAMETER_PLAYLIST, pltemp);
+        t.putExtra(Constants.PARAMETER_INDEX, sv.index);
+        t.putExtra(Constants.PARAMETER_SELECTOR,"" + sv.selector);
         startActivity(t);
         finish();
     }

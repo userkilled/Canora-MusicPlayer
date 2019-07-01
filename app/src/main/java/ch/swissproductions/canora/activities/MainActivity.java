@@ -12,7 +12,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.DrawableContainer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,7 +22,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
@@ -58,7 +56,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         globT.start();
         btnExecutor = Executors.newSingleThreadExecutor();
-        pltemp = getIntent().getStringExtra(Constants.PARAMETER_PLAYLIST);
+        if (getIntent().getStringExtra(Constants.PARAMETER_SELECTOR) != null && getIntent().getStringExtra(Constants.PARAMETER_INDEX) != null) {
+            sv = new SavedState();
+            sv.index = getIntent().getStringExtra(Constants.PARAMETER_INDEX);
+            sv.selector = Integer.parseInt(getIntent().getStringExtra(Constants.PARAMETER_SELECTOR));
+            Log.v(LOG_TAG,"SAVED STATE, INDEX: " + sv.index + " SEL: " + sv.selector);
+        }
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "REQUESTING PERMISSION");
@@ -66,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             } else {
                 Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
+                dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), sv);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (readPerm == PermissionChecker.PERMISSION_GRANTED && writePerm == PermissionChecker.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERMISSION ALREADY GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
+                dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), sv);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
@@ -475,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Log.v(LOG_TAG, "PERM GRANTED");
                 sc = new SettingsManager(getApplicationContext());
-                dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), pltemp);
+                dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), sv);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
                 setContentView(R.layout.layout_main);
@@ -577,7 +580,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private String LOG_TAG = "main";
 
     private String searchTerm;
-    private String pltemp = "";
+
+    public static class SavedState {
+        public int selector;
+        public String index;
+    }
+
+    private SavedState sv;
 
     private View.OnClickListener playbutton_click;
     private View.OnClickListener prevbutton_click;
@@ -789,7 +798,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             dm.selectPlayList(t);
                             Log.v(LOG_TAG, "ORIG: " + orig);
                             dm.deletePlayList(orig);
-                            dm.loadPlaylists(t);
+                            dm.loadPlaylists();
                             if (isSearching)
                                 vpm.showFiltered(searchTerm, searchBy);
                             notifyAAandOM();
@@ -1002,7 +1011,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case Constants.DIALOG_SETTINGS:
                 switchUI = true;
                 Intent i = new Intent(this, SettingsActivity.class);
-                i.putExtra(Constants.PARAMETER_PLAYLIST, dm.getIndex());
+                i.putExtra(Constants.PARAMETER_INDEX, dm.getIndex());
+                i.putExtra(Constants.PARAMETER_SELECTOR, "" + dm.getSelector());
                 startActivity(i);
                 finish();
                 break;
@@ -1675,9 +1685,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             dm.loadContentFromMediaStore();
             dm.sortContent(sortBy);
 
-            dm.loadPlaylists(pltemp);
+            dm.loadPlaylists();
             vpm = new ViewPortManager(MainActivity.this, (ListView) findViewById(R.id.mainViewport), findViewById(R.id.SubMenuContainer), dm);
-            dm.selectTracks();
+            if (sv == null) {
+                dm.selectTracks();
+            }
             serv.setContent(dm.dataout);
             vpm.showData();
             dm.loadContentFromFiles();

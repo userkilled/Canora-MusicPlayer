@@ -23,6 +23,7 @@
                   android:maxLines="1"
                   android:layout_toRightOf="@id/icon"
                   android:layout_centerVertical="true"
+                  android:ellipsize="end"
         />
     </RelativeLayout>
 </android.support.v7.widget.Toolbar>
