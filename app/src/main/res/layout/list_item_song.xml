@@ -24,9 +24,11 @@
                     android:textSize="20dp"
                     android:includeFontPadding="false"
                     android:textColor="?attr/colorText"
-                    android:maxLines="1"
                     android:paddingTop="10dp"
                     android:layout_toRightOf="@+id/checkbox"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:paddingRight="5dp"
             />
             <TextView
                     android:id="@+id/listinterpret"
@@ -38,8 +40,10 @@
                     android:includeFontPadding="false"
                     android:textColor="?attr/colorText"
                     android:maxLines="1"
+                    android:ellipsize="end"
                     android:paddingBottom="10dp"
                     android:layout_toRightOf="@+id/checkbox"
+                    android:paddingRight="5dp"
             />
         </RelativeLayout>
         <TextView android:layout_width="wrap_content"
