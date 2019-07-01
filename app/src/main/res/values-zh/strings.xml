@@ -1,0 +1,93 @@
+<resources>
+    <string name="app_name">Canora</string>
+
+    <string name="dialog_file_deletefrom_t1">你真的想删除吗？</string>
+    <string name="dialog_file_deletefrom_t2">播放列表中的文件？</string>
+    <string name="dialog_file_deletefrom_title">从播放列表中删除文件</string>
+    <string name="dialog_file_info_title">档案信息</string>
+    <string name="dialog_file_info_t1">文件路径</string>
+    <string name="dialog_playlist_delete_t1">您真的要删除播放列表吗？</string>
+    <string name="dialog_playlist_delete_title">删除播放列表</string>
+    <string name="dialog_playlist_create_title">创建播放列表</string>
+    <string name="dialog_playlist_edit_title">编辑播放列表</string>
+    <string name="dialog_createpl_nameph">名称</string>
+    <string name="dialog_settings_title">设置</string>
+    <string name="dialog_settings_t1">内部卷</string>
+    <string name="dialog_sortby_title">排序方式</string>
+    <string name="dialog_searchby_title">搜索</string>
+    <string name="dialog_exit_ays">你真的想退出Canora吗？</string>
+
+
+    <string name="menu_listitem_select">选择</string>
+    <string name="menu_listitem_info">显示信息</string>
+    <string name="menu_listitem_delfrompl">从播放列表中删除</string>
+
+    <string name="menu_options_delpl">删除播放列表</string>
+    <string name="menu_options_editpl">编辑</string>
+    <string name="menu_options_search">搜索</string>
+    <string name="menu_options_settings">设置</string>
+    <string name="menu_options_sort">分类</string>
+    <string name="menu_options_playlists">播放列表</string>
+    <string name="menu_options_addtoplaylist">添加</string>
+    <string name="menu_options_newplaylist">新播放列表</string>
+    <string name="menu_options_select">选择</string>
+    <string name="menu_options_selectAll">全选</string>
+    <string name="menu_options_cancelselect">取消选择</string>
+
+
+    <string name="error_emptyplname">播放列表名称无效，请输入至少1个字符</string>
+    <string name="error_createempty">请选择至少一个项目来创建播放列表</string>
+    <string name="error_delfromdef">无法从默认播放列表中删除项目</string>
+    <string name="error_delfromempty">“播放列表必须至少包含1个项目”</string>
+
+
+    <string name="layout_main_searchPH">搜索...</string>
+
+    <string name="controls_by">通过</string>
+
+    <string name="misc_ok">好</string>
+    <string name="misc_back">背部</string>
+    <string name="misc_yes">是</string>
+    <string name="misc_no">没有</string>
+    <string name="misc_minimize">最小化</string>
+    <string name="misc_exit">退出Canora</string>
+
+    <string name="misc_title">标题</string>
+    <string name="misc_artist">艺术家</string>
+    <string name="misc_both">都</string>
+    <string name="misc_unknown">未知</string>
+
+    <string name="misc_tracks">曲目</string>
+    <string name="misc_albums">相册</string>
+    <string name="misc_artists">艺术家</string>
+    <string name="misc_genres">流派</string>
+    <string name="misc_playlists">播放列表</string>
+
+    <string name="misc_themes">主题</string>
+    <string name="misc_equalizerpreset">均衡器预设</string>
+
+    <string name="misc_allfiles">所有的文件</string>
+    <string name="misc_init">初始化时间</string>
+    <string name="misc_founditems">找到的物品总数</string>
+    <string name="misc_createpl">创建播放列表</string>
+    <string name="misc_addedto">添加的项目</string>
+    <string name="misc_removed">物品已删除</string>
+    <string name="misc_nofilesfound">此设备上找不到音频文件</string>
+
+    <string name="misc_delmultitle">删除播放列表</string>
+    <string name="misc_delmul1">你真的想删除吗？</string>
+    <string name="misc_delmul2">播放列表？</string>
+
+    <string name="misc_playlistexistsp1">带名称的播放列表</string>
+    <string name="misc_playlistexistsp2">已经存在</string>
+
+    <string name="misc_noplaylistfound">找不到播放列表</string>
+    <string name="misc_notracksfound">找不到曲目</string>
+    <string name="misc_noAlbumfound">找不到相册</string>
+    <string name="misc_noArtistfound">找不到艺术家</string>
+    <string name="misc_nogenresfound">没有找到类型</string>
+
+    <string name="misc_stringnotfound">找不到</string>
+
+    <string name="settings_credits">积分</string>
+</resources>

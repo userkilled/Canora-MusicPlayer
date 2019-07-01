@@ -1,0 +1,93 @@
+<resources>
+    <string name="app_name">Canora</string>
+    
+    <string name="dialog_file_deletefrom_t1">Voulez-vous vraiment supprimer</string>
+    <string name="dialog_file_deletefrom_t2">Fichiers de la playlist?</string>
+    <string name="dialog_file_deletefrom_title">Supprimer des fichiers de la liste de lecture</string>
+    <string name="dialog_file_info_title">Informations sur le fichier</string>
+    <string name="dialog_file_info_t1">Chemin du fichier</string>
+    <string name="dialog_playlist_delete_t1">Voulez-vous vraiment supprimer la liste de lecture:</string>
+    <string name="dialog_playlist_delete_title">Supprimer la liste de lecture</string>
+    <string name="dialog_playlist_create_title">Créer une playlist</string>
+    <string name="dialog_playlist_edit_title">Editer la playlist</string>
+    <string name="dialog_createpl_nameph">prénom</string>
+    <string name="dialog_settings_title">Réglages</string>
+    <string name="dialog_settings_t1">Volume interne</string>
+    <string name="dialog_sortby_title">Trier par</string>
+    <string name="dialog_searchby_title">Recherché par</string>
+    <string name="dialog_exit_ays">Voulez-vous vraiment quitter Canora?</string>
+
+    
+    <string name="menu_listitem_select">Sélectionner</string>
+    <string name="menu_listitem_info">Afficher les infos</string>
+    <string name="menu_listitem_delfrompl">Supprimer de la playlist</string>
+
+    <string name="menu_options_delpl">Supprimer la liste de lecture</string>
+    <string name="menu_options_editpl">modifier</string>
+    <string name="menu_options_search">Chercher</string>
+    <string name="menu_options_settings">Réglages</string>
+    <string name="menu_options_sort">Trier</string>
+    <string name="menu_options_playlists">Playlists</string>
+    <string name="menu_options_addtoplaylist">Ajouter à</string>
+    <string name="menu_options_newplaylist">Nouvelle playlist</string>
+    <string name="menu_options_select">Sélectionner</string>
+    <string name="menu_options_selectAll">Tout sélectionner</string>
+    <string name="menu_options_cancelselect">Annuler la sélection</string>
+
+    
+    <string name="error_emptyplname">Nom de la liste de lecture invalide, veuillez entrer au moins 1 caractère</string>
+    <string name="error_createempty">Veuillez sélectionner au moins un élément pour créer une playlist</string>
+    <string name="error_delfromdef">Impossible de supprimer des éléments des listes de lecture par défaut</string>
+    <string name="error_delfromempty">"La playlist doit contenir au moins 1 élément"</string>
+
+    
+    <string name="layout_main_searchPH">Chercher...</string>
+
+    <string name="controls_by">par</string>
+
+    <string name="misc_ok">D\'accord</string>
+    <string name="misc_back">Retour</string>
+    <string name="misc_yes">Oui</string>
+    <string name="misc_no">Non</string>
+    <string name="misc_minimize">Minimiser</string>
+    <string name="misc_exit">Sortie Canora</string>
+
+    <string name="misc_title">Titre</string>
+    <string name="misc_artist">Artiste</string>
+    <string name="misc_both">Tous les deux</string>
+    <string name="misc_unknown">Inconnu</string>
+
+    <string name="misc_tracks">Titres</string>
+    <string name="misc_albums">Albums</string>
+    <string name="misc_artists">Artistes</string>
+    <string name="misc_genres">Genres</string>
+    <string name="misc_playlists">Playlists</string>
+
+    <string name="misc_themes">Des thèmes</string>
+    <string name="misc_equalizerpreset">Préréglages d\'égaliseur</string>
+
+    <string name="misc_allfiles">Tous les fichiers</string>
+    <string name="misc_init">Temps d\'initialisation</string>
+    <string name="misc_founditems">Nombre total d\'articles trouvés</string>
+    <string name="misc_createpl">Liste de lecture créée</string>
+    <string name="misc_addedto">Articles ajoutés à</string>
+    <string name="misc_removed">Articles supprimés</string>
+    <string name="misc_nofilesfound">Aucun fichier audio trouvé sur ce périphérique</string>
+
+    <string name="misc_delmultitle">Supprimer les playlists</string>
+    <string name="misc_delmul1">Voulez-vous vraiment supprimer</string>
+    <string name="misc_delmul2">Des playlists?</string>
+
+    <string name="misc_playlistexistsp1">Une playlist avec le nom</string>
+    <string name="misc_playlistexistsp2">Existe déjà</string>
+
+    <string name="misc_noplaylistfound">Aucune liste de lecture trouvée</string>
+    <string name="misc_notracksfound">Aucune piste trouvée</string>
+    <string name="misc_noAlbumfound">Aucun album trouvé</string>
+    <string name="misc_noArtistfound">Aucun artiste trouvé</string>
+    <string name="misc_nogenresfound">Aucun genre trouvé</string>
+
+    <string name="misc_stringnotfound">introuvable dans</string>
+
+    <string name="settings_credits">Crédits</string>
+</resources>

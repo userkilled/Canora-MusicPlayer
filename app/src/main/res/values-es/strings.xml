@@ -1,0 +1,93 @@
+<resources>
+    <string name="app_name">Canora</string>
+    
+    <string name="dialog_file_deletefrom_t1">¿Realmente quieres borrar?</string>
+    <string name="dialog_file_deletefrom_t2">Archivos de la lista de reproducción?</string>
+    <string name="dialog_file_deletefrom_title">Eliminar archivos de la lista de reproducción</string>
+    <string name="dialog_file_info_title">Información del archivo</string>
+    <string name="dialog_file_info_t1">Ruta de archivo</string>
+    <string name="dialog_playlist_delete_t1">¿Realmente quieres eliminar la lista de reproducción?</string>
+    <string name="dialog_playlist_delete_title">Eliminar lista de reproducción</string>
+    <string name="dialog_playlist_create_title">Crear lista de reproducción</string>
+    <string name="dialog_playlist_edit_title">Editar lista de reproducción</string>
+    <string name="dialog_createpl_nameph">Nombre</string>
+    <string name="dialog_settings_title">Ajustes</string>
+    <string name="dialog_settings_t1">Volumen interno</string>
+    <string name="dialog_sortby_title">Ordenar por</string>
+    <string name="dialog_searchby_title">Búsqueda por</string>
+    <string name="dialog_exit_ays">¿De verdad quieres salir de Canora?</string>
+
+    
+    <string name="menu_listitem_select">Seleccionar</string>
+    <string name="menu_listitem_info">Mostrar información</string>
+    <string name="menu_listitem_delfrompl">Eliminar de la lista de reproducción</string>
+
+    <string name="menu_options_delpl">Eliminar lista de reproducción</string>
+    <string name="menu_options_editpl">Editar</string>
+    <string name="menu_options_search">Buscar</string>
+    <string name="menu_options_settings">Ajustes</string>
+    <string name="menu_options_sort">Ordenar</string>
+    <string name="menu_options_playlists">Playlists</string>
+    <string name="menu_options_addtoplaylist">añadir</string>
+    <string name="menu_options_newplaylist">Nueva lista de reproducción</string>
+    <string name="menu_options_select">Seleccionar</string>
+    <string name="menu_options_selectAll">Seleccionar todo</string>
+    <string name="menu_options_cancelselect">Cancelar selección</string>
+
+    
+    <string name="error_emptyplname">Nombre de lista de reproducción no válido, ingrese al menos 1 carácter</string>
+    <string name="error_createempty">Seleccione al menos un elemento para crear una lista de reproducción</string>
+    <string name="error_delfromdef">No se pueden eliminar elementos de las listas de reproducción predeterminadas</string>
+    <string name="error_delfromempty">"La lista de reproducción debe contener al menos 1 elemento"</string>
+
+    
+    <string name="layout_main_searchPH">Buscar...</string>
+
+    <string name="controls_by">por</string>
+
+    <string name="misc_ok">De acuerdo</string>
+    <string name="misc_back">Espalda</string>
+    <string name="misc_yes">Sí</string>
+    <string name="misc_no">No</string>
+    <string name="misc_minimize">Minimizar</string>
+    <string name="misc_exit">Salida canora</string>
+
+    <string name="misc_title">Título</string>
+    <string name="misc_artist">Artista</string>
+    <string name="misc_both">Ambos</string>
+    <string name="misc_unknown">Desconocido</string>
+
+    <string name="misc_tracks">Titulos</string>
+    <string name="misc_albums">Álbumes</string>
+    <string name="misc_artists">Artistas</string>
+    <string name="misc_genres">Géneros</string>
+    <string name="misc_playlists">Playlists</string>
+
+    <string name="misc_themes">Temas</string>
+    <string name="misc_equalizerpreset">Ajustes preestablecidos de ecualizador</string>
+
+    <string name="misc_allfiles">Todos los archivos</string>
+    <string name="misc_init">Tiempo de inicialización</string>
+    <string name="misc_founditems">Total de artículos encontrados</string>
+    <string name="misc_createpl">Lista de reproducción creada</string>
+    <string name="misc_addedto">Artículos agregados a</string>
+    <string name="misc_removed">Artículos eliminados</string>
+    <string name="misc_nofilesfound">No se encontraron archivos de audio en este dispositivo</string>
+
+    <string name="misc_delmultitle">Eliminar listas de reproducción</string>
+    <string name="misc_delmul1">¿Realmente quieres borrar?</string>
+    <string name="misc_delmul2">Listas de reproducción?</string>
+
+    <string name="misc_playlistexistsp1">Una lista de reproducción con el nombre</string>
+    <string name="misc_playlistexistsp2">Ya existe</string>
+
+    <string name="misc_noplaylistfound">No se encontraron listas de reproducción</string>
+    <string name="misc_notracksfound">No se encontraron pistas</string>
+    <string name="misc_noAlbumfound">No se encontraron álbumes</string>
+    <string name="misc_noArtistfound">No se han encontrado artistas</string>
+    <string name="misc_nogenresfound">No se encontraron géneros</string>
+
+    <string name="misc_stringnotfound">no se encuentra en</string>
+
+    <string name="settings_credits">Creditos</string>
+</resources>

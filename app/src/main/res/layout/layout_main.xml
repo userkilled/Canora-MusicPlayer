@@ -56,14 +56,17 @@
                                      android:layout_height="match_parent"
                                      android:scaleType="fitXY"
                                      android:src="@drawable/main_btn_nc_tracks"
-                                     android:background="?attr/selectableItemBackgroundBorderless"/>
+                                     android:background="?attr/selectableItemBackgroundBorderless"
+                        />
                         <TextView android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
                                   android:text="@string/misc_tracks"
                                   android:textColor="?colorText"
                                   android:layout_marginBottom="5dp"
                                   android:layout_centerHorizontal="true"
-                                  android:layout_alignParentBottom="true"/>
+                                  android:layout_alignParentBottom="true"
+                                  android:maxLines="1"
+                        />
                     </RelativeLayout>
                     <RelativeLayout android:layout_width="70dp"
                                     android:layout_height="70dp"
@@ -80,7 +83,9 @@
                                   android:textColor="?colorText"
                                   android:layout_marginBottom="5dp"
                                   android:layout_centerHorizontal="true"
-                                  android:layout_alignParentBottom="true"/>
+                                  android:layout_alignParentBottom="true"
+                                  android:maxLines="1"
+                        />
                     </RelativeLayout>
                     <RelativeLayout android:layout_width="70dp"
                                     android:layout_height="70dp"
@@ -97,7 +102,9 @@
                                   android:textColor="?colorText"
                                   android:layout_marginBottom="5dp"
                                   android:layout_centerHorizontal="true"
-                                  android:layout_alignParentBottom="true"/>
+                                  android:layout_alignParentBottom="true"
+                                  android:maxLines="1"
+                        />
                     </RelativeLayout>
                     <RelativeLayout android:layout_width="70dp"
                                     android:layout_height="70dp"
@@ -114,7 +121,9 @@
                                   android:textColor="?colorText"
                                   android:layout_marginBottom="5dp"
                                   android:layout_centerHorizontal="true"
-                                  android:layout_alignParentBottom="true"/>
+                                  android:layout_alignParentBottom="true"
+                                  android:maxLines="1"
+                        />
                     </RelativeLayout>
                     <RelativeLayout android:layout_width="70dp"
                                     android:layout_height="70dp">
@@ -130,7 +139,9 @@
                                   android:textColor="?colorText"
                                   android:layout_marginBottom="5dp"
                                   android:layout_centerHorizontal="true"
-                                  android:layout_alignParentBottom="true"/>
+                                  android:layout_alignParentBottom="true"
+                                  android:maxLines="1"
+                        />
                     </RelativeLayout>
                 </LinearLayout>
             </HorizontalScrollView>
