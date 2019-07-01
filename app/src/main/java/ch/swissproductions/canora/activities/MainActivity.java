@@ -1636,6 +1636,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public static void toggleKeyboardView(Context context, View view, boolean b) {
+        if (view == null)
+            return;
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (b)
             imm.showSoftInput(view, 0);
