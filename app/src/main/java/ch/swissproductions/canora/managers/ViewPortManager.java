@@ -41,9 +41,9 @@ public class ViewPortManager {
         dataitemclick = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.v(LOG_TAG, "POSITION: " + position + " ID " + dm.dataout.get(position).id + " NAME " + dm.dataout.get(position).Title);
-                if (!dm.filesfound)
+                if (!dm.filesfound || dm.dataout.size() < 1)
                     return;
+                Log.v(LOG_TAG, "POSITION: " + position + " ID " + dm.dataout.get(position).id + " NAME " + dm.dataout.get(position).Title);
                 ImageButton btn = ma.findViewById(R.id.buttonPlay);
                 if (ma.serv != null) {
                     if (ma.serv.play(dm.dataout.get(position).id) == 0)
