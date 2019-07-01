@@ -1,9 +1,16 @@
-![API](https://img.shields.io/badge/API-21%2B-green.svg?style=flat)
-![License](https://img.shields.io/badge/license-Apache%202-green.svg)
-<p align=center>
+<div>
+<div align="right">
+  <img border="0" alt="API21+" src="https://img.shields.io/badge/API-21%2B-green.svg?style=flat" align="left">
+  <img border="0" alt="LICENSE_APACHE" src="https://img.shields.io/badge/license-Apache%202-green.svg" align="left">
+  <a href="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png">
+    <img border="0" alt="Get Canora Here" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="250" height="100">
+  </a>
+</div>
+<div align="center">
   <img src="https://github.com/ZoidbergZero/Canora-MusicPlayer/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="MainIcon"/>
   <h1>Canora Music Player</h1>
-</p>
+  </div>
+  </div>
 The Aim of this Project is to Provide a Lightweight Fast and Costumizable Music Playback Experience.<br>
 <br>
 
@@ -29,4 +36,3 @@ Available Soon for Free on the Play Store!
 
 <h1>Contributing:</h1>
 You can find a Contributers Guide <a href="https://github.com/ZoidbergZero/Canora-MediaPlayer/blob/master/Contributing.md">here</a>.
-
