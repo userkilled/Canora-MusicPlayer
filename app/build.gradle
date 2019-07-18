@@ -6,8 +6,8 @@ android {
         applicationId "ch.swissproductions.canora"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 3133
-        versionName "0.60"
+        versionCode 3134
+        versionName "0.62"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -30,4 +30,5 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.google.protobuf:protobuf-java:3.9.0-rc-1'
 }
