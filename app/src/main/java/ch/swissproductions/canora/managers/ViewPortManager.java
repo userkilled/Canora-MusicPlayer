@@ -24,9 +24,12 @@ import java.util.regex.Pattern;
 public class ViewPortManager {
     /* Manages the Display of DataSets */
 
-    public int state = Constants.ARRAYADAPT_STATE_DEFAULT;
+    public int state = Constants.ARRAYADAPT_STATE_DEFAULT;//State Eg. Item Selection or Default
 
-    public int subMenu;
+    public int subMenu; //Selected SubMenu, Corresponds to the Constants.DATA_SELECTOR Values
+
+    public String searchTerm = "";
+    public int searchBy;
 
     public ViewPortManager(MainActivity maPar, ListView viewPortPar, View controlsPar, DataManager plp) {
         viewPort = viewPortPar;
@@ -107,9 +110,6 @@ public class ViewPortManager {
             }
         };
     }
-
-    private AdapterView.OnItemClickListener submenuclick;
-    private AdapterView.OnItemClickListener dataitemclick;
 
     public void showSubmenu(int menu) {
         switch (menu) {
@@ -197,9 +197,10 @@ public class ViewPortManager {
         } else {
             viewPort.setOnItemClickListener(dataitemclick);
         }
+        if (datalistScrollPos != null) {
+            viewPort.setSelection(datalistScrollPos);
+        }
     }
-
-    private List<data_song> customList = new ArrayList<>();
 
     public void showCustom(List<data_song> in) {
         //Display Custom List of data_songs , Used in the Search Functionality
@@ -244,23 +245,30 @@ public class ViewPortManager {
         }
     }
 
-    public void showEmpty(int state) {
+    public void showEmpty(int SubMenu) {
         //Show Empty List before switching Content for smoother Transition
+        if (subMenu == Constants.DATA_SELECTOR_NONE)
+            datalistScrollPos = viewPort.getFirstVisiblePosition();
         viewPort.setAdapter(null);
-        switch (state) {
+        switch (SubMenu) {
             case Constants.DATA_SELECTOR_STATICPLAYLISTS_TRACKS:
+                subMenu = Constants.DATA_SELECTOR_NONE;
                 colorSelectedMenu(0);
                 break;
             case Constants.DATA_SELECTOR_PLAYLISTS:
+                subMenu = Constants.DATA_SELECTOR_PLAYLISTS;
                 colorSelectedMenu(1);
                 break;
             case Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS:
+                subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS;
                 colorSelectedMenu(2);
                 break;
             case Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS:
+                subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS;
                 colorSelectedMenu(3);
                 break;
             case Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES:
+                subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_GENRES;
                 colorSelectedMenu(4);
                 break;
         }
@@ -275,9 +283,6 @@ public class ViewPortManager {
         }
         viewPort.setSelection(pos);
     }
-
-    public String searchTerm = "";
-    public int searchBy;
 
     public void showFiltered(String term, int srb) {
         Log.v(LOG_TAG, "SHOWFILTERED");
@@ -423,6 +428,13 @@ public class ViewPortManager {
     private MainActivity ma;
 
     private String LOG_TAG = "VPM";
+
+    private AdapterView.OnItemClickListener submenuclick;
+    private AdapterView.OnItemClickListener dataitemclick;
+
+    private List<data_song> customList = new ArrayList<>();
+
+    private Integer datalistScrollPos;
 
     private static int safeLongToInt(long l) {
         if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {

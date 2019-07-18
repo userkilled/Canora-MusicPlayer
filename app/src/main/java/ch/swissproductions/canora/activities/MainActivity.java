@@ -1287,7 +1287,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         return "Complete";
                     }
                 }
-                vpm.subMenu = Constants.DATA_SELECTOR_NONE; //Needed so that the Actionbar is Correctly Setup after showEmpty
                 multiSelect(false);
                 runOnUiThread(new Runnable() {
                     //Clear the List Before heavy Loading Task for smoother Transition
@@ -1320,7 +1319,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         return "Complete";
                     }
                 }
-                vpm.subMenu = Constants.DATA_SELECTOR_PLAYLISTS;
                 multiSelect(false);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -1352,7 +1350,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         return "Complete";
                     }
                 }
-                vpm.subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_ARTISTS;
                 multiSelect(false);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -1385,7 +1382,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         return "Complete";
                     }
                 }
-                vpm.subMenu = Constants.DATA_SELECTOR_STATICPLAYLISTS_ALBUMS;
                 multiSelect(false);
                 runOnUiThread(new Runnable() {
                     @Override
