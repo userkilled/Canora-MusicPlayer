@@ -11,7 +11,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import ch.swissproductions.canora.data.*;
-import ch.swissproductions.canora.tools.ListSorter;
 import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.activities.MainActivity;
 import ch.swissproductions.canora.tools.PerformanceTimer;
@@ -658,10 +657,9 @@ public class DataManager {
     }
 
     private List<data_song> sortSongsByTitle(List<data_song> s) {
-        List<data_song> ret = new ArrayList<>();
-        ListSorter ls = new ListSorter();
+        List<data_song> ret = new ArrayList<>(s);
         try {
-            ret = ls.sort(gc, s, Constants.SORT_BYTITLE);
+            Collections.sort(ret,new TitleSorter());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -669,14 +667,28 @@ public class DataManager {
     }
 
     private List<data_song> sortSongsByArtist(List<data_song> s) {
-        List<data_song> ret = new ArrayList<>();
-        ListSorter ls = new ListSorter();
+        List<data_song> ret = new ArrayList<>(s);
         try {
-            ret = ls.sort(gc, s, Constants.SORT_BYARTIST);
+            Collections.sort(s,new ArtistSorter());
         } catch (Exception e) {
             e.printStackTrace();
         }
         return ret;
+    }
+
+    //Comparators
+    private class TitleSorter implements Comparator<data_song> {
+        @Override
+        public int compare(data_song f1, data_song f2) {
+            return f1.Title.toLowerCase().compareTo(f2.Title.toLowerCase());
+        }
+    }
+
+    private class ArtistSorter implements Comparator<data_song> {
+        @Override
+        public int compare(data_song o1, data_song o2) {
+            return o1.Artist.toLowerCase().compareTo(o2.Artist.toLowerCase());
+        }
     }
 
     private List<data_song> getSongsfromMediaStore() {
