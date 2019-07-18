@@ -27,3 +27,5 @@
   public static *** w(...);
   public static *** e(...);
 }
+
+-dontwarn sun.misc.Unsafe
