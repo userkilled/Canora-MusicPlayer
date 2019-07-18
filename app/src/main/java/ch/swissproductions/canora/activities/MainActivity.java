@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             sv = new SavedState();
             sv.index = getIntent().getStringExtra(Constants.PARAMETER_INDEX);
             sv.selector = Integer.parseInt(getIntent().getStringExtra(Constants.PARAMETER_SELECTOR));
-            Log.v(LOG_TAG,"SAVED STATE, INDEX: " + sv.index + " SEL: " + sv.selector);
+            Log.v(LOG_TAG, "SAVED STATE, INDEX: " + sv.index + " SEL: " + sv.selector);
         }
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -190,10 +190,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             dm.loadContentFromMediaStore();
             dm.sortContent(sortBy);
             serv.setContent(dm.dataout);
+            vpm.reload();
             if (isSearching)
                 vpm.showFiltered(searchTerm, searchBy);
-            vpm.showData();
-            dm.loadContentFromFiles();
+            dm.updateMediaStore();
             updateSongDisplay();
             handleProgressAnimation(serv.getDuration(), serv.getCurrentPosition());
             notifyAAandOM();
@@ -1695,7 +1695,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             serv.setContent(dm.dataout);
             vpm.showData();
-            dm.loadContentFromFiles();
+            dm.updateMediaStore();
 
             serv.setEqualizerPreset(Integer.parseInt(sc.getSetting(Constants.SETTING_EQUALIZERPRESET)));
 

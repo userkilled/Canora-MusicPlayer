@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.ListView;
 import ch.swissproductions.canora.data.*;
 import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.activities.MainActivity;
@@ -93,7 +94,7 @@ public class DataManager {
         lp.printStep(LOG_TAG, "LOADCONTENTFROMMS");
     }
 
-    public void loadContentFromFiles() {
+    public void updateMediaStore() {
         if (!loadtaskIsRunning) {
             lft = new MSRefreshTask();
             lft.execute();
@@ -343,17 +344,15 @@ public class DataManager {
         try {
             byte[] rdata = fsa.read();
             PlaylistsProtoBuff.Playlists lp = PlaylistsProtoBuff.Playlists.parseFrom(rdata);
-            for (PlaylistsProtoBuff.Playlist plist : lp.getPlaylistsList())
-            {
+            for (PlaylistsProtoBuff.Playlist plist : lp.getPlaylistsList()) {
                 List<data_song> songs = new ArrayList<>();
-                for (PlaylistsProtoBuff.PlaylistItem it : plist.getSongList())
-                {
+                for (PlaylistsProtoBuff.PlaylistItem it : plist.getSongList()) {
                     data_song tmp = new data_song();
                     tmp.file = new File(it.getPath());
                     songs.add(tmp);
                 }
-                data_playlist datapl = new data_playlist(plist.getName(),songs);
-                ret.put(plist.getName(),datapl);
+                data_playlist datapl = new data_playlist(plist.getName(), songs);
+                ret.put(plist.getName(), datapl);
             }
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
@@ -659,7 +658,7 @@ public class DataManager {
     private List<data_song> sortSongsByTitle(List<data_song> s) {
         List<data_song> ret = new ArrayList<>(s);
         try {
-            Collections.sort(ret,new TitleSorter());
+            Collections.sort(ret, new TitleSorter());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -669,7 +668,7 @@ public class DataManager {
     private List<data_song> sortSongsByArtist(List<data_song> s) {
         List<data_song> ret = new ArrayList<>(s);
         try {
-            Collections.sort(s,new ArtistSorter());
+            Collections.sort(s, new ArtistSorter());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -878,6 +877,7 @@ public class DataManager {
                             if (mainActivity.isSearching) {
                                 mainActivity.vpm.showFiltered(mainActivity.vpm.searchTerm, mainActivity.vpm.searchBy);
                             }
+
                         }
                     });
                 } catch (Exception e) {
