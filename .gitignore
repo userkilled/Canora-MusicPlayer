@@ -1,3 +1,4 @@
+#INTELLIJ
 *.iml
 .gradle
 /local.properties
@@ -8,3 +9,7 @@
 /build
 /captures
 .externalNativeBuild
+
+#MISC
+app/build
+app/release
