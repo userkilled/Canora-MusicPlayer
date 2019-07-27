@@ -91,5 +91,6 @@
 
     <string name="settings_credits">Credits</string>
 
-    <string name="misc_permissiondenied">You denied permission to read external storage, Canora wont be able to find audio files located on your SD card.</string>
+    <string name="misc_errorgeneric">Error</string>
+    <string name="misc_permissiondenied">You denied permission to read external storage, thus Canora cannot find your awesome songs. To use the App please grant the requested permission</string>
 </resources>

@@ -3,6 +3,7 @@ package ch.swissproductions.canora.activities;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.*;
 import android.content.pm.PackageManager;
@@ -513,7 +514,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 colorControlWidgets();
             } else {
                 Log.v(LOG_TAG, "PERM DENIED");
-                System.exit(1);
+                AlertDialog.Builder ab = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+                ab.setTitle(getString(R.string.misc_errorgeneric));
+                ab.setMessage(getString(R.string.misc_permissiondenied));
+                ab.setPositiveButton(getString(R.string.misc_ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        System.exit(1);
+                    }
+                });
+                AlertDialog ad = ab.create();
+                ad.show();
             }
             return;
         }
