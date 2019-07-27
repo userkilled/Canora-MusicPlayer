@@ -159,22 +159,22 @@
 
     <style name="AppTheme.Camo" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorViewPort">#59000000</item>
-        <item name="colorFrame">@null</item>
+        <item name="colorFrame">#000000</item>
         <item name="colorText">#ffffff</item>
         <item name="colorHighlight">#66ff66</item>
 
         <item name="colorDialogBackground">#1a1a1a</item>
-        <item name="colorDialogFrame">#000000</item>
+        <item name="colorDialogFrame">?colorFrame</item>
         <item name="colorDialogText">?colorText</item>
         <item name="colorDialogHighlight">?colorHighlight</item>
 
-        <item name="colorPlayerControlsBackground">#000000</item>
+        <item name="colorPlayerControlsBackground">?colorFrame</item>
 
         <item name="colorSubMenuBackground">#80000000</item>
 
-        <item name="colorBorder">#000000</item>
+        <item name="colorBorder">?colorFrame</item>
 
-        <item name="colorToolbar">#000000</item>
+        <item name="colorToolbar">?colorFrame</item>
 
         <item name="colorSnackbarText">#ffffff</item>
         <item name="colorSnackbarBackground">#262626</item>
@@ -199,12 +199,12 @@
 
     <style name="AppTheme.Neon" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorViewPort">#80000000</item>
-        <item name="colorFrame">@null</item>
+        <item name="colorFrame">#000000</item>
         <item name="colorText">#ffffff</item>
         <item name="colorHighlight">#74ee15</item>
 
         <item name="colorDialogBackground">#1a1a1a</item>
-        <item name="colorDialogFrame">#000000</item>
+        <item name="colorDialogFrame">?colorFrame</item>
         <item name="colorDialogText">?colorText</item>
         <item name="colorDialogHighlight">?colorHighlight</item>
 
@@ -212,9 +212,9 @@
 
         <item name="colorSubMenuBackground">#80000000</item>
 
-        <item name="colorBorder">#000000</item>
+        <item name="colorBorder">?colorFrame</item>
 
-        <item name="colorToolbar">#000000</item>
+        <item name="colorToolbar">?colorFrame</item>
 
         <item name="colorSnackbarText">#ffffff</item>
         <item name="colorSnackbarBackground">#262626</item>

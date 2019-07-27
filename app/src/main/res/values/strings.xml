@@ -90,4 +90,6 @@
     <string name="misc_stringnotfound">not found in</string>
 
     <string name="settings_credits">Credits</string>
+
+    <string name="misc_permissiondenied">You denied permission to read external storage, Canora wont be able to find audio files located on your SD card.</string>
 </resources>

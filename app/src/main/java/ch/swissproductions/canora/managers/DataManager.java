@@ -356,6 +356,8 @@ public class DataManager {
             }
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
+            ret.clear();
+            writePlaylists(ret);
         }
         return ret;
     }

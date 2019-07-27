@@ -30,6 +30,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import ch.swissproductions.canora.*;
+import ch.swissproductions.canora.application.MainApplication;
 import ch.swissproductions.canora.data.Constants;
 import ch.swissproductions.canora.data.data_playlist;
 import ch.swissproductions.canora.data.data_song;
@@ -72,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), sv);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
+                MainApplication ma = (MainApplication) getApplicationContext();
+                ma.selectedThemeID = thm.getThemeResourceID();
                 setContentView(R.layout.layout_main);
 
                 try {
@@ -108,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), sv);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
+                MainApplication ma = (MainApplication) getApplicationContext();
+                ma.selectedThemeID = thm.getThemeResourceID();
                 setContentView(R.layout.layout_main);
 
                 try {
@@ -150,8 +155,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (brcv != null) {
             unregisterReceiver(brcv);
         }
-        if (notificationManager != null)
-            notificationManager.cancelAll();
         if (dm != null)
             dm.cancelTasks();
     }
@@ -480,6 +483,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 dm = new DataManager(getApplicationContext(), this, Integer.parseInt(sc.getSetting(Constants.SETTING_SORTBY)), sv);
                 thm = new ThemeManager(sc);
                 setTheme(thm.getThemeResourceID());
+                MainApplication ma = (MainApplication) getApplicationContext();
+                ma.selectedThemeID = thm.getThemeResourceID();
                 setContentView(R.layout.layout_main);
 
                 try {
@@ -555,8 +560,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public MusicPlayerService serv;
 
     private BroadcastReceiver brcv;
-
-    private NotificationManagerCompat notificationManager;
 
     /* Contains all the Song Data */
     public DataManager dm;
@@ -1680,6 +1683,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             serv = ((MusicPlayerService.LocalBinder) service).getService();
+            serv.showNotification();
             getSettings();
             dm.loadContentFromMediaStore();
             dm.sortContent(sortBy);

@@ -152,7 +152,6 @@
         <RelativeLayout android:id="@+id/songdisplay"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="?attr/colorFrame"
                         android:layout_above="@+id/PlayerControls">
             <ListView android:id="@+id/mainViewport"
                       android:layout_width="match_parent"

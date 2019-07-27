@@ -1,21 +1,28 @@
 package ch.swissproductions.canora.service;
 
+import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.app.*;
 import android.content.*;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Binder;
-import android.os.Bundle;
-import android.os.IBinder;
+import android.os.*;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import android.util.TypedValue;
+import android.view.animation.LinearInterpolator;
+import android.widget.RemoteViews;
 import ch.swissproductions.canora.activities.MainActivity;
+import ch.swissproductions.canora.application.MainApplication;
 import ch.swissproductions.canora.tools.MediaPlayerEqualizer;
 import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.data.data_song;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,7 +39,6 @@ public class MusicPlayerService extends Service {
         exec = Executors.newSingleThreadExecutor();
         isReleased = true;
         nfm = NotificationManagerCompat.from(this);
-        showNotification();
         mpq = new MediaPlayerEqualizer();
     }
 
@@ -116,8 +122,6 @@ public class MusicPlayerService extends Service {
         }
         return false;
     }
-
-    private int position; //Position of Media Player in Miliseconds
 
     public boolean pause() {
         Log.v(LOG_TAG, "Pause");
@@ -269,6 +273,14 @@ public class MusicPlayerService extends Service {
 
     private ExecutorService exec;
 
+    private Context T = this;
+
+    private ValueAnimator notification_animator;
+    private Long notification_animator_starttime;
+    private Long notification_animator_delay = (long) 500; //The Notification gets refreshed every "notification_animator_delay" milliseconds by the value animator.
+
+    private int position; //Position of Media Player in Miliseconds
+
     //Binder
     private final IBinder mBinder = new LocalBinder();
 
@@ -364,76 +376,280 @@ public class MusicPlayerService extends Service {
     }
 
     //Notification Widget
-    private void showNotification() {
-        final Context t = this;
-        class aTask extends AsyncTask<String, String, String> {
-            @Override
-            protected String doInBackground(String... strings) {
-                Map<String, String> md = new HashMap<>();
-                if (plm.currentSong != null) {
-                    md.put("TITLE", plm.currentSong.Title);
-                    md.put("ARTIST", plm.currentSong.Artist);
-                } else {
-                    md.put("TITLE", "");
-                    md.put("ARTIST", "");
-                }
-                Notification.Builder nb = new Notification.Builder(t)
-                        .setShowWhen(false)
-                        .setStyle(new Notification.MediaStyle()
-                                .setShowActionsInCompactView(0, 1, 2))
-                        .setColor(0x020202);
-                //TODO: Beautify Notification(Large Icon, Background Color etc.)
-                /*if (getCurrentSong() == null) {
-                    nb.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mainicon));
-                } else if (getCurrentSong().icon != null) {
-                    nb.setLargeIcon(getCurrentSong().icon);
-                } else {
-                    //SLOW
-                    MediaMetadataRetriever m = new MediaMetadataRetriever();
-                    m.setDataSource(getCurrentSong().file.getAbsolutePath());
-                    byte[] b = m.getEmbeddedPicture();
-                    if (b != null) {
-                        Bitmap icon = BitmapFactory.decodeByteArray(b, 0, b.length, null);
-                        nb.setLargeIcon(icon);
-                    } else {
-                        nb.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.mainicon));
-                    }
-                    //nb.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.mainicon));
-                }*/
-                nb.setSmallIcon(R.drawable.notification_smallicon)
-                        .setContentTitle(md.get("TITLE"))
-                        .setContentText(md.get("ARTIST"))
-                        .addAction(R.drawable.main_btnprev, "prev", retrievePlaybackAction(3));
-                if (!isReleased && player.isPlaying())
-                    nb.addAction(R.drawable.main_btnpause, "pause", retrievePlaybackAction(1));
-                else
-                    nb.addAction(R.drawable.main_btnplay, "play", retrievePlaybackAction(1));
-                nb.addAction(R.drawable.main_btnnext, "next", retrievePlaybackAction(2));
-                Intent resultIntent = new Intent(t, MainActivity.class);
-                resultIntent.setAction("android.intent.action.MAIN");
-                resultIntent.addCategory("android.intent.category.LAUNCHER");
-                PendingIntent resultPendingIntent = PendingIntent.getActivity(t, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                nb.setContentIntent(resultPendingIntent);
-                Intent oncloseIntent = new Intent(ACTION_QUIT);
-                PendingIntent onclosepi = PendingIntent.getBroadcast(t.getApplicationContext(), 0, oncloseIntent, 0);
-                nb.setDeleteIntent(onclosepi);
-                NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                String NOTIFICATION_CHANNEL_ID = "420";
-
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    int importance = NotificationManager.IMPORTANCE_LOW;
-                    NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
-
-                    nb.setChannelId(NOTIFICATION_CHANNEL_ID);
-                    mNotifyMgr.createNotificationChannel(notificationChannel);
-                }
-
-                Notification noti = nb.build();
-                nfm.notify(notificationID, noti);
-                return "COMPLETE";
+    @TargetApi(24)
+    public void showNotification() {
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            //Fallback to old Notification because Custom Layout gets Squashed below API 24 and setCustomContentView is >24 only
+            Map<String, String> md = new HashMap<>();
+            if (plm.currentSong != null) {
+                md.put("TITLE", plm.currentSong.Title);
+                md.put("ARTIST", plm.currentSong.Artist);
+            } else {
+                md.put("TITLE", "");
+                md.put("ARTIST", "");
             }
+            Notification.Builder nb = new Notification.Builder(T)
+                    .setShowWhen(false)
+                    .setStyle(new Notification.MediaStyle().setShowActionsInCompactView(0, 1, 2));
+            nb.setSmallIcon(R.drawable.notification_smallicon)
+                    .setContentTitle(md.get("TITLE"))
+                    .setContentText(md.get("ARTIST"))
+                    .addAction(R.drawable.main_btnprev, "prev", retrievePlaybackAction(3));
+            if (!isReleased && player.isPlaying())
+                nb.addAction(R.drawable.main_btnpause, "pause", retrievePlaybackAction(1));
+            else
+                nb.addAction(R.drawable.main_btnplay, "play", retrievePlaybackAction(1));
+            nb.addAction(R.drawable.main_btnnext, "next", retrievePlaybackAction(2));
+            Intent resultIntent = new Intent(T, MainActivity.class);
+            resultIntent.setAction("android.intent.action.MAIN");
+            resultIntent.addCategory("android.intent.category.LAUNCHER");
+            PendingIntent resultPendingIntent = PendingIntent.getActivity(T, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            nb.setContentIntent(resultPendingIntent);
+            Intent oncloseIntent = new Intent(ACTION_QUIT);
+            PendingIntent onclosepi = PendingIntent.getBroadcast(getApplicationContext(), 0, oncloseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            nb.setDeleteIntent(onclosepi);
+
+            Notification noti = nb.build();
+            nfm.notify(notificationID, noti);
+        } else {
+            //Fancy Custom Notification
+            MainApplication mp = (MainApplication) getApplicationContext();
+            setTheme(mp.selectedThemeID);
+
+            final RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.custom_notification_musicplayer);
+
+            contentView.setTextViewText(R.id.title, getString(R.string.app_name));
+            contentView.setTextColor(R.id.title, getColorFromAtt(R.attr.colorText));
+
+            Map<String, String> md = new HashMap<>();
+            if (plm.currentSong != null) {
+                md.put("TITLE", plm.currentSong.Title);
+                md.put("ARTIST", plm.currentSong.Artist);
+            } else {
+                md.put("TITLE", "");
+                md.put("ARTIST", "");
+            }
+
+            contentView.setTextViewText(R.id.song_title, md.get("TITLE"));
+            contentView.setTextColor(R.id.song_title, getColorFromAtt(R.attr.colorText));
+
+            contentView.setTextViewText(R.id.song_interpret, md.get("ARTIST"));
+            contentView.setTextColor(R.id.song_interpret, getColorFromAtt(R.attr.colorText));
+
+            contentView.setInt(R.id.background, "setBackgroundColor", getColorFromAtt(R.attr.colorFrame));
+
+            contentView.setInt(R.id.icon, "setColorFilter", getColorFromAtt(R.attr.colorText));
+
+            if (!isReleased && player.isPlaying()) {
+                contentView.setImageViewResource(R.id.btnPlayimg, R.drawable.main_btnpause);
+            } else {
+                contentView.setImageViewResource(R.id.btnPlayimg, R.drawable.main_btnplay);
+            }
+
+            contentView.setInt(R.id.btnPlayimg, "setColorFilter", getColorFromAtt(R.attr.colorText));
+            contentView.setInt(R.id.btnPrevimg, "setColorFilter", getColorFromAtt(R.attr.colorText));
+            contentView.setInt(R.id.btnNextimg, "setColorFilter", getColorFromAtt(R.attr.colorText));
+
+            contentView.setOnClickPendingIntent(R.id.btnPlay, retrievePlaybackAction(1));
+            contentView.setOnClickPendingIntent(R.id.btnPrev, retrievePlaybackAction(3));
+            contentView.setOnClickPendingIntent(R.id.btnNext, retrievePlaybackAction(2));
+
+            Intent resultIntent = new Intent(T, MainActivity.class);
+            resultIntent.setAction("android.intent.action.MAIN");
+            resultIntent.addCategory("android.intent.category.LAUNCHER");
+            PendingIntent resultPendingIntent = PendingIntent.getActivity(T, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            contentView.setOnClickPendingIntent(R.id.btnOpen, resultPendingIntent);
+
+            if (plm.currentSong != null && !isReleased && player.isPlaying()) {
+                if (notification_animator != null)
+                    notification_animator.cancel();
+                notification_animator = ValueAnimator.ofInt(0, player.getDuration());
+                notification_animator.setDuration(player.getDuration());
+                notification_animator.setCurrentPlayTime(player.getCurrentPosition());
+                notification_animator.setInterpolator(new LinearInterpolator());
+                notification_animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        if (notification_animator_starttime == null || System.currentTimeMillis() - notification_animator_starttime > notification_animator_delay) {
+                            notification_animator_starttime = System.currentTimeMillis();
+                        } else {
+                            return;
+                        }
+                        MainApplication mp = (MainApplication) getApplicationContext();
+                        setTheme(mp.selectedThemeID);
+
+                        final RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.custom_notification_musicplayer);
+
+                        contentView.setTextViewText(R.id.title, getString(R.string.app_name));
+                        contentView.setTextColor(R.id.title, getColorFromAtt(R.attr.colorText));
+
+                        Map<String, String> md = new HashMap<>();
+                        if (plm.currentSong != null) {
+                            md.put("TITLE", plm.currentSong.Title);
+                            md.put("ARTIST", plm.currentSong.Artist);
+                        } else {
+                            md.put("TITLE", "");
+                            md.put("ARTIST", "");
+                        }
+
+                        contentView.setTextViewText(R.id.song_title, md.get("TITLE"));
+                        contentView.setTextColor(R.id.song_title, getColorFromAtt(R.attr.colorText));
+
+                        contentView.setTextViewText(R.id.song_interpret, md.get("ARTIST"));
+                        contentView.setTextColor(R.id.song_interpret, getColorFromAtt(R.attr.colorText));
+
+                        contentView.setInt(R.id.background, "setBackgroundColor", getColorFromAtt(R.attr.colorFrame));
+
+                        contentView.setInt(R.id.icon, "setColorFilter", getColorFromAtt(R.attr.colorText));
+
+                        if (!isReleased && player.isPlaying()) {
+                            contentView.setImageViewResource(R.id.btnPlayimg, R.drawable.main_btnpause);
+                        } else {
+                            contentView.setImageViewResource(R.id.btnPlayimg, R.drawable.main_btnplay);
+                        }
+
+                        contentView.setInt(R.id.btnPlayimg, "setColorFilter", getColorFromAtt(R.attr.colorText));
+                        contentView.setInt(R.id.btnPrevimg, "setColorFilter", getColorFromAtt(R.attr.colorText));
+                        contentView.setInt(R.id.btnNextimg, "setColorFilter", getColorFromAtt(R.attr.colorText));
+
+                        contentView.setOnClickPendingIntent(R.id.btnPlay, retrievePlaybackAction(1));
+                        contentView.setOnClickPendingIntent(R.id.btnPrev, retrievePlaybackAction(3));
+                        contentView.setOnClickPendingIntent(R.id.btnNext, retrievePlaybackAction(2));
+
+                        Intent resultIntent = new Intent(T, MainActivity.class);
+                        resultIntent.setAction("android.intent.action.MAIN");
+                        resultIntent.addCategory("android.intent.category.LAUNCHER");
+                        PendingIntent resultPendingIntent = PendingIntent.getActivity(T, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        contentView.setOnClickPendingIntent(R.id.btnOpen, resultPendingIntent);
+
+                        contentView.setProgressBar(R.id.progbar, (int) animation.getDuration(), (int) animation.getCurrentPlayTime(), false);
+
+                        //Progressbar Color Start
+                        Method setTintMethod = null;
+                        try {
+                            setTintMethod = RemoteViews.class.getMethod("setProgressTintList", int.class, ColorStateList.class);
+                        } catch (SecurityException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchMethodException e) {
+                            e.printStackTrace();
+                        }
+                        if (setTintMethod != null) {
+                            try {
+                                setTintMethod.invoke(contentView, R.id.progbar, ColorStateList.valueOf(getColorFromAtt(R.attr.colorHighlight)));
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            } catch (InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        //Progressbar Color End
+
+                        Notification.Builder mBuilder = new Notification.Builder(T);//TODO: DEPRECATED NOTIFICATION BUILDER
+                        mBuilder.setSmallIcon(R.drawable.notification_smallicon);
+
+                        mBuilder.setCustomContentView(contentView);
+
+                        mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
+
+                        Intent oncloseIntent = new Intent(ACTION_QUIT);
+                        PendingIntent onclosepi = PendingIntent.getBroadcast(getApplicationContext(), 0, oncloseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        mBuilder.setDeleteIntent(onclosepi);
+
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                            String NOTIFICATION_CHANNEL_ID = "8191023875";
+                            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "CANORA_NOTIFICATION_CHANNEL", importance);
+                            mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);
+                            mNotifyMgr.createNotificationChannel(notificationChannel);
+                        }
+
+                        Notification notification = mBuilder.build();
+                        nfm.notify(1, notification);
+                    }
+                });
+                notification_animator.start();
+            } else if (plm.currentSong != null && !isReleased && !player.isPlaying()) {
+                if (notification_animator != null)
+                    notification_animator.cancel();
+                contentView.setProgressBar(R.id.progbar, player.getDuration(), player.getCurrentPosition(), false);
+
+                //Progressbar Color Start
+                Method setTintMethod = null;
+                try {
+                    setTintMethod = RemoteViews.class.getMethod("setProgressTintList", int.class, ColorStateList.class);
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+                if (setTintMethod != null) {
+                    try {
+                        setTintMethod.invoke(contentView, R.id.progbar, ColorStateList.valueOf(getColorFromAtt(R.attr.colorHighlight)));
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //Progressbar Color End
+
+            } else {
+                if (notification_animator != null)
+                    notification_animator.cancel();
+                contentView.setProgressBar(R.id.progbar, 1, 1, false);
+
+                //Progressbar Color Start
+                Method setTintMethod = null;
+                try {
+                    setTintMethod = RemoteViews.class.getMethod("setProgressTintList", int.class, ColorStateList.class);
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+                if (setTintMethod != null) {
+                    try {
+                        setTintMethod.invoke(contentView, R.id.progbar, ColorStateList.valueOf(getColorFromAtt(R.attr.colorHighlight)));
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //Progressbar Color End
+            }
+
+            Notification.Builder mBuilder = new Notification.Builder(T);
+            mBuilder.setSmallIcon(R.drawable.notification_smallicon);
+
+            mBuilder.setCustomContentView(contentView);
+
+            mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
+
+            Intent oncloseIntent = new Intent(ACTION_QUIT);
+            PendingIntent onclosepi = PendingIntent.getBroadcast(getApplicationContext(), 0, oncloseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.setDeleteIntent(onclosepi);
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                NotificationManager mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                String NOTIFICATION_CHANNEL_ID = "8191023875";
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "CANORA_NOTIFICATION_CHANNEL", importance);
+                mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);
+                mNotifyMgr.createNotificationChannel(notificationChannel);
+            }
+
+            Notification notification = mBuilder.build();
+            nfm.notify(1, notification);
         }
-        new aTask().executeOnExecutor(exec);
+    }
+
+    public int getColorFromAtt(int v) {
+        TypedValue tv = new TypedValue();
+        Resources.Theme theme = getTheme();
+        theme.resolveAttribute(v, tv, true);
+        return tv.data;
     }
 
     private PendingIntent retrievePlaybackAction(int which) {

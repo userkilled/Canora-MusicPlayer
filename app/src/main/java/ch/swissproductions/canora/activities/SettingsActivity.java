@@ -17,6 +17,7 @@ import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
+import ch.swissproductions.canora.application.MainApplication;
 import ch.swissproductions.canora.service.MusicPlayerService;
 import ch.swissproductions.canora.R;
 import ch.swissproductions.canora.managers.SettingsManager;
@@ -31,21 +32,25 @@ public class SettingsActivity extends AppCompatActivity {
 
     private MainActivity.SavedState sv;
 
+    private BroadcastReceiver brcv;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        registerReceiver();
         if (getIntent().getStringExtra(Constants.PARAMETER_SELECTOR) != null && getIntent().getStringExtra(Constants.PARAMETER_INDEX) != null) {
             sv = new MainActivity.SavedState();
             sv.index = getIntent().getStringExtra(Constants.PARAMETER_INDEX);
             sv.selector = Integer.parseInt(getIntent().getStringExtra(Constants.PARAMETER_SELECTOR));
-            Log.v(LOG_TAG,"SAVED STATE, INDEX: " + sv.index + " SEL: " + sv.selector);
+            Log.v(LOG_TAG, "SAVED STATE, INDEX: " + sv.index + " SEL: " + sv.selector);
         }
         doBindService();
         sc = new SettingsManager(this);
         thm = new ThemeManager(sc);
         setTheme(thm.getThemeResourceID());
+        MainApplication ma = (MainApplication) getApplicationContext();
+        ma.selectedThemeID = thm.getThemeResourceID();
         setContentView(R.layout.layout_settings);
-
         try {
             RelativeLayout mpt = findViewById(R.id.root);
             if (mpt.getBackground() instanceof AnimationDrawable) {
@@ -73,7 +78,7 @@ public class SettingsActivity extends AppCompatActivity {
             case android.R.id.home:
                 Intent t = new Intent(this, MainActivity.class);
                 t.putExtra(Constants.PARAMETER_INDEX, sv.index);
-                t.putExtra(Constants.PARAMETER_SELECTOR,"" + sv.selector);
+                t.putExtra(Constants.PARAMETER_SELECTOR, "" + sv.selector);
                 startActivity(t);
                 finish();
                 return true;
@@ -86,7 +91,7 @@ public class SettingsActivity extends AppCompatActivity {
     public void onBackPressed() {
         Intent t = new Intent(this, MainActivity.class);
         t.putExtra(Constants.PARAMETER_INDEX, sv.index);
-        t.putExtra(Constants.PARAMETER_SELECTOR,"" + sv.selector);
+        t.putExtra(Constants.PARAMETER_SELECTOR, "" + sv.selector);
         startActivity(t);
         finish();
     }
@@ -115,6 +120,22 @@ public class SettingsActivity extends AppCompatActivity {
             serv = null;
         }
     };
+
+    private void registerReceiver() {
+        brcv = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch (intent.getAction()) {
+                    case Constants.ACTION_QUIT:
+                        finish();
+                        break;
+                }
+            }
+        };
+        IntentFilter flt = new IntentFilter();
+        flt.addAction(Constants.ACTION_QUIT);
+        registerReceiver(brcv, flt);
+    }
 
     private void setupActionBar() {
         android.support.v7.widget.Toolbar tool = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar_settings);
@@ -166,6 +187,10 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 if (thm.request(arg2)) {
+                    setTheme(thm.getThemeResourceID());
+                    MainApplication ma = (MainApplication) getApplicationContext();
+                    ma.selectedThemeID = thm.getThemeResourceID();
+                    serv.showNotification();
                     recreate();
                 }
             }
