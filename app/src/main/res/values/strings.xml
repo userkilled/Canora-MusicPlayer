@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Canora</string>
     <!-- Dialogues -->
     <string name="dialog_file_deletefrom_t1">Do you really want to delete</string>
@@ -91,6 +91,6 @@
 
     <string name="settings_credits">Credits</string>
 
-    <string name="misc_errorgeneric">Error</string>
-    <string name="misc_permissiondenied">You denied permission to read external storage, thus Canora cannot find your awesome songs. To use the App please grant the requested permission</string>
+    <string name="misc_errorgeneric" tools:ignore="MissingTranslation">Error</string>
+    <string name="misc_permissiondenied" tools:ignore="MissingTranslation">You denied permission to read external storage, thus Canora cannot find your awesome songs. To use the App please grant the requested permission</string>
 </resources>
