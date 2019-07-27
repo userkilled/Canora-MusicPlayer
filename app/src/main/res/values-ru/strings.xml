@@ -4,20 +4,20 @@
 --><string name="app_name">Canora</string>
     
     <string name="dialog_file_deletefrom_t1">Вы действительно хотите удалить</string>
-    <string name="dialog_file_deletefrom_t2">Файлы из плейлиста?</string>
-    <string name="dialog_file_deletefrom_title">Удалить файлы из плейлиста</string>
+    <string name="dialog_file_deletefrom_t2">файлы из плейлиста?</string>
+    <string name="dialog_file_deletefrom_title">Удалить файлы из плейлиста?</string>
     <string name="dialog_file_info_title">Информация о файле</string>
-    <string name="dialog_file_info_t1">Путь файла</string>
+    <string name="dialog_file_info_t1">Путь до файла</string>
     <string name="dialog_playlist_delete_t1">Вы действительно хотите удалить плейлист?</string>
     <string name="dialog_playlist_delete_title">Удалить плейлист</string>
     <string name="dialog_playlist_create_title">Создать плейлист</string>
     <string name="dialog_playlist_edit_title">Редактировать плейлист</string>
-    <string name="dialog_createpl_nameph">название</string>
-    <string name="dialog_settings_title">настройки</string>
+    <string name="dialog_createpl_nameph">Название</string>
+    <string name="dialog_settings_title">Настройки</string>
     <string name="dialog_settings_t1">Внутренний объем</string>
     <string name="dialog_sortby_title">Сортировать по</string>
     <string name="dialog_searchby_title">Искать по</string>
-    <string name="dialog_exit_ays">Вы действительно хотите покинуть Канору?</string>
+    <string name="dialog_exit_ays">Вы действительно хотите покинуть Canora?</string>
 
     
     <string name="menu_listitem_select">Выбрать</string>
@@ -25,12 +25,12 @@
     <string name="menu_listitem_delfrompl">Удалить из плейлиста</string>
 
     <string name="menu_options_delpl">Удалить плейлист</string>
-    <string name="menu_options_editpl">редактировать</string>
+    <string name="menu_options_editpl">Редактировать</string>
     <string name="menu_options_search">Поиск</string>
-    <string name="menu_options_settings">настройки</string>
+    <string name="menu_options_settings">Настройки</string>
     <string name="menu_options_sort">Сортировать</string>
     <string name="menu_options_playlists">Плейлисты</string>
-    <string name="menu_options_addtoplaylist">добавить в</string>
+    <string name="menu_options_addtoplaylist">Добавить в</string>
     <string name="menu_options_newplaylist">Новый плейлист</string>
     <string name="menu_options_select">Выбрать</string>
     <string name="menu_options_selectAll">Выбрать все</string>
@@ -48,20 +48,20 @@
     <string name="controls_by">от</string>
 
     <string name="misc_ok">Хорошо</string>
-    <string name="misc_back">назад</string>
-    <string name="misc_yes">да</string>
-    <string name="misc_no">нет</string>
+    <string name="misc_back">Назад</string>
+    <string name="misc_yes">Да</string>
+    <string name="misc_no">Нет</string>
     <string name="misc_minimize">Минимизировать</string>
-    <string name="misc_exit">Выход из Каноры</string>
+    <string name="misc_exit">Выход из Canora</string>
 
     <string name="misc_title">заглавие</string>
-    <string name="misc_artist">художник</string>
+    <string name="misc_artist">исполнитель</string>
     <string name="misc_both">И то и другое</string>
     <string name="misc_unknown">неизвестный</string>
 
     <string name="misc_tracks">Дорожки</string>
     <string name="misc_albums">Альбомы</string>
-    <string name="misc_artists">Художники</string>
+    <string name="misc_artists">Исполнители</string>
     <string name="misc_genres">Жанры</string>
     <string name="misc_playlists">Плейлисты</string>
 
@@ -70,15 +70,15 @@
 
     <string name="misc_allfiles">Все файлы</string>
     <string name="misc_init">Время инициализации</string>
-    <string name="misc_founditems">Всего найдено предметов</string>
+    <string name="misc_founditems">Всего файлов найдено</string>
     <string name="misc_createpl">Создан плейлист</string>
-    <string name="misc_addedto">Элементы добавлены в</string>
-    <string name="misc_removed">Предметы удалены</string>
+    <string name="misc_addedto">Файлы добавлены в</string>
+    <string name="misc_removed">Файлы удалены</string>
     <string name="misc_nofilesfound">На этом устройстве не найдены аудиофайлы</string>
 
     <string name="misc_delmultitle">Удалить плейлисты</string>
     <string name="misc_delmul1">Вы действительно хотите удалить</string>
-    <string name="misc_delmul2">Плейлисты?</string>
+    <string name="misc_delmul2">плейлисты?</string>
 
     <string name="misc_playlistexistsp1">Плейлист с именем</string>
     <string name="misc_playlistexistsp2">Уже существует</string>
