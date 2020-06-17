@@ -1,5 +1,5 @@
-<h0>
-(This fork was created only to transfer to Russian.)
+<h0>(This fork was created only to transfer to Russian.)
+
 </h0>
 <div>
 <div align="right">
